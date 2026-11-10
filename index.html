@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Minecraft AI Mod Builder — An AI-powered IDE for creating Minecraft Java mods with deepseek-flash LLM assistance, pixel-art texture painting, and NeoForge integration.">
+    <title>Minecraft AI Mod Builder — Build Mods with AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">🧬</div>
+                <span>Minecraft AI Mod Builder</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#tech">Tech</a>
+                <a href="#how">How It Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#download" class="btn btn-primary nav-cta">Download Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-badge">
+                <span class="pulse">●</span>
+                Live Demo • DeepSeek Flash • NeoForge 21.1.265
+            </div>
+            <h1>
+                Build Minecraft Mods <br>
+                <span class="gradient-text">Powered by AI</span>
+            </h1>
+            <p>
+                An intelligent IDE that scaffolds, generates, and builds Minecraft Java mods
+                using the DeepSeek LLM. With pixel-art texture painting, NeoForge integration,
+                and a VS Code–style dark UI.
+            </p>
+            <div class="hero-cta">
+                <a href="#pricing" class="btn btn-primary">Get Started Free</a>
+                <a href="#how" class="btn btn-secondary">See How It Works</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><div class="label">API Calls Used</div><div class="value">~110</div><div class="sub">~2.2M tokens</div></div>
+                <div class="stat"><div class="label">Time Saved</div><div class="value">~4+ hours</div><div class="sub">per mod scaffold</div></div>
+                <div class="stat"><div class="label">Total Cost</div><div class="value">~$1.09</div><div class="sub">as of today</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Features</h2>
+                <p>Everything you need to build professional Minecraft mods, from scaffold to release.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">🤖</div><h3>AI Code Generation</h3><p>DeepSeek-flash generates complete mod code, event handlers, and mixin classes with full type safety.</p></div>
+                <div class="feature-card"><div class="feature-icon">🎨</div><h3>Pixel Art Engine</h3><p>Built-in pixel-art texture painter with skin atlas generation and reference image guidance.</p></div>
+                <div class="feature-card"><div class="feature-icon">⚙️</div><h3>MDK Installer</h3><p>Automatically downloads and sets up the official Minecraft Dev Kit for your target version.</p></div>
+                <div class="feature-card"><div class="feature-icon">🔧</div><h3>JDK Provisioning</h3><p>Auto-detects or provisions a compatible JDK. Auto-verify and auto-fix for smooth builds.</p></div>
+                <div class="feature-card"><div class="feature-icon">📦</div><h3>Asset Manifest</h3><p>Generates proper asset_manifest.json with model definitions, textures, and language pack entries.</p></div>
+                <div class="feature-card"><div class="feature-icon">📋</div><h3>Compiler Diagnostics</h3><p>Real-time error extraction, diff-based edit suggestions, and incremental compilation support.</p></div>
+                <div class="feature-card"><div class="feature-icon">💰</div><h3>Usage Tracking</h3><p>Track your API token usage and costs in real-time. Know exactly what you're spending.</p></div>
+                <div class="feature-card"><div class="feature-icon">📚</div><h3>Version Catalog</h3><p>Browse available Minecraft/loader versions. Filter by snapshot or stable releases.</p></div>
+                <div class="feature-card"><div class="feature-icon">📂</div><h3>Session History</h3><p>Save and restore full project sessions. Never lose your work in progress.</p></div>
+                <div class="feature-card"><div class="feature-icon">🖼️</div><h3>Glass UI Theme</h3><p>Beautiful dark theme with optional Mica/Acrylic blur for a native Windows feel.</p></div>
+                <div class="feature-card"><div class="feature-icon">🖥️</div><h3>Dual-UI Support</h3><p>Choose between Tkinter (native) or PyQt6 (Mica blur) frontends. Both share the same backend.</p></div>
+                <div class="feature-card"><div class="feature-icon">🔍</div><h3>Project Detection</h3><p>Auto-detects existing mods and suggests compatible toolchain versions.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section tech-stack" id="tech">
+        <div class="container">
+            <div class="section-header">
+                <h2>Under the Hood</h2>
+                <p>Built with modern, accessible tools. Runs on Windows, macOS, and Linux.</p>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-item"><div class="icon">🐍</div><h4>Python</h4><p>3.10+</p></div>
+                <div class="tech-item"><div class="icon">🖥️</div><h4>CustomTkinter</h4><p>Dark GUI</p></div>
+                <div class="tech-item"><div class="icon">⚡</div><h4>PyQt6</h4><p>Qt Frontend</p></div>
+                <div class="tech-item"><div class="icon">🔮</div><h4>DeepSeek</h4><p>Flash LLM</p></div>
+                <div class="tech-item"><div class="icon">🔧</div><h4>NeoForge</h4><p>21.1.265</p></div>
+                <div class="tech-item"><div class="icon">⚙️</div><h4>Minecraft</h4><p>1.21.1</p></div>
+                <div class="tech-item"><div class="icon">🖼️</div><h4>Pillow</h4><p>Images</p></div>
+                <div class="tech-item"><div class="icon">📦</div><h4>OpenAPI</h4><p>SDK</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section how-it-works" id="how">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>From empty folder to running mod in minutes.</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Point to Your Workspace</h3>
+                        <p>Set your workspace directory. The IDE loads your config from <code>settings.json</code> and reads your project settings.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Configure Your Project</h3>
+                        <p>Choose your loader (NeoForge, Fabric, etc.), Minecraft version, and mod ID. The system fetches the official MDK.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Chat with the AI Assistant</h3>
+                        <p>Describe your mod in plain English. DeepSeek scaffolds the project, generates Java classes, mixins, and asset manifests.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Paint Textures & Assets</h3>
+                        <p>Use the pixel-art painter to generate block/item textures with automatic atlas generation and registration.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Build & Run</h3>
+                        <p>The IDE runs the MDK build process, handles JDK provisioning, and launches into the dev environment with one click.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Choose Your Plan</h2>
+                <p>Unlock the download. All plans include full source code access.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card" onclick="openModal('free')">
+                    <div class="badge badge-free">Free</div>
+                    <div class="tier-name">Community</div>
+                    <div class="tier-price">$0<span>/mo</span></div>
+                    <div class="tier-description">Perfect for learning and hobby projects.</div>
+                    <ul class="features">
+                        <li>Full source code access</li>
+                        <li>Community support</li>
+                        <li>Standard features</li>
+                        <li>MIT License</li>
+                        <li class="disabled">No priority support</li>
+                    </ul>
+                    <button class="btn btn-outline">Select Free</button>
+                </div>
+
+                <div class="pricing-card premium" onclick="openModal('pro')">
+                    <div class="badge badge-pro">Most Popular</div>
+                    <div class="tier-name">Pro</div>
+                    <div class="tier-price">$9<span>/mo</span></div>
+                    <div class="tier-description">For serious mod developers.</div>
+                    <ul class="features">
+                        <li>Everything in Free</li>
+                        <li>Priority support</li>
+                        <li>Early access to features</li>
+                        <li>Commercial use allowed</li>
+                        <li>Extended API rate limits</li>
+                    </ul>
+                    <button class="btn btn-primary">Select Pro</button>
+                </div>
+
+                <div class="pricing-card" onclick="openModal('studio')">
+                    <div class="badge badge-studio">Team</div>
+                    <div class="tier-name">Studio</div>
+                    <div class="tier-price">$29<span>/mo</span></div>
+                    <div class="tier-description">For teams and studios building mods together.</div>
+                    <ul class="features">
+                        <li>Everything in Pro</li>
+                        <li>Unlimited team seats</li>
+                        <li>Shared workspaces</li>
+                        <li>Team billing & analytics</li>
+                        <li>Dedicated support channel</li>
+                    </ul>
+                    <button class="btn btn-primary">Select Studio</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section download" id="download">
+        <div class="container">
+            <div class="section-header">
+                <h2>Download the Project</h2>
+                <p>Get the full source code. Select your subscription tier above to unlock.</p>
+            </div>
+            <div class="download-cards">
+                <div class="download-card" id="download-card-free">
+                    <div class="icon">📦</div>
+                    <h3>Community Edition</h3>
+                    <p>Full source code with MIT license. Open-source version.</p>
+                    <a href="downloads/Minecraft-AI-Mod-Builder.zip" class="btn btn-primary" id="btn-download-free">Download Free</a>
+                </div>
+                <div class="download-card" id="download-card-pro">
+                    <div class="icon">🚀</div>
+                    <h3>Pro Edition</h3>
+                    <p>Source code + priority support + early features. Commercial license included.</p>
+                    <a href="downloads/Minecraft-AI-Mod-Builder.zip" class="btn btn-primary" id="btn-download-pro">Download Pro</a>
+                </div>
+                <div class="download-card" id="download-card-studio">
+                    <div class="icon">👥</div>
+                    <h3>Studio Edition</h3>
+                    <p>Team workspaces, shared projects, and dedicated support.</p>
+                    <a href="downloads/Minecraft-AI-Mod-Builder.zip" class="btn btn-primary" id="btn-download-studio">Download Studio</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon">🧬</div>
+                    <span>Minecraft AI Mod Builder</span>
+                </div>
+                <p>An open-source AI-powered IDE for building Minecraft Java mods. Built with Python, CustomTkinter, and DeepSeek.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#tech">Tech Stack</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#download">Download</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="README.md">README</a></li>
+                    <li><a href="requirements.txt">Dependencies</a></li>
+                    <li><a href="#">API Docs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">MIT License</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <p>© 2026 Minecraft AI Mod Builder. All rights reserved.</p>
+            <p>Not affiliated with Mojang Studios.</p>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModalDirectly()">×</button>
+            <h3 id="modal-title">Upgrade</h3>
+            <p id="modal-desc">Unlock the download with a subscription.</p>
+            <div class="price" id="modal-price"><span></span></div>
+            <ul class="features-list" id="modal-features"></ul>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="modal-cta">Subscribe</button>
+                <button class="btn btn-outline" onclick="closeModalDirectly()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PLANS = {
+            free: { name: 'Community', price: 0, features: ['Full source code access', 'Community support', 'MIT License', 'Standard features'] },
+            pro: { name: 'Pro', price: 9, features: ['Everything in Free', 'Priority support', 'Early access to features', 'Commercial use allowed', 'Extended API rate limits'] },
+            studio: { name: 'Studio', price: 29, features: ['Everything in Pro', 'Unlimited team seats', 'Shared workspaces', 'Team billing & analytics', 'Dedicated support channel'] }
+        };
+
+        function openModal(planKey) {
+            const plan = PLANS[planKey];
+            document.getElementById('modal-title').textContent = 'Upgrade to ' + plan.name;
+            document.getElementById('modal-price').innerHTML = '$' + plan.price + '<span>/mo</span>';
+            document.getElementById('modal-desc').textContent = 'Get access to the full source code and all ' + plan.name + ' features.';
+            document.getElementById('modal-features').innerHTML = plan.features.map(f => '<li>✓ ' + f + '</li>').join('');
+            document.getElementById('modal-cta').textContent = 'Subscribe to ' + plan.name;
+            document.getElementById('modal-cta').onclick = function() { handleSubscribe(planKey); };
+            document.getElementById('modal-overlay').classList.add('visible');
+        }
+
+        function closeModal(event) {
+            if (event.target === event.currentTarget) closeModalDirectly();
+        }
+
+        function closeModalDirectly() {
+            document.getElementById('modal-overlay').classList.remove('visible');
+        }
+
+        function handleSubscribe(planKey) {
+            localStorage.setItem('mcmb_plan', planKey);
+            closeModalDirectly();
+            alert('Subscribed to ' + PLANS[planKey].name + '! Download unlocked.');
+        }
+
+        window.addEventListener('scroll', function() {
+            var nav = document.getElementById('navbar');
+            if (window.scrollY > 50) { nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
+        });
+    </script>
+</body>
+</html>
