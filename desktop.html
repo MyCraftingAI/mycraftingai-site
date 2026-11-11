@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open MyCraftingAI</title>
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body data-page="desktop">
+  <div class="auth">
+    <aside class="auth-side" data-auth-side></aside>
+    <main class="auth-main">
+      <div class="auth-card" style="text-align:center">
+        <div style="display:flex;justify-content:center;margin-bottom:22px">
+          <svg width="64" height="64" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4F63F5"/><g fill="#fff"><rect x="14" y="6" width="4" height="4"/><rect x="14" y="10" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="10" y="14" width="4" height="4"/><rect x="18" y="14" width="4" height="4"/><rect x="22" y="14" width="4" height="4"/><rect x="14" y="18" width="4" height="4"/><rect x="14" y="22" width="4" height="4"/></g><rect x="14" y="14" width="4" height="4" fill="#fff" opacity=".5"/></svg>
+        </div>
+        <h1 data-title>Connecting the app...</h1>
+        <p class="sub" data-sub>One moment.</p>
+        <div class="notice" data-notice role="status" style="margin-top:22px;text-align:left"></div>
+        <div style="margin-top:28px;display:flex;flex-direction:column;gap:10px" data-actions hidden>
+          <a class="btn btn-primary btn-lg btn-block" href="#" data-open>Open in MyCraftingAI</a>
+          <p class="dim" style="font-size:14px;margin-top:8px">Nothing happened? Type this code in the app:</p>
+          <div class="mono" style="font-size:26px;letter-spacing:.2em" data-code-text>------</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

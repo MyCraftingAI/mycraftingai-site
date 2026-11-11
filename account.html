@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your account - MyCraftingAI</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body data-page="account">
+  <header data-site-header></header>
+  <main class="page">
+    <div class="wrap">
+      <span class="eyebrow">Account</span>
+      <h1 style="font-size:44px;margin-top:14px" data-greeting>Your account</h1>
+      <div class="notice" data-notice role="status" style="margin-top:20px"></div>
+
+      <div class="account-grid" data-account hidden>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <h3>Today's tokens</h3>
+            <span class="chip" data-plan-chip>Free</span>
+          </div>
+          <div class="usage-big"><span data-used>0</span> <small>of <span data-limit>10K</span></small></div>
+          <div class="meter"><i data-meter></i></div>
+          <p class="dim" style="font-size:14px">Refills in <b data-reset style="color:var(--text)">-</b> (00:00 UTC). The app stops before a request that would go over.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
+            <a class="btn btn-primary" href="index.html#pricing" data-upgrade>Upgrade plan</a>
+            <a class="btn" href="#" data-download>Download for Windows</a>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Profile</h3>
+          <div class="row"><span>Username</span><span data-name>-</span></div>
+          <div class="row"><span>Email</span><span data-email>-</span></div>
+          <div class="row"><span>Sign-in method</span><span data-provider>-</span></div>
+          <div class="row"><span>Plan</span><span data-plan>-</span></div>
+          <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+            <a class="btn" href="forgot.html">Change password</a>
+            <button class="btn btn-ghost" type="button" data-signout>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer data-site-footer></footer>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

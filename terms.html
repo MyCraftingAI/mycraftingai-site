@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terms of Service - MyCraftingAI</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <header data-site-header></header>
+  <main class="page">
+    <article class="wrap prose">
+      <h1>Terms of Service</h1>
+      <p class="updated">Last updated: November 2026</p>
+
+      <h2>1. The service</h2>
+      <p>MyCraftingAI is a desktop application and an online account that help you create Minecraft mods. The AI features run on our servers and are included in your plan's daily token allowance.</p>
+
+      <h2>2. Your account</h2>
+      <ul>
+        <li>You need an account to use the AI features. Keep your password private; you are responsible for activity on your account.</li>
+        <li>One person per account. Accounts are not to be shared, resold or created automatically.</li>
+        <li>You must be old enough to agree to these terms where you live, or have a parent or guardian agree for you.</li>
+      </ul>
+
+      <h2>3. Plans, tokens and payment</h2>
+      <ul>
+        <li>Each plan includes a daily token allowance that refills at 00:00 UTC. Unused tokens do not roll over.</li>
+        <li>On the Free plan only new tokens count: the uncached part of each request plus the answer. Cached project context does not count. Paid plans count all tokens processed.</li>
+        <li>When you reach the allowance, AI requests pause until it refills or you upgrade.</li>
+        <li>Paid plans renew monthly until cancelled. You can cancel at any time; access continues until the end of the paid period.</li>
+        <li>Payments are handled by our payment provider. Prices are in USD and may include or exclude taxes depending on your location.</li>
+      </ul>
+
+      <h2>4. What you make</h2>
+      <p>Mods, code and textures you create with MyCraftingAI belong to you, subject to the rights of others (for example Mojang's terms for Minecraft and the licences of any libraries you use). Projects are stored on your own computer.</p>
+
+      <h2>5. Fair use</h2>
+      <ul>
+        <li>Don't use the service to break the law, attack other systems, or create malware.</li>
+        <li>Don't try to extract, reverse-engineer or bypass the service's limits, keys or access controls.</li>
+        <li>We may suspend accounts that abuse the service.</li>
+      </ul>
+
+      <h2>6. Not affiliated with Mojang</h2>
+      <p>MyCraftingAI is not an official Minecraft product and is not approved by or associated with Mojang or Microsoft.</p>
+
+      <h2>7. No warranty</h2>
+      <p>AI output can be wrong. Review what it writes, keep backups, and test mods before sharing them. The service is provided "as is" to the extent the law allows.</p>
+
+      <h2>8. Changes</h2>
+      <p>We may update these terms. If a change matters, we'll tell you in the app or by email before it applies.</p>
+
+      <h2>9. Contact</h2>
+      <p data-contact-line>Questions about these terms: the contact address will be listed here shortly.</p>
+    </article>
+  </main>
+  <footer data-site-footer></footer>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script>
+    (function () {
+      var email = (window.MCA_CONFIG || {}).contactEmail;
+      var line = document.querySelector("[data-contact-line]");
+      if (email && line) line.innerHTML = 'Questions about these terms: <a href="mailto:' + email + '">' + email + "</a>.";
+    })();
+  </script>
+</body>
+</html>

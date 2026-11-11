@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy - MyCraftingAI</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <header data-site-header></header>
+  <main class="page">
+    <article class="wrap prose">
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: November 2026</p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li><b>Account:</b> your username, email address, and a securely hashed password (or your Google account ID if you sign in with Google).</li>
+        <li><b>Usage:</b> how many tokens you use each day, so we can apply your plan's allowance.</li>
+        <li><b>Requests:</b> the text you send to the assistant and the project context it needs, processed to produce the answer.</li>
+        <li><b>Billing:</b> handled by our payment provider. We receive your plan and payment status, never your full card number.</li>
+      </ul>
+
+      <h2>What we don't do</h2>
+      <ul>
+        <li>We don't sell your personal data.</li>
+        <li>We don't upload your whole project folder. The app sends only the files a request needs.</li>
+        <li>We don't use advertising trackers on this website.</li>
+      </ul>
+
+      <h2>Where it goes</h2>
+      <p>Requests are processed by our AI service providers to generate answers. Payment details go to our payment provider. Emails (codes, receipts) are sent through an email delivery service. Each receives only what it needs.</p>
+
+      <h2>Cookies</h2>
+      <p>We use one sign-in cookie to keep you logged in. It's required for your account to work. No marketing cookies.</p>
+
+      <h2>Keeping and deleting data</h2>
+      <p>We keep your account data while your account is open. You can ask us to delete your account and its data at any time; usage records needed for billing may be kept as the law requires.</p>
+
+      <h2>Your rights</h2>
+      <p>Depending on where you live, you can ask to see, correct, export or delete your personal data. Contact us and we'll help.</p>
+
+      <h2>Contact</h2>
+      <p data-contact-line>Privacy questions: the contact address will be listed here shortly.</p>
+    </article>
+  </main>
+  <footer data-site-footer></footer>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script>
+    (function () {
+      var email = (window.MCA_CONFIG || {}).contactEmail;
+      var line = document.querySelector("[data-contact-line]");
+      if (email && line) line.innerHTML = 'Privacy questions: <a href="mailto:' + email + '">' + email + "</a>.";
+    })();
+  </script>
+</body>
+</html>

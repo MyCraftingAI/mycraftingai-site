@@ -1,323 +1,302 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Minecraft AI Mod Builder — An AI-powered IDE for creating Minecraft Java mods with deepseek-flash LLM assistance, pixel-art texture painting, and NeoForge integration.">
-    <title>Minecraft AI Mod Builder — Build Mods with AI</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyCraftingAI - Describe a Minecraft mod, play it tonight</title>
+  <meta name="description" content="MyCraftingAI is a Windows app that writes the Java, paints the pixel-art textures and launches Minecraft with your mod loaded. NeoForge, Forge and Fabric.">
+  <meta property="og:title" content="MyCraftingAI - Describe a Minecraft mod, play it tonight">
+  <meta property="og:description" content="Write the idea in plain English. MyCraftingAI writes the code, paints the textures and boots the game with your mod.">
+  <meta property="og:image" content="https://mycraftingai.com/assets/img/texture-studio.png">
+  <meta property="og:url" content="https://mycraftingai.com/">
+  <meta name="theme-color" content="#0a0a0e">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container nav-content">
-            <a href="#" class="logo">
-                <div class="logo-icon">🧬</div>
-                <span>Minecraft AI Mod Builder</span>
-            </a>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#tech">Tech</a>
-                <a href="#how">How It Works</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#download" class="btn btn-primary nav-cta">Download Free</a>
-            </div>
-        </div>
-    </nav>
+  <header data-site-header></header>
 
+  <main>
+    <!-- ============================================================ HERO -->
     <section class="hero">
-        <div class="container hero-content">
-            <div class="hero-badge">
-                <span class="pulse">●</span>
-                Live Demo • DeepSeek Flash • NeoForge 21.1.265
-            </div>
-            <h1>
-                Build Minecraft Mods <br>
-                <span class="gradient-text">Powered by AI</span>
-            </h1>
-            <p>
-                An intelligent IDE that scaffolds, generates, and builds Minecraft Java mods
-                using the DeepSeek LLM. With pixel-art texture painting, NeoForge integration,
-                and a VS Code–style dark UI.
-            </p>
-            <div class="hero-cta">
-                <a href="#pricing" class="btn btn-primary">Get Started Free</a>
-                <a href="#how" class="btn btn-secondary">See How It Works</a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat"><div class="label">API Calls Used</div><div class="value">~110</div><div class="sub">~2.2M tokens</div></div>
-                <div class="stat"><div class="label">Time Saved</div><div class="value">~4+ hours</div><div class="sub">per mod scaffold</div></div>
-                <div class="stat"><div class="label">Total Cost</div><div class="value">~$1.09</div><div class="sub">as of today</div></div>
-            </div>
+      <div class="wrap">
+        <div>
+          <span class="eyebrow">Minecraft mod builder for Windows</span>
+          <h1 style="margin-top:20px">Describe the mod.<br><span class="accent">Play it tonight.</span></h1>
+          <p class="lede">Type what you want in plain English. MyCraftingAI writes the Java, paints the textures and starts Minecraft with your mod already loaded.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="signup.html">Start free <span class="kbd">10K new tokens / day</span></a>
+            <a class="btn btn-lg" href="#demo">Watch an example run</a>
+          </div>
+          <div class="hero-meta">
+            <span class="chip"><span class="dot"></span>NeoForge 21.1</span>
+            <span class="chip">Forge</span>
+            <span class="chip">Fabric</span>
+            <span class="chip">MC 1.21.1</span>
+          </div>
         </div>
+
+        <!-- The workbench is a real little pixel editor: paint on it. -->
+        <div class="bench reveal" aria-label="Pixel workbench you can paint on">
+          <div class="bench-bar">
+            <span class="bench-title"><b>ruby_gem.png</b> &middot; 16 x 16</span>
+            <div class="bench-tools" role="toolbar" aria-label="Tools">
+              <button class="tool" type="button" data-tool="pencil" aria-pressed="true" title="Pencil (P)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4.5 19.5l.9-4.1L15.8 5 19 8.2 8.6 18.6z"/><path d="M13.6 7.2l3.2 3.2"/></svg>
+              </button>
+              <button class="tool" type="button" data-tool="eraser" aria-pressed="false" title="Eraser (E)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 19.5l-4.4-4.4 9.8-9.8 5.4 5.4-8.8 8.8z"/><path d="M8.4 11.3l5.4 5.4M11 19.5h9"/></svg>
+              </button>
+              <button class="tool" type="button" data-tool="fill" aria-pressed="false" title="Fill (F)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M11 4l8 8-6.5 6.5-8-8z"/><path d="M4.5 10.5H18M20 15c1.6 2.6 0 4-0 4s-1.6-1.4 0-4z"/></svg>
+              </button>
+              <button class="tool" type="button" data-tool="mirror" aria-pressed="false" title="Mirror X (M)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18" stroke-dasharray="2 2.5"/><path d="M9 7L4 12l5 5M15 7l5 5-5 5"/></svg>
+              </button>
+              <button class="tool" type="button" data-action="reset" title="Reset sprite">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 12a7 7 0 1 1-2-4.9"/><path d="M18.4 4.2l-.2 4.2-4.2-.2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="bench-body">
+            <div class="pixel-grid" id="pixel-grid" role="img" aria-label="16 by 16 pixel canvas"></div>
+            <div class="bench-side">
+              <div>
+                <div class="bench-label">In hand</div>
+                <div class="preview-stage" style="margin-top:8px"><canvas id="preview-hand" width="16" height="16"></canvas></div>
+              </div>
+              <div>
+                <div class="bench-label">Actual size</div>
+                <div class="preview-sizes" style="margin-top:8px">
+                  <canvas id="preview-1x" width="16" height="16" style="width:16px;height:16px"></canvas>
+                  <canvas id="preview-2x" width="16" height="16" style="width:32px;height:32px"></canvas>
+                  <canvas id="preview-4x" width="16" height="16" style="width:64px;height:64px"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bench-foot" id="palette" aria-label="Palette">
+            <span class="hint">right-click erases</span>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="section features" id="features">
-        <div class="container">
-            <div class="section-header">
-                <h2>Features</h2>
-                <p>Everything you need to build professional Minecraft mods, from scaffold to release.</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card"><div class="feature-icon">🤖</div><h3>AI Code Generation</h3><p>DeepSeek-flash generates complete mod code, event handlers, and mixin classes with full type safety.</p></div>
-                <div class="feature-card"><div class="feature-icon">🎨</div><h3>Pixel Art Engine</h3><p>Built-in pixel-art texture painter with skin atlas generation and reference image guidance.</p></div>
-                <div class="feature-card"><div class="feature-icon">⚙️</div><h3>MDK Installer</h3><p>Automatically downloads and sets up the official Minecraft Dev Kit for your target version.</p></div>
-                <div class="feature-card"><div class="feature-icon">🔧</div><h3>JDK Provisioning</h3><p>Auto-detects or provisions a compatible JDK. Auto-verify and auto-fix for smooth builds.</p></div>
-                <div class="feature-card"><div class="feature-icon">📦</div><h3>Asset Manifest</h3><p>Generates proper asset_manifest.json with model definitions, textures, and language pack entries.</p></div>
-                <div class="feature-card"><div class="feature-icon">📋</div><h3>Compiler Diagnostics</h3><p>Real-time error extraction, diff-based edit suggestions, and incremental compilation support.</p></div>
-                <div class="feature-card"><div class="feature-icon">💰</div><h3>Usage Tracking</h3><p>Track your API token usage and costs in real-time. Know exactly what you're spending.</p></div>
-                <div class="feature-card"><div class="feature-icon">📚</div><h3>Version Catalog</h3><p>Browse available Minecraft/loader versions. Filter by snapshot or stable releases.</p></div>
-                <div class="feature-card"><div class="feature-icon">📂</div><h3>Session History</h3><p>Save and restore full project sessions. Never lose your work in progress.</p></div>
-                <div class="feature-card"><div class="feature-icon">🖼️</div><h3>Glass UI Theme</h3><p>Beautiful dark theme with optional Mica/Acrylic blur for a native Windows feel.</p></div>
-                <div class="feature-card"><div class="feature-icon">🖥️</div><h3>Dual-UI Support</h3><p>Choose between Tkinter (native) or PyQt6 (Mica blur) frontends. Both share the same backend.</p></div>
-                <div class="feature-card"><div class="feature-icon">🔍</div><h3>Project Detection</h3><p>Auto-detects existing mods and suggests compatible toolchain versions.</p></div>
-            </div>
+    <!-- ======================================================== EXAMPLE RUN -->
+    <section class="section section-alt" id="demo">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">How a request goes</span>
+          <h2>You ask once. It plans, writes, paints and checks.</h2>
+          <p>Pick a request. This is the order the assistant works in on a real project: read the code that's there, change only what it needs to, then compile and boot the game to prove it works.</p>
         </div>
+        <div class="demo reveal">
+          <div class="prompt-list" role="tablist" aria-label="Example requests" id="prompt-list"></div>
+          <div class="console" aria-live="polite">
+            <div class="console-head"><span>Mod Assistant</span><span class="live" id="demo-state">Example run</span></div>
+            <div class="console-body" id="demo-body"></div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="section tech-stack" id="tech">
-        <div class="container">
-            <div class="section-header">
-                <h2>Under the Hood</h2>
-                <p>Built with modern, accessible tools. Runs on Windows, macOS, and Linux.</p>
-            </div>
-            <div class="tech-grid">
-                <div class="tech-item"><div class="icon">🐍</div><h4>Python</h4><p>3.10+</p></div>
-                <div class="tech-item"><div class="icon">🖥️</div><h4>CustomTkinter</h4><p>Dark GUI</p></div>
-                <div class="tech-item"><div class="icon">⚡</div><h4>PyQt6</h4><p>Qt Frontend</p></div>
-                <div class="tech-item"><div class="icon">🔮</div><h4>DeepSeek</h4><p>Flash LLM</p></div>
-                <div class="tech-item"><div class="icon">🔧</div><h4>NeoForge</h4><p>21.1.265</p></div>
-                <div class="tech-item"><div class="icon">⚙️</div><h4>Minecraft</h4><p>1.21.1</p></div>
-                <div class="tech-item"><div class="icon">🖼️</div><h4>Pillow</h4><p>Images</p></div>
-                <div class="tech-item"><div class="icon">📦</div><h4>OpenAPI</h4><p>SDK</p></div>
-            </div>
+    <!-- ============================================================ TOUR -->
+    <section class="section" id="tour">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Inside the app</span>
+          <h2>Four workspaces, one project.</h2>
+          <p>Screens straight from the desktop app. Everything works on files in your own project folder, so you can open them in any editor too.</p>
         </div>
+        <div class="tour reveal">
+          <div class="tour-tabs" role="tablist" aria-label="App workspaces">
+            <button class="tour-tab" role="tab" aria-selected="true" data-shot="assets/img/assistant.png" data-alt="Mod Assistant with a finished request and the list of changed files">
+              <h3>Mod Assistant <span class="k">Ctrl 1</span></h3>
+              <p>Chat with the assistant. Every answer ends with the files it changed, so you can review, undo, or build right away.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/files.png" data-alt="Files and Code view with the project tree and Java editor">
+              <h3>Files &amp; Code <span class="k">Ctrl 2</span></h3>
+              <p>A real editor with tabs, syntax colours and a project tree. Rename, copy, paste, or send files to the Recycle Bin.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/texture-studio.png" data-alt="Texture Studio with a 16 by 16 ruby gem on the pixel canvas">
+              <h3>Texture Studio <span class="lock">Builder+</span> <span class="k">Ctrl 3</span></h3>
+              <p>Paint 16x16 sprites by hand or describe them to the pixel-art AI. Turn the item in 3D to check it from every side.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png" data-alt="Build and Run page with the compile pipeline and game log">
+              <h3>Build &amp; Run <span class="lock">Builder+</span> <span class="k">Ctrl 4</span></h3>
+              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant.</p>
+            </button>
+          </div>
+          <figure class="shot" style="margin:0">
+            <div class="shot-bar"><i></i><i></i><i></i></div>
+            <img id="tour-img" src="assets/img/assistant.png" width="1920" height="1080" alt="Mod Assistant with a finished request and the list of changed files" loading="lazy">
+          </figure>
+        </div>
+      </div>
     </section>
 
-    <section class="section how-it-works" id="how">
-        <div class="container">
-            <div class="section-header">
-                <h2>How It Works</h2>
-                <p>From empty folder to running mod in minutes.</p>
-            </div>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Point to Your Workspace</h3>
-                        <p>Set your workspace directory. The IDE loads your config from <code>settings.json</code> and reads your project settings.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Configure Your Project</h3>
-                        <p>Choose your loader (NeoForge, Fabric, etc.), Minecraft version, and mod ID. The system fetches the official MDK.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Chat with the AI Assistant</h3>
-                        <p>Describe your mod in plain English. DeepSeek scaffolds the project, generates Java classes, mixins, and asset manifests.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3>Paint Textures & Assets</h3>
-                        <p>Use the pixel-art painter to generate block/item textures with automatic atlas generation and registration.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">5</div>
-                    <div class="step-content">
-                        <h3>Build & Run</h3>
-                        <p>The IDE runs the MDK build process, handles JDK provisioning, and launches into the dev environment with one click.</p>
-                    </div>
-                </div>
-            </div>
+    <!-- ===================================================== HOW IT WORKS -->
+    <section class="section section-alt">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Getting started</span>
+          <h2>From an empty folder to a running mod.</h2>
         </div>
+        <div class="steps-grid">
+          <div class="step-card reveal">
+            <h3>Create a project</h3>
+            <p>Pick NeoForge, Forge or Fabric and a Minecraft version. The official template is downloaded and renamed to your mod, so your package is <code>com.my_first_mod</code>, not <code>com.example</code>.</p>
+          </div>
+          <div class="step-card reveal">
+            <h3>Say what you want</h3>
+            <p>"A ruby ore between Y -16 and 32 that drops 1-2 rubies." The assistant reads your existing code first, then writes only what's needed.</p>
+          </div>
+          <div class="step-card reveal">
+            <h3>Run it</h3>
+            <p>Press <code>Run Mod</code>. It compiles, fixes its own build errors as many times as you allow, and opens Minecraft with your mod loaded.</p>
+          </div>
+        </div>
+        <div class="facts reveal">
+          <div class="fact"><b>3 loaders</b><span>NeoForge, Forge and Fabric projects</span></div>
+          <div class="fact"><b>16-64 px</b><span>Textures painted at the size the game expects</span></div>
+          <div class="fact"><b>1 to &infin;</b><span>auto-fix rounds when a build fails - you set the limit</span></div>
+          <div class="fact"><b>Your files</b><span>Everything stays in your own project folder</span></div>
+        </div>
+      </div>
     </section>
 
-    <section class="section pricing" id="pricing">
-        <div class="container">
-            <div class="section-header">
-                <h2>Choose Your Plan</h2>
-                <p>Unlock the download. All plans include full source code access.</p>
-            </div>
-            <div class="pricing-grid">
-                <div class="pricing-card" onclick="openModal('free')">
-                    <div class="badge badge-free">Free</div>
-                    <div class="tier-name">Community</div>
-                    <div class="tier-price">$0<span>/mo</span></div>
-                    <div class="tier-description">Perfect for learning and hobby projects.</div>
-                    <ul class="features">
-                        <li>Full source code access</li>
-                        <li>Community support</li>
-                        <li>Standard features</li>
-                        <li>MIT License</li>
-                        <li class="disabled">No priority support</li>
-                    </ul>
-                    <button class="btn btn-outline">Select Free</button>
-                </div>
-
-                <div class="pricing-card premium" onclick="openModal('pro')">
-                    <div class="badge badge-pro">Most Popular</div>
-                    <div class="tier-name">Pro</div>
-                    <div class="tier-price">$9<span>/mo</span></div>
-                    <div class="tier-description">For serious mod developers.</div>
-                    <ul class="features">
-                        <li>Everything in Free</li>
-                        <li>Priority support</li>
-                        <li>Early access to features</li>
-                        <li>Commercial use allowed</li>
-                        <li>Extended API rate limits</li>
-                    </ul>
-                    <button class="btn btn-primary">Select Pro</button>
-                </div>
-
-                <div class="pricing-card" onclick="openModal('studio')">
-                    <div class="badge badge-studio">Team</div>
-                    <div class="tier-name">Studio</div>
-                    <div class="tier-price">$29<span>/mo</span></div>
-                    <div class="tier-description">For teams and studios building mods together.</div>
-                    <ul class="features">
-                        <li>Everything in Pro</li>
-                        <li>Unlimited team seats</li>
-                        <li>Shared workspaces</li>
-                        <li>Team billing & analytics</li>
-                        <li>Dedicated support channel</li>
-                    </ul>
-                    <button class="btn btn-primary">Select Studio</button>
-                </div>
-            </div>
+    <!-- ===================================================== CALCULATOR -->
+    <section class="section" id="calculator">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Daily tokens</span>
+          <h2>How many tokens do you actually need?</h2>
+          <p>Every plan comes with a daily allowance that resets at 00:00 UTC. Move the sliders to see which one fits the way you work.</p>
         </div>
+        <div class="calc reveal">
+          <div>
+            <div class="calc-row">
+              <label for="c-requests">Assistant requests per day</label>
+              <span class="hint">New items, blocks, recipes, bug fixes...</span>
+              <div class="range-line"><input id="c-requests" type="range" min="0" max="120" value="12"><output for="c-requests">12</output></div>
+            </div>
+            <div class="calc-row">
+              <label for="c-textures">AI textures per day</label>
+              <span class="hint">Sprites painted by the pixel-art AI.</span>
+              <div class="range-line"><input id="c-textures" type="range" min="0" max="80" value="6"><output for="c-textures">6</output></div>
+            </div>
+            <div class="calc-row">
+              <label for="c-size">Project size</label>
+              <span class="hint">Bigger projects send more context with each request.</span>
+              <div class="range-line"><input id="c-size" type="range" min="1" max="3" value="2"><output for="c-size">Medium</output></div>
+            </div>
+          </div>
+          <div class="calc-result" aria-live="polite">
+            <span class="dim mono" style="font-size:13px">ESTIMATED USE</span>
+            <div class="big" id="c-total">0</div>
+            <div class="unit">tokens per day</div>
+            <div class="meter"><i id="c-meter"></i></div>
+            <div class="dim" style="font-size:14px" id="c-meter-label"></div>
+            <div class="rec">
+              <div><span class="dim" style="font-size:13px">Fits best</span><br><b id="c-plan">Builder</b></div>
+              <a class="btn btn-primary" id="c-cta" href="#pricing">See plan</a>
+            </div>
+          </div>
+        </div>
+        <p class="price-note">Estimates from typical requests in our own test projects. Your numbers depend on how big your mod gets.</p>
+      </div>
     </section>
 
-    <section class="section download" id="download">
-        <div class="container">
-            <div class="section-header">
-                <h2>Download the Project</h2>
-                <p>Get the full source code. Select your subscription tier above to unlock.</p>
-            </div>
-            <div class="download-cards">
-                <div class="download-card" id="download-card-free">
-                    <div class="icon">📦</div>
-                    <h3>Community Edition</h3>
-                    <p>Full source code with MIT license. Open-source version.</p>
-                    <a href="downloads/Minecraft-AI-Mod-Builder.zip" class="btn btn-primary" id="btn-download-free">Download Free</a>
-                </div>
-                <div class="download-card" id="download-card-pro">
-                    <div class="icon">🚀</div>
-                    <h3>Pro Edition</h3>
-                    <p>Source code + priority support + early features. Commercial license included.</p>
-                    <a href="downloads/Minecraft-AI-Mod-Builder.zip" class="btn btn-primary" id="btn-download-pro">Download Pro</a>
-                </div>
-                <div class="download-card" id="download-card-studio">
-                    <div class="icon">👥</div>
-                    <h3>Studio Edition</h3>
-                    <p>Team workspaces, shared projects, and dedicated support.</p>
-                    <a href="downloads/Minecraft-AI-Mod-Builder.zip" class="btn btn-primary" id="btn-download-studio">Download Studio</a>
-                </div>
-            </div>
+    <!-- ========================================================= PRICING -->
+    <section class="section section-alt" id="pricing">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2>Start free. Upgrade when you outgrow it.</h2>
+          <p>Monthly plans. Cancel any time. Your projects and files are yours on every plan.</p>
         </div>
+        <div class="pricing" id="pricing-cards"></div>
+        <button class="btn compare-toggle" type="button" id="compare-toggle" aria-expanded="false" aria-controls="compare">Compare every feature</button>
+        <div class="compare" id="compare"></div>
+        <p class="price-note">Prices in USD. Taxes may apply depending on where you live.</p>
+      </div>
     </section>
 
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div class="footer-brand">
-                <div class="logo">
-                    <div class="logo-icon">🧬</div>
-                    <span>Minecraft AI Mod Builder</span>
-                </div>
-                <p>An open-source AI-powered IDE for building Minecraft Java mods. Built with Python, CustomTkinter, and DeepSeek.</p>
-            </div>
-            <div class="footer-col">
-                <h4>Product</h4>
-                <ul>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="#tech">Tech Stack</a></li>
-                    <li><a href="#pricing">Pricing</a></li>
-                    <li><a href="#download">Download</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Resources</h4>
-                <ul>
-                    <li><a href="README.md">README</a></li>
-                    <li><a href="requirements.txt">Dependencies</a></li>
-                    <li><a href="#">API Docs</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="#">MIT License</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                </ul>
-            </div>
+    <!-- ============================================================= FAQ -->
+    <section class="section" id="faq">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Questions</span>
+          <h2>Things people ask first.</h2>
         </div>
-        <div class="container footer-bottom">
-            <p>© 2026 Minecraft AI Mod Builder. All rights reserved.</p>
-            <p>Not affiliated with Mojang Studios.</p>
+        <div class="faq reveal">
+          <details>
+            <summary>Do I need to know Java?</summary>
+            <div class="answer">No. You describe what you want and the assistant writes the code. If you do know Java, every file is open in the editor and you can change anything by hand.</div>
+          </details>
+          <details>
+            <summary>Which Minecraft versions and loaders work?</summary>
+            <div class="answer">NeoForge, Forge and Fabric. The new-project wizard lists the versions each loader currently supports. Most of our own testing is on NeoForge for Minecraft 1.21.1.</div>
+          </details>
+          <details>
+            <summary>What is a token, and what happens when I run out?</summary>
+            <div class="answer">Tokens measure how much text the AI reads and writes. Each plan has a daily allowance. The app checks before every request and stops before it would go over, so nothing breaks half-way. The allowance refills at 00:00 UTC.</div>
+          </details>
+          <details>
+            <summary>What can I do on the Free plan?</summary>
+            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10,000 new tokens a day. Texture Studio and Build &amp; Run unlock on Builder and up.</div>
+          </details>
+          <details>
+            <summary>What does "new tokens" mean on Free?</summary>
+            <div class="answer">Every request re-sends your project's context, and most of it is text the AI read a moment ago - that part is cached. On Free, cached context doesn't count: only the new part of your request and the AI's answer use your 10,000 daily tokens. That's usually enough for a handful of real requests a day. Paid plans count everything, which is why their allowances are much larger.</div>
+          </details>
+          <details>
+            <summary>How many times does it try to fix a failing build?</summary>
+            <div class="answer">You decide. In Settings &rarr; Assistant, set any number of attempts or switch on Unlimited. With Unlimited it keeps going until the build passes or your daily tokens run out.</div>
+          </details>
+          <details>
+            <summary>Who owns the mods I make?</summary>
+            <div class="answer">You do. Projects are normal folders on your computer. Nothing is locked into the app.</div>
+          </details>
+          <details>
+            <summary>How do I pay?</summary>
+            <div class="answer">Paid plans open shortly. Checkout will run through our payment provider, and you'll be able to cancel from your account page at any time.</div>
+          </details>
+          <details>
+            <summary>Does it work without internet?</summary>
+            <div class="answer">The editor and your files do. The assistant and the pixel-art AI need a connection, because the work runs on our servers.</div>
+          </details>
+          <details>
+            <summary>Is this made by Mojang?</summary>
+            <div class="answer">No. MyCraftingAI is an independent tool. It's not an official Minecraft product and isn't approved by or associated with Mojang or Microsoft.</div>
+          </details>
         </div>
-    </footer>
+      </div>
+    </section>
 
-    <!-- Modal -->
-    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-        <div class="modal">
-            <button class="modal-close" onclick="closeModalDirectly()">×</button>
-            <h3 id="modal-title">Upgrade</h3>
-            <p id="modal-desc">Unlock the download with a subscription.</p>
-            <div class="price" id="modal-price"><span></span></div>
-            <ul class="features-list" id="modal-features"></ul>
-            <div class="btn-group">
-                <button class="btn btn-primary" id="modal-cta">Subscribe</button>
-                <button class="btn btn-outline" onclick="closeModalDirectly()">Cancel</button>
-            </div>
+    <!-- ============================================================= CTA -->
+    <section class="cta">
+      <div class="wrap">
+        <div class="cta-box reveal">
+          <h2>Your first mod is one sentence away.</h2>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <a class="btn btn-primary btn-lg" href="signup.html">Create a free account</a>
+            <a class="btn btn-lg" href="#pricing">See plans</a>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
+  </main>
 
-    <script>
-        const PLANS = {
-            free: { name: 'Community', price: 0, features: ['Full source code access', 'Community support', 'MIT License', 'Standard features'] },
-            pro: { name: 'Pro', price: 9, features: ['Everything in Free', 'Priority support', 'Early access to features', 'Commercial use allowed', 'Extended API rate limits'] },
-            studio: { name: 'Studio', price: 29, features: ['Everything in Pro', 'Unlimited team seats', 'Shared workspaces', 'Team billing & analytics', 'Dedicated support channel'] }
-        };
+  <footer data-site-footer></footer>
 
-        function openModal(planKey) {
-            const plan = PLANS[planKey];
-            document.getElementById('modal-title').textContent = 'Upgrade to ' + plan.name;
-            document.getElementById('modal-price').innerHTML = '$' + plan.price + '<span>/mo</span>';
-            document.getElementById('modal-desc').textContent = 'Get access to the full source code and all ' + plan.name + ' features.';
-            document.getElementById('modal-features').innerHTML = plan.features.map(f => '<li>✓ ' + f + '</li>').join('');
-            document.getElementById('modal-cta').textContent = 'Subscribe to ' + plan.name;
-            document.getElementById('modal-cta').onclick = function() { handleSubscribe(planKey); };
-            document.getElementById('modal-overlay').classList.add('visible');
-        }
-
-        function closeModal(event) {
-            if (event.target === event.currentTarget) closeModalDirectly();
-        }
-
-        function closeModalDirectly() {
-            document.getElementById('modal-overlay').classList.remove('visible');
-        }
-
-        function handleSubscribe(planKey) {
-            localStorage.setItem('mcmb_plan', planKey);
-            closeModalDirectly();
-            alert('Subscribed to ' + PLANS[planKey].name + '! Download unlocked.');
-        }
-
-        window.addEventListener('scroll', function() {
-            var nav = document.getElementById('navbar');
-            if (window.scrollY > 50) { nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
-        });
-    </script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/home.js"></script>
 </body>
 </html>

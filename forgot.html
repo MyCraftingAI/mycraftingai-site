@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reset your password - MyCraftingAI</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body data-page="forgot">
+  <div class="auth">
+    <aside class="auth-side" data-auth-side></aside>
+    <main class="auth-main">
+      <div class="auth-card">
+        <section data-step="request">
+          <h1>Reset your password</h1>
+          <p class="sub">Enter the email you signed up with. We'll send a 6-digit code.</p>
+          <form class="form" id="forgot-form" novalidate>
+            <div class="notice" data-notice role="status"></div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input class="input" id="email" type="email" autocomplete="email" required>
+              <div class="err" data-err="email"></div>
+            </div>
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Send code</button>
+          </form>
+          <p class="auth-foot"><a href="login.html">Back to sign in</a></p>
+        </section>
+
+        <section data-step="reset" hidden>
+          <h1>Choose a new password</h1>
+          <p class="sub">If an account exists for <b data-email-echo></b>, a code is on its way.</p>
+          <form class="form" id="reset-form" novalidate>
+            <div class="notice" data-notice role="status"></div>
+            <div class="field">
+              <label>6-digit code</label>
+              <div class="code-inputs" data-code>
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 5">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 6">
+              </div>
+            </div>
+            <div class="field">
+              <label for="password">New password</label>
+              <div class="input-wrap">
+                <input class="input" id="password" type="password" autocomplete="new-password" required>
+                <button class="reveal-pw" type="button" aria-label="Show password">show</button>
+              </div>
+              <div class="pw-meter" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+              <div class="err" data-err="password"></div>
+            </div>
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Save new password</button>
+            <button class="btn btn-ghost btn-block" type="button" data-resend>Send a new code</button>
+          </form>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>
