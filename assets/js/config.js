@@ -9,6 +9,15 @@
  *  downloadUrl     Windows installer link shown after sign-up (empty = "soon").
  *  checkout        Lemon Squeezy checkout URLs per paid plan (empty = "soon").
  */
+/* Always use the secure site. Some phone browsers (e.g. Xiaomi's) open
+   "mycraftingai.com" over plain http://, where the account server refuses
+   requests - so sign-in would fail. This runs first on every page. */
+(function () {
+  if (location.protocol === "http:" && /(^|\.)mycraftingai\.com$/i.test(location.hostname)) {
+    location.replace("https://" + location.host + location.pathname + location.search + location.hash);
+  }
+})();
+
 window.MCA_CONFIG = {
   apiBase: "https://api.mycraftingai.com",
   /* The button appears by itself once the server has GOOGLE_CLIENT_ID/SECRET
