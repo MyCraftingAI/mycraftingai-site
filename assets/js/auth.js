@@ -369,11 +369,16 @@
     api.me().then(function (me) {
       return api.desktopCode({ state: state }).then(function (r) {
         var code = String(r.code);
-        var url = "http://" + (cfg.desktopCallbackHost || "127.0.0.1") + ":" + port + "/callback?code=" +
-          encodeURIComponent(code) + "&state=" + encodeURIComponent(state);
+        var query = "?code=" + encodeURIComponent(code) + "&state=" + encodeURIComponent(state);
+        // Installed app: Windows routes mycraftingai:// links straight to it.
+        var appUrl = "mycraftingai://callback" + query;
+        // Developer build (no installer): the app's local listener.
+        var localUrl = "http://" + (cfg.desktopCallbackHost || "127.0.0.1") + ":" + port + "/callback" + query;
         title.textContent = "You're signed in";
-        sub.textContent = "as " + me.user.email + ". Go back to MyCraftingAI to finish.";
-        $("[data-open]").href = url;
+        sub.textContent = "as " + me.user.email + ". Press Open in MyCraftingAI and allow your browser to open the app.";
+        $("[data-open]").href = appUrl;
+        var legacy = $("[data-open-legacy]");
+        if (legacy) legacy.href = localUrl;
         $("[data-code-text]").textContent = code.replace(/(\d{4})(?=\d)/g, "$1 ");
         $("[data-actions]").hidden = false;
         $("[data-open]").addEventListener("click", function () {
@@ -381,6 +386,10 @@
             sub.textContent = "Done - you can close this tab and return to the app.";
           }, 900);
         });
+        // Try once automatically (the browser shows its "Open MyCraftingAI?" prompt).
+        setTimeout(function () {
+          if (document.visibilityState === "visible") location.href = appUrl;
+        }, 600);
       });
     }).catch(function (err) {
       if (err.code === "unauthorized" || err.status === 401) {
