@@ -205,18 +205,44 @@
       set: function (enabled, code) { return request("POST", "/v1/users/2fa", { enabled: !!enabled, code: code }); }
     },
     /** Admin panel (server returns 404 for non-admins). Live mode only. */
-    admin: {
-      overview: function () { return request("GET", "/v1/admin/overview"); },
-      users: function (q) {
-        var qs = "?query=" + encodeURIComponent(q.query || "") + "&page=" + (q.page || 1) +
-          (q.plan ? "&plan=" + encodeURIComponent(q.plan) : "");
-        return request("GET", "/v1/admin/users" + qs);
-      },
-      user: function (id) { return request("GET", "/v1/admin/users/" + encodeURIComponent(id)); },
-      update: function (id, changes) { return request("PATCH", "/v1/admin/users/" + encodeURIComponent(id), changes); },
-      revokeSessions: function (id) { return request("POST", "/v1/admin/users/" + encodeURIComponent(id) + "/revoke-sessions", {}); },
-      remove: function (id) { return request("DELETE", "/v1/admin/users/" + encodeURIComponent(id)); }
-    },
+    admin: (function () {
+      function u(id) { return "/v1/admin/users/" + encodeURIComponent(id); }
+      function qs(q) {
+        q = q || {};
+        return "?query=" + encodeURIComponent(q.query || "") + "&page=" + (q.page || 1) +
+          (q.plan ? "&plan=" + encodeURIComponent(q.plan) : "") +
+          (q.status ? "&status=" + encodeURIComponent(q.status) : "") +
+          (q.sort ? "&sort=" + encodeURIComponent(q.sort) : "");
+      }
+      return {
+        overview: function () { return request("GET", "/v1/admin/overview"); },
+        stats: function (days) { return request("GET", "/v1/admin/stats?days=" + (days || 30)); },
+        events: function (page, action) { return request("GET", "/v1/admin/events?page=" + (page || 1) + (action ? "&action=" + encodeURIComponent(action) : "")); },
+        system: function () { return request("GET", "/v1/admin/system"); },
+        checkEmail: function () { return request("POST", "/v1/admin/system/check-email", {}); },
+        keyStatus: function (id, active) { return request("POST", "/v1/admin/keys/" + encodeURIComponent(id), { active: !!active }); },
+        users: function (q) { return request("GET", "/v1/admin/users" + qs(q)); },
+        /** CSV of the current filter, downloaded with the session cookie. */
+        exportCsv: function (q) {
+          if (mode !== "live") return fail("not_live", 503);
+          return fetch(base + "/v1/admin/users.csv" + qs(q), { credentials: "include" }).then(function (r) {
+            if (!r.ok) throw new ApiError("error", "Export failed (" + r.status + ").", r.status);
+            return r.blob();
+          });
+        },
+        bulk: function (ids, action, value) { return request("POST", "/v1/admin/users/bulk", { ids: ids, action: action, value: value || null }); },
+        user: function (id) { return request("GET", u(id)); },
+        update: function (id, changes) { return request("PATCH", u(id), changes); },
+        bonus: function (id, tokens, notify) { return request("POST", u(id) + "/bonus", { tokens: tokens, notify: !!notify }); },
+        emailUser: function (id, d) { return request("POST", u(id) + "/email", d); },
+        action: function (id, name) { return request("POST", u(id) + "/" + name, {}); },
+        revokeSessions: function (id) { return request("POST", u(id) + "/revoke-sessions", {}); },
+        endSession: function (id, sid) { return request("DELETE", u(id) + "/sessions/" + encodeURIComponent(sid)); },
+        remove: function (id) { return request("DELETE", u(id)); },
+        email: function (d) { return request("POST", "/v1/admin/email", d); },
+        broadcast: function (d) { return request("POST", "/v1/admin/broadcast", d); }
+      };
+    })(),
     /** Which sign-in methods the server has switched on, e.g. {google: true}. */
     providers: function () {
       if (mode === "live") return live("GET", "/v1/auth/providers");

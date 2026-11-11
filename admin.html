@@ -11,125 +11,244 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css">
-  <style>
-    .adm-wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 80px; }
-    .adm-top { display: flex; align-items: center; gap: 14px; margin: 10px 0 26px; }
-    .adm-top .brand { font-size: 18px; }
-    .adm-badge { font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #b9c2ff; background: rgba(79,99,245,.16); border: 1px solid var(--accent); padding: 5px 9px; border-radius: 7px; }
-    .adm-who { margin-left: auto; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; }
-    .adm-gate { max-width: 460px; margin: 90px auto; text-align: center; }
-    .adm-gate h1 { font: 700 26px var(--display); }
-    .adm-gate p { color: var(--muted); margin: 14px 0 24px; }
-    .adm-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
-    .adm-card { background: var(--surface); border: 1px solid var(--rim); border-radius: var(--radius); padding: 18px; }
-    .adm-card .k { font: 500 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .adm-card .v { font: 700 30px var(--display); margin-top: 8px; letter-spacing: -.01em; }
-    .adm-card .s { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    .adm-section { margin-top: 30px; }
-    .adm-section h2 { font: 600 15px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
-    .adm-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-    .adm-pill { border: 1px solid var(--rim); background: rgba(255,255,255,.02); border-radius: 999px; padding: 7px 14px; font-size: 14px; color: var(--muted); }
-    .adm-pill b { color: var(--text); }
-    .adm-controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-    .adm-controls .input { height: 42px; flex: 1; min-width: 220px; }
-    .adm-controls select.input { flex: 0 0 auto; width: auto; }
-    .adm-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--rim); border-radius: var(--radius); overflow: hidden; }
-    .adm-table th { text-align: left; font: 600 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 12px 14px; border-bottom: 1px solid var(--rim); }
-    .adm-table td { padding: 13px 14px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 14px; }
-    .adm-table tr:last-child td { border-bottom: none; }
-    .adm-table tbody tr { cursor: pointer; }
-    .adm-table tbody tr:hover { background: rgba(255,255,255,.03); }
-    .adm-u { display: flex; flex-direction: column; }
-    .adm-u .em { color: var(--muted); font-size: 12.5px; }
-    .adm-tag { font: 600 11px var(--mono); padding: 3px 8px; border-radius: 6px; display: inline-block; }
-    .adm-tag.free { background: rgba(255,255,255,.06); color: var(--muted); }
-    .adm-tag.paid { background: rgba(79,99,245,.16); color: #b9c2ff; }
-    .adm-tag.off { background: rgba(255,120,120,.14); color: #ff9a9d; }
-    .adm-tag.adm { background: rgba(120,220,160,.14); color: #9ff0c7; }
-    .adm-bar { height: 6px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 6px; max-width: 160px; }
-    .adm-bar > i { display: block; height: 100%; background: var(--accent); }
-    .adm-foot { display: flex; align-items: center; gap: 12px; margin-top: 14px; color: var(--muted); font-size: 14px; }
-    .adm-foot .spacer { flex: 1; }
-    .adm-empty { padding: 40px; text-align: center; color: var(--muted); }
-    .drawer-back { position: fixed; inset: 0; background: rgba(4,4,8,.6); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .18s; z-index: 50; }
-    .drawer-back.show { opacity: 1; pointer-events: auto; }
-    .drawer { position: fixed; top: 0; right: 0; height: 100%; width: min(460px, 94vw); background: var(--bg); border-left: 1px solid var(--rim); transform: translateX(100%); transition: transform .22s cubic-bezier(.2,.7,.2,1); z-index: 51; overflow-y: auto; padding: 24px; }
-    .drawer.show { transform: none; }
-    .drawer h3 { font: 700 20px var(--display); }
-    .drawer .em { color: var(--muted); font-size: 14px; margin-top: 2px; word-break: break-all; }
-    .drawer .row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 14px; }
-    .drawer .row span { color: var(--muted); }
-    .drawer .block { margin-top: 22px; }
-    .drawer .block h4 { font: 600 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
-    .drawer .field { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-    .drawer .field label { flex: 1; font-size: 14px; }
-    .drawer .actions { display: flex; flex-direction: column; gap: 8px; }
-    .btn-danger { background: rgba(255,90,90,.14); border-color: rgba(255,90,90,.4); color: #ff9a9d; }
-    .btn-danger:hover { background: rgba(255,90,90,.22); color: #fff; }
-    .spark { display: flex; align-items: flex-end; gap: 3px; height: 54px; margin-top: 4px; }
-    .spark > i { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 2px; opacity: .85; }
-    .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--rim); border-radius: 10px; padding: 12px 18px; font-size: 14px; opacity: 0; pointer-events: none; transition: all .2s; z-index: 60; }
-    .toast.show { opacity: 1; transform: translateX(-50%); }
-    .toast.err { border-color: rgba(255,90,90,.5); color: #ff9a9d; }
-  </style>
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261112">
 </head>
 <body data-page="admin">
-  <div class="adm-wrap">
-    <div class="adm-top">
-      <a class="brand" href="index.html">
+  <div class="ad-gate" data-gate>
+    <h1 data-gate-title>Checking your access…</h1>
+    <p data-gate-sub>One moment.</p>
+    <a class="btn btn-primary btn-lg" data-gate-action hidden></a>
+  </div>
+
+  <div class="ad-shell" data-shell hidden>
+    <aside class="ad-side" data-side>
+      <a class="ad-brand" href="index.html">
         <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4F63F5"/><g fill="#fff"><rect x="14" y="6" width="4" height="4"/><rect x="14" y="10" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="10" y="14" width="4" height="4"/><rect x="18" y="14" width="4" height="4"/><rect x="22" y="14" width="4" height="4"/><rect x="14" y="18" width="4" height="4"/><rect x="14" y="22" width="4" height="4"/></g></svg>
-        MyCraftingAI
+        MyCraftingAI <small>ADMIN</small>
       </a>
-      <span class="adm-badge">Admin</span>
-      <div class="adm-who" data-who hidden>
-        <span data-who-name></span>
-        <button class="btn btn-ghost" data-signout>Sign out</button>
+      <button class="ad-nav on" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+      <button class="ad-nav" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.4.2 4 1.8 4.6 4.5"/></svg>Users<span class="ad-count" data-count-users>–</span></button>
+      <button class="ad-nav" data-nav="messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Messages</button>
+      <button class="ad-nav" data-nav="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Activity log</button>
+      <button class="ad-nav" data-nav="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>System</button>
+      <div class="ad-grow"></div>
+      <div class="ad-me">
+        <span class="ad-avatar" data-me-avatar>A</span>
+        <div style="min-width:0"><b data-me-name>Admin</b><span data-me-email></span></div>
       </div>
-    </div>
-
-    <div class="adm-gate" data-gate hidden>
-      <h1 data-gate-title>Checking your access…</h1>
-      <p data-gate-sub>One moment.</p>
-      <a class="btn btn-primary btn-lg" data-gate-action hidden></a>
-    </div>
-
-    <main data-panel hidden>
-      <div class="adm-cards" data-cards></div>
-      <div class="adm-section">
-        <h2>Plans</h2>
-        <div class="adm-pills" data-plans></div>
+      <div class="ad-row-actions" style="padding:12px 8px 0">
+        <a class="btn btn-ghost btn-sm" href="account.html">My account</a>
+        <button class="btn btn-ghost btn-sm" data-signout>Sign out</button>
       </div>
-      <div class="adm-section">
-        <h2>Users</h2>
-        <div class="adm-controls">
-          <input class="input" type="search" placeholder="Search email or username…" data-search autocomplete="off">
-          <select class="input" data-plan-filter>
-            <option value="">All plans</option>
+    </aside>
+
+    <main class="ad-main">
+      <!-- Dashboard -->
+      <section class="ad-view" data-view="dashboard">
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Dashboard</h1><p data-today>Live numbers from the account server.</p></div>
+          <div class="ad-grow"></div>
+          <button class="btn btn-ghost btn-sm" data-refresh>Refresh</button>
+        </div>
+        <div class="ad-grid ad-kpis" data-kpis></div>
+        <div class="ad-grid ad-two">
+          <div class="ad-card">
+            <div class="ad-inline" style="justify-content:space-between">
+              <div><h3>Token usage</h3><p class="ad-sub" style="margin:0">Billable tokens and requests per day (UTC)</p></div>
+              <div class="ad-seg" data-range><button data-days="7">7d</button><button data-days="30" class="on">30d</button><button data-days="90">90d</button></div>
+            </div>
+            <div class="ad-chart" data-chart-tokens></div>
+            <div class="ad-legend"><span><i style="background:#4f63f5"></i>Tokens</span><span><i style="background:#3dd68c"></i>Users who used AI</span></div>
+          </div>
+          <div class="ad-card">
+            <h3>Plans</h3><p class="ad-sub">Who's on what right now</p>
+            <div class="ad-planbar" data-planbar></div>
+            <div class="ad-planlist" data-planlist></div>
+          </div>
+        </div>
+        <div class="ad-grid ad-two">
+          <div class="ad-card">
+            <h3>New sign-ups</h3><p class="ad-sub" style="margin:0">Accounts created per day</p>
+            <div class="ad-chart" data-chart-signups style="height:150px"></div>
+          </div>
+          <div class="ad-card">
+            <h3>Needs attention</h3><p class="ad-sub">Click to open the filtered list</p>
+            <div class="ad-attn" data-attn></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users -->
+      <section class="ad-view" data-view="users" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Users</h1><p data-users-sub>Search, filter and manage every account.</p></div>
+          <div class="ad-grow"></div>
+          <button class="btn btn-ghost btn-sm" data-export>Export CSV</button>
+        </div>
+        <div class="ad-toolbar">
+          <div class="ad-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="input" type="search" placeholder="Search by email, username or user ID…" data-search autocomplete="off">
+          </div>
+          <select class="ad-select" data-plan-filter><option value="">All plans</option></select>
+          <select class="ad-select" data-sort>
+            <option value="new">Newest first</option>
+            <option value="active">Recently active</option>
+            <option value="usage">Most tokens today</option>
+            <option value="old">Oldest first</option>
+            <option value="email">Email A–Z</option>
           </select>
         </div>
-        <table class="adm-table">
-          <thead><tr><th>User</th><th>Plan</th><th>Today</th><th>Status</th><th>Joined</th></tr></thead>
-          <tbody data-rows></tbody>
-        </table>
-        <div class="adm-foot">
-          <button class="btn btn-ghost" data-prev>← Prev</button>
+        <div class="ad-chips" data-status-chips></div>
+        <div class="ad-tablewrap">
+          <table class="ad-table">
+            <thead><tr><th class="ck"><input type="checkbox" data-check-all aria-label="Select all on this page"></th><th>User</th><th>Plan</th><th>Today</th><th>AI</th><th>Status</th><th>Last active</th><th>Joined</th></tr></thead>
+            <tbody data-rows></tbody>
+          </table>
+        </div>
+        <div class="ad-pager">
+          <button class="btn btn-ghost btn-sm" data-prev>← Prev</button>
           <span data-page-info></span>
-          <button class="btn btn-ghost" data-next>Next →</button>
-          <span class="spacer"></span>
+          <button class="btn btn-ghost btn-sm" data-next>Next →</button>
+          <span class="ad-grow"></span>
           <span data-total></span>
         </div>
-      </div>
+        <div class="ad-bulk" data-bulk hidden>
+          <b data-bulk-count>0 selected</b>
+          <button class="btn btn-warn btn-sm" data-bulk-act="pause_ai">Pause AI</button>
+          <button class="btn btn-ok btn-sm" data-bulk-act="resume_ai">Resume AI</button>
+          <button class="btn btn-sm" data-bulk-act="set_plan">Change plan</button>
+          <button class="btn btn-sm" data-bulk-act="sign_out">Sign out everywhere</button>
+          <button class="btn btn-sm" data-bulk-act="email">Email them</button>
+          <span class="ad-grow" style="flex:1"></span>
+          <button class="btn btn-ghost btn-sm" data-bulk-clear>Clear</button>
+        </div>
+      </section>
+
+      <!-- Messages -->
+      <section class="ad-view" data-view="messages" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Messages</h1><p>Write from any @mycraftingai.com mailbox - to specific people or to a whole audience.</p></div>
+        </div>
+        <div class="ad-grid ad-cols2">
+          <div class="ad-card">
+            <div class="ad-seg" data-msg-mode style="margin-bottom:16px"><button data-mode="direct" class="on">Specific people</button><button data-mode="broadcast">Audience (broadcast)</button></div>
+            <div class="ad-form" data-compose>
+              <label>From <select data-msg-from></select></label>
+              <label data-direct-only>To <input class="input" data-msg-to placeholder="name@example.com, another@example.com"></label>
+              <div data-broadcast-only hidden class="ad-form" style="gap:10px">
+                <div><div class="ad-hint" style="margin-bottom:6px">Plans (none = everyone)</div><div class="ad-chips" data-aud-plans style="margin:0"></div></div>
+                <label>Only people who…
+                  <select data-aud-status>
+                    <option value="">- any status -</option>
+                    <option value="paid">are on a paid plan</option>
+                    <option value="ai_paused">have AI paused</option>
+                    <option value="2fa">use 2-step verification</option>
+                    <option value="google">sign in with Google</option>
+                    <option value="custom_limit">have a custom limit</option>
+                  </select>
+                </label>
+                <label>Signed in within
+                  <select data-aud-active><option value="0">any time</option><option value="7">the last 7 days</option><option value="30">the last 30 days</option><option value="90">the last 90 days</option></select>
+                </label>
+                <label class="ad-check"><input type="checkbox" data-aud-verified checked> Verified emails only</label>
+                <label class="ad-check"><input type="checkbox" data-aud-service> Important service notice (also reaches people who turned product emails off)</label>
+              </div>
+              <label>Template
+                <select data-msg-template>
+                  <option value="">- start from scratch -</option>
+                  <option value="welcome">Welcome / getting started</option>
+                  <option value="feature">New feature announcement</option>
+                  <option value="maintenance">Scheduled maintenance</option>
+                  <option value="upgrade">Upgrade offer</option>
+                  <option value="support">Support reply</option>
+                </select>
+              </label>
+              <label>Subject <input class="input" data-msg-subject maxlength="200"></label>
+              <label>Message <textarea data-msg-body maxlength="20000" placeholder="Hi {name},&#10;&#10;…"></textarea></label>
+              <div class="ad-hint">Placeholders: <code>{name}</code> <code>{email}</code> <code>{plan}</code>. A blank line starts a new paragraph.</div>
+              <div class="ad-row-actions">
+                <button class="btn btn-ghost" data-msg-preview hidden>Count recipients</button>
+                <button class="btn btn-primary" data-msg-send>Send</button>
+                <span class="ad-muted" data-msg-info style="font-size:13px"></span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="ad-section-title" style="margin-top:0">Preview</div>
+            <div class="ad-mail" data-mail-preview></div>
+            <div class="ad-section-title">Recently sent</div>
+            <div class="ad-card"><div class="ad-timeline" data-sent-list><div class="ad-skel"></div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity -->
+      <section class="ad-view" data-view="activity" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Activity log</h1><p>Every change and email made from this panel, newest first.</p></div>
+          <div class="ad-grow"></div>
+          <select class="ad-select" data-ev-filter>
+            <option value="">All actions</option>
+            <option value="email">Emails</option>
+            <option value="broadcast">Broadcasts</option>
+            <option value="pause_ai">AI paused</option>
+            <option value="resume_ai">AI resumed</option>
+            <option value="set_plan">Plan changes</option>
+            <option value="bonus_tokens">Bonus tokens</option>
+            <option value="daily_limit">Daily limits</option>
+            <option value="set_active">Account enable/disable</option>
+            <option value="delete_user">Deletions</option>
+          </select>
+        </div>
+        <div class="ad-card"><div class="ad-timeline" data-events></div></div>
+        <div class="ad-pager">
+          <button class="btn btn-ghost btn-sm" data-ev-prev>← Newer</button>
+          <span data-ev-page></span>
+          <button class="btn btn-ghost btn-sm" data-ev-next>Older →</button>
+        </div>
+      </section>
+
+      <!-- System -->
+      <section class="ad-view" data-view="system" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>System</h1><p>AI provider keys, mailboxes and plans. Secrets never leave the server.</p></div>
+        </div>
+        <div class="ad-section-title" style="margin-top:0">AI provider keys</div>
+        <div class="ad-tablewrap"><table class="ad-table" style="min-width:700px"><thead><tr><th>Key</th><th>Pool</th><th>Status</th><th>Users</th><th>Last error</th><th></th></tr></thead><tbody data-keys></tbody></table></div>
+        <div class="ad-section-title">Mailboxes</div>
+        <div class="ad-card">
+          <div class="ad-rows" data-mailboxes></div>
+          <div class="ad-row-actions" style="margin-top:12px"><button class="btn btn-sm" data-check-mail>Test mailbox logins</button><span class="ad-hint">Signs in to each mailbox - no email is sent.</span></div>
+        </div>
+        <div class="ad-section-title">Plans</div>
+        <div class="ad-card"><div class="ad-rows" data-plans-table></div></div>
+      </section>
     </main>
   </div>
 
-  <div class="drawer-back" data-drawer-back></div>
-  <aside class="drawer" data-drawer></aside>
-  <div class="toast" data-toast></div>
+  <div class="ad-back" data-panel-back></div>
+  <aside class="ad-panel" data-panel aria-label="User details"></aside>
+
+  <div class="ad-modal" data-modal hidden>
+    <div class="ad-modal-card" role="dialog" aria-modal="true">
+      <h3 data-modal-title></h3>
+      <p data-modal-text></p>
+      <div class="ad-form" data-modal-form></div>
+      <div class="acts"><button class="btn btn-ghost" data-modal-cancel>Cancel</button><button class="btn btn-primary" data-modal-ok>Confirm</button></div>
+    </div>
+  </div>
+  <div class="ad-toast" data-toast></div>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js"></script>
+  <script src="assets/js/api.js?v=20261112"></script>
   <script src="assets/js/ui.js"></script>
-  <script src="assets/js/admin.js"></script>
+  <script src="assets/js/admin.js?v=20261112"></script>
 </body>
 </html>

@@ -348,6 +348,16 @@
     wirePasswordMeter($("#password"));
     if (guardOffline(form)) return;
 
+    // Link from a reset email sent by support: go straight to the code step.
+    if (params.get("step") === "code" && validEmail(params.get("email") || "")) {
+      email = params.get("email").trim();
+      request.hidden = true;
+      reset.hidden = false;
+      $("[data-email-echo]").textContent = email;
+      notice(resetForm, "info", "Enter the 6-digit code from the email and choose a new password.");
+      $("[data-code] input", resetForm).focus();
+    }
+
     function send(button, then) {
       busy(button, true, "Sending");
       api.forgot({ email: email }).then(function (r) {
@@ -411,6 +421,12 @@
       $("[data-provider]").textContent = me.user.provider === "google" ? "Google" : "Email and password";
       if (me.plan.id === "studio" || me.plan.id === "enterprise") $("[data-upgrade]").hidden = true;
       securityCard(!!me.user.twoFactor);
+      if (me.ai && me.ai.enabled === false) {
+        var until = me.ai.pausedUntil ? " until " + new Date(me.ai.pausedUntil).toLocaleString() : "";
+        notice(root, "warn", "AI requests are paused on your account" + until + "." +
+          (me.ai.reason ? " Reason: " + me.ai.reason.replace(/\.$/, "") + "." : "") +
+          " Your projects, textures and every other feature still work. Questions? support@mycraftingai.com");
+      }
       resetsAt = new Date(me.usage.resetsAt);
       tick();
       setInterval(tick, 1000);
