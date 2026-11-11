@@ -1,10 +1,10 @@
 {
   "version": "1.0.0",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 0,
-  "sha256": "",
-  "published": "",
+  "size": 52026500,
+  "sha256": "a2da00645aa080c26dceaf99a329c8652e1f1f1b252bfc26efacf76b06dbc0a6",
+  "published": "2026-11-11T13:37:13Z",
   "minOS": "Windows 10 (64-bit)",
-  "available": false,
-  "notes": "The first public build is being prepared."
+  "available": true,
+  "notes": ""
 }
