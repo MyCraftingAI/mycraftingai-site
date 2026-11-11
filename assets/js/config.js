@@ -10,8 +10,9 @@
  *  checkout        Lemon Squeezy checkout URLs per paid plan (empty = "soon").
  */
 window.MCA_CONFIG = {
-  apiBase: "",
-  googleSignIn: true,
+  apiBase: "https://api.mycraftingai.com",
+  /* Off until GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET are set on the server. */
+  googleSignIn: false,
   contactEmail: "",
   downloadUrl: "",
   checkout: {
