@@ -117,11 +117,16 @@
     $$("[data-google]", root).forEach(function (button) {
       if (cfg.googleSignIn === false) { hide(button); return; }
       if (api.mode === "live") {
-        // Shown only once the server has Google credentials (no republish needed).
-        button.hidden = true;
+        // The button stays visible (no flicker). It is removed only when the
+        // server explicitly says Google sign-in is switched off. If the server
+        // can't be reached, keep it and explain - never fail silently.
         api.providers().then(function (p) {
-          if (p && p.google) { button.hidden = false; } else { hide(button); }
-        }, function () { hide(button); });
+          if (p && p.google === false) hide(button);
+        }, function () {
+          notice(failureRoot || root, "warn",
+            "We can't reach the MyCraftingAI servers from this browser right now. " +
+            "Check your internet connection, or try again in a moment.");
+        });
       }
       button.addEventListener("click", function () {
         busy(button, true, "Opening Google");
