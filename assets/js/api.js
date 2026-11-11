@@ -37,7 +37,10 @@
     weak_password: "Use at least 8 characters with a letter and a number.",
     rate_limited: "Too many attempts. Wait a minute and try again.",
     unauthorized: "Please sign in again.",
-    invalid_state: "This sign-in link is not valid any more. Start again from the app."
+    invalid_state: "This sign-in link is not valid any more. Start again from the app.",
+    two_factor_required: "Enter the 6-digit code we emailed you.",
+    challenge_expired: "This sign-in has expired. Please sign in again.",
+    too_many_codes: "Too many codes requested. Please sign in again."
   };
 
   function fail(code, status, message) {
@@ -194,6 +197,13 @@
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
+    /** 2-step verification: finish a sign-in, resend its code, switch it on/off. */
+    twoFactor: {
+      verify: function (d) { return request("POST", "/v1/auth/2fa/verify", d); },
+      resend: function (d) { return request("POST", "/v1/auth/2fa/resend", d); },
+      requestCode: function (enabled) { return request("POST", "/v1/users/2fa/code", { enabled: !!enabled }); },
+      set: function (enabled, code) { return request("POST", "/v1/users/2fa", { enabled: !!enabled, code: code }); }
+    },
     /** Admin panel (server returns 404 for non-admins). Live mode only. */
     admin: {
       overview: function () { return request("GET", "/v1/admin/overview"); },

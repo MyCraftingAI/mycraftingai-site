@@ -77,6 +77,7 @@
     if (!u.active) tags.push('<span class="adm-tag off">disabled</span>');
     if (u.admin) tags.push('<span class="adm-tag adm">admin</span>');
     if (!u.verified) tags.push('<span class="adm-tag off">unverified</span>');
+    if (u.twoFactor) tags.push('<span class="adm-tag">2-step</span>');
     if (!tags.length) tags.push('<span class="muted">active</span>');
     return tags.join(" ");
   }
@@ -151,6 +152,7 @@
         '<div class="row"><span>Plan</span><b>' + esc(u.planName || u.plan) + (u.planExpiresAt ? " · ends " + since(u.planExpiresAt) : "") + "</b></div>" +
         '<div class="row"><span>Sign-in</span><b>' + esc(u.provider) + "</b></div>" +
         '<div class="row"><span>Verified</span><b>' + (u.verified ? "yes" : "no") + "</b></div>" +
+        '<div class="row"><span>2-step verification</span><b>' + (u.twoFactor ? "on" : "off") + "</b></div>" +
         '<div class="row"><span>Joined</span><b>' + since(u.created) + "</b></div>" +
         '<div class="row"><span>Last login</span><b>' + since(u.lastLogin) + "</b></div>" +
         '<div class="row"><span>Active sessions</span><b>' + (u.sessions ? u.sessions.length : 0) + "</b></div>" +
@@ -161,6 +163,7 @@
         '<div class="actions">' +
           '<button class="btn" data-reset>Reset today\'s usage</button>' +
           '<button class="btn" data-revoke>Sign out all sessions</button>' +
+          (u.twoFactor ? '<button class="btn" data-2fa-off>Turn off 2-step</button>' : "") +
           (self ? "" :
             '<button class="btn" data-active>' + (u.active ? "Disable account" : "Enable account") + "</button>" +
             '<button class="btn" data-admintoggle>' + (u.admin ? "Remove admin" : "Make admin") + "</button>" +
@@ -175,6 +178,12 @@
     $("[data-revoke]", d).onclick = function () {
       api.admin.revokeSessions(u.id).then(function (r) { toast(r.revoked + " session(s) ended"); openUser(u.id); }, function (e) { toast(errText(e), true); });
     };
+    if (u.twoFactor) {
+      $("[data-2fa-off]", d).onclick = function () {
+        if (!confirm("Turn off 2-step verification for " + u.username + "? Only do this after confirming their identity. They get a security email.")) return;
+        act(u.id, { twoFactor: false }, "2-step verification turned off");
+      };
+    }
     if (!self) {
       $("[data-active]", d).onclick = function () { act(u.id, { active: !u.active }, u.active ? "Account disabled" : "Account enabled"); };
       $("[data-admintoggle]", d).onclick = function () { act(u.id, { admin: !u.admin }, u.admin ? "Admin removed" : "Admin granted"); };

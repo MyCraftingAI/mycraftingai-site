@@ -44,6 +44,37 @@
             <button class="btn btn-ghost" type="button" data-signout>Sign out</button>
           </div>
         </div>
+        <div class="card" id="security">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <h3>2-step verification</h3>
+            <span class="chip" data-2fa-chip><span class="dot" style="background:var(--muted)"></span>Off</span>
+          </div>
+          <p class="dim" style="font-size:14px;margin-top:10px" data-2fa-desc>
+            Add a second check to every sign-in. After your password (or Google), we email a 6-digit code
+            from noreply@mycraftingai.com that you enter to finish signing in - on the website and in the app.
+          </p>
+          <form class="form" id="twofa-setup" novalidate style="margin-top:16px">
+            <div class="notice" data-notice role="status"></div>
+            <div data-2fa-confirm hidden>
+              <p style="font-size:14px;margin:0 0 12px">Enter the code we just sent to <b data-2fa-email>your email</b>.</p>
+              <div class="code-inputs" data-code>
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 5">
+                <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 6">
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+                <button class="btn btn-primary" type="submit" data-2fa-submit>Confirm</button>
+                <button class="btn btn-ghost" type="button" data-2fa-cancel>Cancel</button>
+              </div>
+            </div>
+            <div data-2fa-actions>
+              <button class="btn btn-primary" type="button" data-2fa-toggle>Turn on 2-step verification</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </main>

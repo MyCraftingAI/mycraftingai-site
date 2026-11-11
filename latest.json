@@ -1,9 +1,9 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 52329819,
-  "sha256": "87bcec75e89b6429f3bca7ae953951e1e7074bcf5faace222b4d1a047f8e0d3e",
-  "published": "2026-11-11T18:12:30Z",
+  "size": 52335212,
+  "sha256": "35a8a6e45f31a225f9697b7dd6f5e106abfd5aa03778503963b8287c08968194",
+  "published": "2026-11-11T20:00:33Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
   "notes": ""

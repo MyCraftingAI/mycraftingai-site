@@ -16,6 +16,7 @@
     <aside class="auth-side" data-auth-side></aside>
     <main class="auth-main">
       <div class="auth-card">
+        <section data-step="password">
         <h1>Welcome back</h1>
         <p class="sub" data-desktop-hint>Sign in to see your plan and today's tokens.</p>
         <form class="form" id="login-form" novalidate>
@@ -41,6 +42,27 @@
           <button class="btn btn-primary btn-block btn-lg" type="submit">Sign in</button>
         </form>
         <p class="auth-foot">New here? <a href="signup.html" data-keep-next>Create a free account</a></p>
+        </section>
+
+        <section data-step="two-factor" hidden>
+          <span class="chip"><span class="dot"></span>2-step verification</span>
+          <h1 style="margin-top:16px">Check your inbox</h1>
+          <p class="sub">We sent a 6-digit sign-in code to <b data-2fa-email>your email</b> from noreply@mycraftingai.com. It expires in 10 minutes.</p>
+          <form class="form" id="twofa-form" novalidate>
+            <div class="notice" data-notice role="status"></div>
+            <div class="code-inputs" data-code>
+              <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code">
+              <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+              <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+              <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+              <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 5">
+              <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 6">
+            </div>
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Verify and sign in</button>
+            <button class="btn btn-ghost btn-block" type="button" data-resend>Send a new code</button>
+          </form>
+          <p class="auth-foot">Not you, or no email? <a href="login.html" data-keep-next>Start over</a></p>
+        </section>
       </div>
     </main>
   </div>

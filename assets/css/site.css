@@ -385,6 +385,9 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
 /* --------------------------------------------------------------- account */
 .page { padding: 56px 0 90px; }
 .account-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; margin-top: 36px; }
+.account-grid #security { grid-column: 1 / -1; }
+#security [data-2fa-confirm], #security [data-2fa-desc] { max-width: 520px; }
+#security .code-inputs { max-width: 380px; }
 .card { border: 1px solid var(--rim); border-radius: 16px; background: var(--surface); padding: 26px; }
 .card h3 { font-size: 18px; }
 .card .row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; }

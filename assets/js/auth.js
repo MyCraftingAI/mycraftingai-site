@@ -150,11 +150,90 @@
   function goNext() { location.href = next; }
 
   /* ------------------------------------------------------------ pages */
+  var GOOGLE_ERRORS = {
+    google_cancelled: "Google sign-in was cancelled. You can try again or use your email.",
+    account_disabled: "This account is disabled. Contact support@mycraftingai.com.",
+    two_factor_required: "Enter the code we emailed you to finish signing in."
+  };
+
+  /** Step 2 of a sign-in when 2-step verification is on. */
+  function twoFactorStep(challenge, maskedEmail) {
+    var form = $("#twofa-form");
+    $('[data-step="password"]').hidden = true;
+    $('[data-step="two-factor"]').hidden = false;
+    $("[data-2fa-email]").textContent = maskedEmail || "your email";
+    var readCode = form.readCode || (form.readCode = wireCode(form));
+    var first = $("[data-code] input", form);
+    if (first) first.focus();
+    if (form.dataset.wired) { form.dataset.challenge = challenge; return; }
+    form.dataset.wired = "1";
+    form.dataset.challenge = challenge;
+
+    var inFlight = false;
+    function submit() {
+      var code = readCode();
+      if (code.length !== 6) { notice(form, "error", "Enter all 6 digits."); return; }
+      if (inFlight) return;
+      inFlight = true;
+      var button = $('button[type="submit"]', form);
+      busy(button, true, "Checking");
+      notice(form, "", "");
+      api.twoFactor.verify({ challenge: form.dataset.challenge, code: code }).then(function (r) {
+        notice(form, "ok", "Verified. Signing you in...");
+        // Google sign-ins come back with the page they started from.
+        var target = r && r.next && /^https:\/\/(www\.)?mycraftingai\.com\//.test(r.next) ? r.next : next;
+        location.href = target;
+      }, function (err) {
+        inFlight = false;
+        busy(button, false);
+        if (err.code === "challenge_expired" || err.code === "too_many_codes") {
+          notice(form, "error", err.message + " Taking you back...");
+          setTimeout(function () { location.href = "login.html" + location.search; }, 2200);
+          return;
+        }
+        notice(form, "error", err.message);
+        $$("[data-code] input", form).forEach(function (b) { b.value = ""; });
+        if (first) first.focus();
+      });
+    }
+    form.addEventListener("submit", function (e) { e.preventDefault(); submit(); });
+    // Submit by itself once the 6th digit is typed or a code is pasted.
+    $$("[data-code] input", form).forEach(function (box) {
+      box.addEventListener("input", function () { if (readCode().length === 6) submit(); });
+      box.addEventListener("paste", function () { setTimeout(function () { if (readCode().length === 6) submit(); }, 0); });
+    });
+
+    $("[data-resend]", form).addEventListener("click", function (e) {
+      var button = e.currentTarget;
+      busy(button, true, "Sending");
+      api.twoFactor.resend({ challenge: form.dataset.challenge }).then(function () {
+        busy(button, false);
+        notice(form, "ok", "New code sent. The previous code no longer works. Check spam if it isn't there in a minute.");
+        button.disabled = true;
+        var left = 30;
+        var timer = setInterval(function () {
+          left -= 1;
+          button.textContent = left > 0 ? "Send a new code (" + left + "s)" : "Send a new code";
+          if (left <= 0) { clearInterval(timer); button.disabled = false; }
+        }, 1000);
+      }, function (err) { busy(button, false); notice(form, "error", err.message); });
+    });
+  }
+
   function loginPage() {
     var form = $("#login-form");
     if (/desktop\.html/.test(next)) $("[data-desktop-hint]").textContent = "Sign in to connect the MyCraftingAI app.";
     if (guardOffline(form)) return;
     wireGoogle(form);
+
+    // Back from Google with 2-step verification on: #2fa=<challenge>&email=<masked>.
+    var hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+    if (hash.get("2fa")) {
+      history.replaceState(null, "", location.pathname + location.search);
+      twoFactorStep(hash.get("2fa"), hash.get("email"));
+    } else if (params.get("error")) {
+      notice(form, "error", GOOGLE_ERRORS[params.get("error")] || "Sign-in didn't finish. Please try again.");
+    }
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = $("#email").value.trim(), password = $("#password").value;
@@ -167,6 +246,10 @@
       notice(form, "", "");
       api.login({ email: email, password: password }).then(goNext, function (err) {
         busy(submit, false);
+        if (err.code === "two_factor_required" && err.data && err.data.challenge) {
+          twoFactorStep(err.data.challenge, err.data.email);
+          return;
+        }
         if (err.code === "email_not_verified") {
           // Signed in with a username? The server says where the code went.
           var target = (err.data && err.data.email) || email;
@@ -327,6 +410,7 @@
       $("[data-email]").textContent = me.user.email;
       $("[data-provider]").textContent = me.user.provider === "google" ? "Google" : "Email and password";
       if (me.plan.id === "studio" || me.plan.id === "enterprise") $("[data-upgrade]").hidden = true;
+      securityCard(!!me.user.twoFactor);
       resetsAt = new Date(me.usage.resetsAt);
       tick();
       setInterval(tick, 1000);
@@ -335,6 +419,60 @@
       notice(root, "error", err.message);
     });
 
+    /** 2-step verification card: switching on/off is confirmed with an emailed code. */
+    function securityCard(enabled) {
+      var form = $("#twofa-setup");
+      if (!form) return;
+      var chip = $("[data-2fa-chip]"), toggle = $("[data-2fa-toggle]");
+      var confirmBox = $("[data-2fa-confirm]"), actions = $("[data-2fa-actions]");
+      var readCode = wireCode(form);
+      var wanted = null;
+
+      function render() {
+        chip.innerHTML = '<span class="dot" style="background:' + (enabled ? "var(--mint)" : "var(--muted)") + '"></span>' + (enabled ? "On" : "Off");
+        toggle.textContent = enabled ? "Turn off 2-step verification" : "Turn on 2-step verification";
+        toggle.className = enabled ? "btn" : "btn btn-primary";
+        confirmBox.hidden = true;
+        actions.hidden = false;
+        $$("[data-code] input", form).forEach(function (b) { b.value = ""; });
+      }
+      render();
+
+      toggle.addEventListener("click", function () {
+        wanted = !enabled;
+        busy(toggle, true, "Sending code");
+        notice(form, "", "");
+        api.twoFactor.requestCode(wanted).then(function (r) {
+          busy(toggle, false);
+          if (r.status === "unchanged") { enabled = !!r.two_factor_enabled; render(); return; }
+          $("[data-2fa-email]", form).textContent = r.email || "your email";
+          $("[data-2fa-submit]").textContent = wanted ? "Turn on" : "Turn off";
+          actions.hidden = true;
+          confirmBox.hidden = false;
+          var first = $("[data-code] input", form);
+          if (first) first.focus();
+        }, function (err) { busy(toggle, false); notice(form, "error", err.message); });
+      });
+
+      $("[data-2fa-cancel]").addEventListener("click", function () { notice(form, "", ""); render(); });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var code = readCode();
+        if (code.length !== 6) { notice(form, "error", "Enter all 6 digits."); return; }
+        var button = $("[data-2fa-submit]");
+        busy(button, true, "Checking");
+        api.twoFactor.set(wanted, code).then(function (r) {
+          busy(button, false);
+          enabled = !!r.two_factor_enabled;
+          render();
+          notice(form, "ok", enabled
+            ? "2-step verification is on. Next time you sign in, we'll email you a code."
+            : "2-step verification is off. Signing in now needs only your password.");
+        }, function (err) { busy(button, false); notice(form, "error", err.message); });
+      });
+    }
+
     function tick() {
       if (!resetsAt) return;
       var ms = Math.max(0, resetsAt - Date.now());
@@ -342,11 +480,19 @@
       $("[data-reset]").textContent = h + "h " + ("0" + m).slice(-2) + "m " + ("0" + s).slice(-2) + "s";
     }
 
-    $("[data-download]").addEventListener("click", function (e) {
-      if (cfg.downloadUrl) { e.currentTarget.href = cfg.downloadUrl; return; }
-      e.preventDefault();
-      window.MCA.modal("Download coming soon", "The Windows installer is being signed and packaged. It will appear right here - same button, same page.");
-    });
+    // Download button: always a real link. It starts on the download page and
+    // is upgraded to the installer itself as soon as latest.json answers.
+    var dl = $("[data-download]");
+    dl.href = cfg.downloadUrl || "download.html";
+    fetch("latest.json?" + Date.now(), { cache: "no-store" }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (m) {
+      if (!m || !m.available || !/^https:\/\//.test(m.url || "")) return;
+      dl.href = m.url;
+      dl.setAttribute("download", "");
+      dl.title = "MyCraftingAI " + m.version + " for Windows" + (m.size ? " · " + (m.size / 1048576).toFixed(0) + " MB" : "");
+      dl.textContent = "Download for Windows";
+    }).catch(function () { /* keep download.html */ });
     $("[data-signout]").addEventListener("click", function (e) {
       busy(e.currentTarget, true, "Signing out");
       api.logout().then(function () { location.href = "index.html"; }, function () { location.href = "index.html"; });
