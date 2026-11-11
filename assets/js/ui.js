@@ -28,11 +28,12 @@
       '<a href="' + link("#demo") + '">How it works</a>' +
       '<a href="' + link("#tour") + '">Features</a>' +
       '<a href="' + link("#pricing") + '">Pricing</a>' +
+      '<a href="download.html">Download</a>' +
       '<a href="' + link("#faq") + '">FAQ</a>' +
       "</nav>" +
       '<div class="header-actions" data-account-slot>' +
       '<a class="btn btn-ghost" href="login.html">Sign in</a>' +
-      '<a class="btn btn-primary" href="signup.html">Start free</a>' +
+      '<a class="btn btn-primary" href="download.html">Download</a>' +
       "</div>" +
       '<button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>' +
       "</div>";
@@ -61,7 +62,7 @@
       '<div class="wrap"><div class="footer-grid">' +
       '<div><a class="brand" href="index.html">' + LOGO + "MyCraftingAI</a>" +
       '<p style="margin-top:14px;max-width:34ch">A desktop app that writes, paints and runs Minecraft mods from plain English.</p></div>' +
-      '<div><h4>Product</h4><a href="' + link("#demo") + '">How it works</a><a href="' + link("#tour") + '">Features</a><a href="' + link("#pricing") + '">Pricing</a><a href="' + link("#faq") + '">FAQ</a></div>' +
+      '<div><h4>Product</h4><a href="download.html">Download</a><a href="' + link("#demo") + '">How it works</a><a href="' + link("#tour") + '">Features</a><a href="' + link("#pricing") + '">Pricing</a><a href="' + link("#faq") + '">FAQ</a></div>' +
       '<div><h4>Account</h4><a href="login.html">Sign in</a><a href="signup.html">Create account</a><a href="forgot.html">Reset password</a><a href="account.html">Your plan</a></div>' +
       '<div><h4>Company</h4>' + contact + '<a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>' +
       "</div>" +
