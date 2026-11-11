@@ -11,8 +11,9 @@
  */
 window.MCA_CONFIG = {
   apiBase: "https://api.mycraftingai.com",
-  /* Off until GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET are set on the server. */
-  googleSignIn: false,
+  /* The button appears by itself once the server has GOOGLE_CLIENT_ID/SECRET
+     (it asks /v1/auth/providers). Set false to hide it regardless. */
+  googleSignIn: true,
   contactEmail: "",
   downloadUrl: "",
   checkout: {

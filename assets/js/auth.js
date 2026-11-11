@@ -113,8 +113,16 @@
   }
 
   function wireGoogle(root, failureRoot) {
+    function hide(button) { button.hidden = true; var d = $(".divider", root); if (d) d.hidden = true; }
     $$("[data-google]", root).forEach(function (button) {
-      if (cfg.googleSignIn === false) { button.hidden = true; var d = $(".divider", root); if (d) d.hidden = true; return; }
+      if (cfg.googleSignIn === false) { hide(button); return; }
+      if (api.mode === "live") {
+        // Shown only once the server has Google credentials (no republish needed).
+        button.hidden = true;
+        api.providers().then(function (p) {
+          if (p && p.google) { button.hidden = false; } else { hide(button); }
+        }, function () { hide(button); });
+      }
       button.addEventListener("click", function () {
         busy(button, true, "Opening Google");
         api.google(next).catch(function (err) {
@@ -145,7 +153,8 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var email = $("#email").value.trim(), password = $("#password").value;
-      var ok = fieldError("email", validEmail(email) ? "" : "Enter a valid email address.");
+      var looksOk = email.indexOf("@") === -1 ? /^[A-Za-z0-9_.-]{3,32}$/.test(email) : validEmail(email);
+      var ok = fieldError("email", looksOk ? "" : "Enter your email address or username.");
       ok = fieldError("password", password ? "" : "Enter your password.") && ok;
       if (!ok) return;
       var submit = $('button[type="submit"]', form);
@@ -154,7 +163,9 @@
       api.login({ email: email, password: password }).then(goNext, function (err) {
         busy(submit, false);
         if (err.code === "email_not_verified") {
-          location.href = "signup.html?verify=" + encodeURIComponent(email) + (params.get("next") ? "&next=" + encodeURIComponent(params.get("next")) : "");
+          // Signed in with a username? The server says where the code went.
+          var target = (err.data && err.data.email) || email;
+          location.href = "signup.html?verify=" + encodeURIComponent(target) + (params.get("next") ? "&next=" + encodeURIComponent(params.get("next")) : "");
           return;
         }
         notice(form, "error", err.message);

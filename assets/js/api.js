@@ -30,7 +30,7 @@
   var MESSAGES = {
     not_live: "Accounts open very soon. We are finishing the sign-in server.",
     network: "Can't reach MyCraftingAI right now. Check your connection and try again.",
-    invalid_credentials: "That email and password don't match.",
+    invalid_credentials: "That email/username and password don't match.",
     email_taken: "An account with this email already exists. Try signing in.",
     email_not_verified: "Verify your email first. We sent you a 6-digit code.",
     invalid_code: "That code is wrong or has expired.",
@@ -60,7 +60,9 @@
       return response.json().catch(function () { return {}; }).then(function (data) {
         if (response.ok) return data;
         var err = (data && data.error) || {};
-        throw new ApiError(err.code || "error", err.message || MESSAGES[err.code], response.status);
+        var failure = new ApiError(err.code || "error", err.message || MESSAGES[err.code], response.status);
+        failure.data = err;  // extra fields, e.g. the email a verification code went to
+        throw failure;
       });
     }, function () {
       throw new ApiError("network", MESSAGES.network, 0);
@@ -192,6 +194,11 @@
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
+    /** Which sign-in methods the server has switched on, e.g. {google: true}. */
+    providers: function () {
+      if (mode === "live") return live("GET", "/v1/auth/providers");
+      return Promise.resolve({ google: mode === "preview" });
+    },
     /** Where the "Continue with Google" button goes. */
     google: function (next) {
       if (mode === "live") {
