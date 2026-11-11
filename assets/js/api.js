@@ -194,6 +194,19 @@
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
+    /** Admin panel (server returns 404 for non-admins). Live mode only. */
+    admin: {
+      overview: function () { return request("GET", "/v1/admin/overview"); },
+      users: function (q) {
+        var qs = "?query=" + encodeURIComponent(q.query || "") + "&page=" + (q.page || 1) +
+          (q.plan ? "&plan=" + encodeURIComponent(q.plan) : "");
+        return request("GET", "/v1/admin/users" + qs);
+      },
+      user: function (id) { return request("GET", "/v1/admin/users/" + encodeURIComponent(id)); },
+      update: function (id, changes) { return request("PATCH", "/v1/admin/users/" + encodeURIComponent(id), changes); },
+      revokeSessions: function (id) { return request("POST", "/v1/admin/users/" + encodeURIComponent(id) + "/revoke-sessions", {}); },
+      remove: function (id) { return request("DELETE", "/v1/admin/users/" + encodeURIComponent(id)); }
+    },
     /** Which sign-in methods the server has switched on, e.g. {google: true}. */
     providers: function () {
       if (mode === "live") return live("GET", "/v1/auth/providers");
