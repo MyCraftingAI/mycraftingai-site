@@ -143,6 +143,7 @@
     if (view === "ads") loadAds();
     if (view === "revenue") loadRevenue();
     if (view === "settings") loadSettings();
+    if (view === "gifts") loadGifts();
     if (view === "users") loadUsers();
     if (view === "messages") loadMessages();
     if (view === "activity") loadEvents();
@@ -192,8 +193,9 @@
   /** Second KPI row: downloads, app users, ad unlocks, revenue and switches. */
   function loadGlance() {
     var host = $("[data-kpis2]");
-    Promise.all([A.insights(7), A.rewards(7), A.revenue(), A.config()]).then(function (r) {
-      var ins = r[0], rw = r[1], rev = r[2], cfg = r[3].values;
+    var bal = A.balance(false).catch(function () { return null; });
+    Promise.all([A.insights(7), A.rewards(7), A.revenue(), A.config(), bal]).then(function (r) {
+      var ins = r[0], rw = r[1], rev = r[2], cfg = r[3].values, b = r[4];
       var today = ins.days[ins.days.length - 1] || {};
       var granted = rw.funnel.build.granted + rw.funnel.textures.granted;
       var off = [];
@@ -205,7 +207,7 @@
         kpi("App users today", num(ins.active.dau), num(ins.active.wau) + " this week · " + num(ins.active.mau) + " this month"),
         kpi("Ad unlocks 7d", num(granted), (rw.completion == null ? "-" : rw.completion + "% completed") + " · " + num(rw.live.textures) + " live now"),
         kpi("MRR", money(rev.mrr), num(rev.counts.active) + " active · " + num(rev.counts.cancelling) + " cancelling"),
-        kpi("AI requests 7d", num(ins.days.reduce(function (s, d) { return s + d.aiRequests; }, 0)), num(ins.thinking.none) + " in None mode"),
+        kpi("AI provider balance", b ? balanceText(b) : "-", b ? (b.low ? "running low - top up soon" : "remaining credit · " + num(ins.days.reduce(function (s, d) { return s + d.aiRequests; }, 0)) + " AI requests 7d") : "couldn't check", !!(b && b.low)),
         kpi("Service", off.length ? "Attention" : "All on", off.length ? off.join(" · ") : "AI, sign-ups and ad unlocks running", !!off.length)
       ].join("");
       updateSwitchBadge(cfg);
@@ -430,24 +432,29 @@
     var p = v.promotion, on = state.promoMode != null ? state.promoMode : !!p;
     state.promoMode = on;
     var plans = (f.promotion && f.promotion.plans) || ["builder", "pro", "studio"];
-    var chosen = p ? p.plans : ["builder", "pro", "studio"];
+    var per = promoPlans(p);
     var html = '<div class="ad-promo-mode">' +
       '<button type="button" data-promo-mode="0" class="' + (on ? "" : "on") + '"><b>Same prices</b>Normal prices everywhere, no code.</button>' +
-      '<button type="button" data-promo-mode="1" class="' + (on ? "on" : "") + '"><b>Run a promotion</b>Sale prices on the website, code added at checkout.</button></div>';
+      '<button type="button" data-promo-mode="1" class="' + (on ? "on" : "") + '"><b>Run a promotion</b>Sale prices on the website, codes added at checkout.</button></div>';
     if (on) {
+      var live = p ? Object.keys(per).map(function (id) { return cap(id) + " " + per[id].percent + "% (" + per[id].code + ")"; }).join(" · ") : "";
       html +=
-        (p ? '<div class="ad-status on"><span class="ic">●</span><div><b>Live: ' + esc(p.label) + " - " + p.percent + "% off</b><span>Code " + esc(p.code) + " · " + esc(p.plans.join(", ")) + (p.until ? " · until " + when(p.until) : "") + "</span></div></div>" : "") +
+        (p ? '<div class="ad-status on"><span class="ic">●</span><div><b>Live: ' + esc(p.label) + "</b><span>" + esc(live) + (p.until ? " · until " + when(p.until) : "") + "</span></div></div>" : "") +
         '<div class="ad-inline" style="gap:10px;flex-wrap:wrap">' +
           '<label style="flex:2;min-width:180px">Name shown to people<input class="input" data-promo-label maxlength="60" value="' + esc(p ? p.label : (PROMO_LABEL[v.theme] || "")) + '" placeholder="e.g. Black Friday"></label>' +
-          '<label style="flex:1;min-width:110px">Discount %<input class="input" type="number" min="1" max="90" data-promo-percent value="' + esc(p ? p.percent : 30) + '"></label>' +
-          '<label style="flex:1;min-width:140px">Lemon Squeezy code<input class="input" data-promo-code maxlength="40" value="' + esc(p ? p.code : "") + '" placeholder="e.g. BF30" style="text-transform:uppercase"></label></div>' +
-        '<div><div class="ad-hint" style="margin-bottom:6px">Plans on sale</div><div class="ad-inline" style="gap:16px">' + plans.map(function (id) {
-          return '<label class="ad-check"><input type="checkbox" data-promo-plan="' + id + '"' + (chosen.indexOf(id) >= 0 ? " checked" : "") + "> " + id.charAt(0).toUpperCase() + id.slice(1) + "</label>";
-        }).join("") + "</div></div>" +
-        '<div class="ad-inline" style="gap:10px;flex-wrap:wrap"><label style="flex:2;min-width:200px">Terms (optional)<input class="input" data-promo-terms maxlength="160" value="' + esc(p ? p.terms : "") + '" placeholder="e.g. First 3 months, new subscriptions only"></label>' +
           '<label style="flex:1;min-width:170px">Ends (optional)<input class="input" type="datetime-local" data-promo-until value="' + esc(p && p.until ? p.until.slice(0, 16) : "") + '"></label></div>' +
-        '<div class="ad-promo-preview" data-promo-preview></div>' +
-        '<div class="ad-hint">Create the same code in Lemon Squeezy first (Store → Discounts), with the same percentage and duration - Lemon Squeezy is what actually charges the discounted price.</div>' +
+        '<div class="ad-promo-table"><div class="ad-promo-row head"><span>Plan</span><span>Discount</span><span>Lemon Squeezy code</span><span>Price</span></div>' +
+        plans.map(function (id) {
+          var spec = per[id], enabled = p ? !!spec : true;
+          return '<div class="ad-promo-row' + (enabled ? "" : " off") + '" data-promo-row="' + id + '">' +
+            '<label class="ad-check"><input type="checkbox" data-promo-plan="' + id + '"' + (enabled ? " checked" : "") + "> <b>" + cap(id) + "</b></label>" +
+            '<span class="ad-pct"><input class="input" type="number" min="1" max="90" data-promo-pct="' + id + '" value="' + esc(spec ? spec.percent : 30) + '"><i>%</i></span>' +
+            '<input class="input" data-promo-code="' + id + '" maxlength="40" value="' + esc(spec ? spec.code : "") + '" placeholder="e.g. ' + id.toUpperCase().slice(0, 3) + '30" style="text-transform:uppercase">' +
+            '<span class="ad-promo-price" data-promo-price="' + id + '"></span></div>';
+        }).join("") + "</div>" +
+        '<div class="ad-row-actions" style="margin-top:-4px"><button class="btn btn-ghost btn-sm" data-promo-same>Use the first plan\'s discount and code for all</button></div>' +
+        '<label>Terms (optional)<input class="input" data-promo-terms maxlength="160" value="' + esc(p ? p.terms : "") + '" placeholder="e.g. First 3 months, new subscriptions only"></label>' +
+        '<div class="ad-hint">Create each code in Lemon Squeezy first (Store → Discounts) with the same percentage, limited to that plan - Lemon Squeezy is what actually charges the discounted price.</div>' +
         '<div class="ad-row-actions"><button class="btn btn-primary" data-promo-save>' + (p ? "Update promotion" : "Start promotion") + "</button>" +
         (p ? '<button class="btn btn-ghost" data-promo-stop>End promotion</button>' : "") + "</div>";
     } else if (p) {
@@ -457,17 +464,31 @@
     promoPreview();
   }
 
-  function promoPreview() {
-    var box = $("[data-promo-preview]"); if (!box) return;
-    var pct = Math.max(0, Math.min(90, Number(($("[data-promo-percent]") || {}).value) || 0));
-    var plans = (window.MCA_PLANS && window.MCA_PLANS.plans) || [];
-    box.innerHTML = $$("[data-promo-plan]").filter(function (c) { return c.checked; }).map(function (c) {
-      var plan = plans.filter(function (x) { return x.id === c.dataset.promoPlan; })[0];
-      if (!plan || !plan.price) return "";
-      return "<div>" + esc(plan.name) + "<b><s>$" + plan.price.toFixed(2) + "</s>$" + (Math.round(plan.price * (100 - pct)) / 100).toFixed(2) + "</b>per month</div>";
-    }).join("");
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /** {plan: {percent, code}} from a stored promotion (old or new shape). */
+  function promoPlans(p) {
+    if (!p) return {};
+    if (!Array.isArray(p.plans)) return p.plans || {};
+    var out = {};
+    p.plans.forEach(function (id) { out[id] = { percent: p.percent, code: p.code }; });
+    return out;
   }
 
+  function promoPreview() {
+    var plans = (window.MCA_PLANS && window.MCA_PLANS.plans) || [];
+    $$("[data-promo-row]").forEach(function (row) {
+      var id = row.dataset.promoRow, on = $('[data-promo-plan="' + id + '"]', row).checked;
+      var pct = Math.max(0, Math.min(90, Number($('[data-promo-pct="' + id + '"]', row).value) || 0));
+      var plan = plans.filter(function (x) { return x.id === id; })[0];
+      row.classList.toggle("off", !on);
+      $$("input.input", row).forEach(function (input) { input.disabled = !on; });
+      var cell = $('[data-promo-price="' + id + '"]', row);
+      if (!plan || !plan.price) { cell.textContent = ""; return; }
+      cell.innerHTML = on && pct ? "<s>$" + plan.price.toFixed(2) + "</s> <b>$" + (Math.round(plan.price * (100 - pct)) / 100).toFixed(2) + "</b>"
+        : "<b>$" + plan.price.toFixed(2) + "</b> <span class=\"ad-muted\">normal</span>";
+    });
+  }
   function annPreview() {
     var box = $("[data-ann-preview]"); if (!box) return;
     var text = $("[data-ann-text]").value.trim(), lt = $("[data-ann-linktext]").value.trim(), link = $("[data-ann-link]").value.trim();
@@ -507,6 +528,116 @@
         return '<div class="ad-ev"><i style="background:' + (e.event === "granted" ? "#3dd68c" : "#4f63f5") + '"></i><div><div>' + esc((EVENT_TEXT[e.event] || e.event).replace(/^./, function (c) { return c.toUpperCase(); })) + " " +
           (e.kind === "build" ? "Build & Run" : "Texture Studio") + (e.source ? " · " + esc(e.source) : "") + '</div></div><time title="' + esc(when(e.at)) + '">' + since(e.at) + "</time></div>";
       }).join("") + "</div>" : '<p class="ad-muted" style="margin:8px 0 0">No unlocks yet.</p>') + "</div>";
+  }
+
+  /* ---------------------------------------------------------- token gifts */
+  function giftWhat(g) {
+    return g.mode === "daily" ? "+" + num(g.amount) + " tokens every day" : num(g.amount) + " tokens, once";
+  }
+  function giftState(g) {
+    var tag = g.state === "active" ? "good" : g.state === "expired" ? "warn" : "plan";
+    var text = g.state === "active" ? (g.endsAt ? "until " + when(g.endsAt) : "no end") : g.state === "expired" ? "finished " + since(g.endsAt) : "ended " + since(g.endedAt);
+    return '<span class="ad-tag ' + tag + '">' + esc(g.state) + '</span> <span class="ad-muted" style="font-size:12.5px">' + esc(text) + "</span>";
+  }
+
+  function loadGifts() {
+    renderGiftForm();
+    A.gifts().then(function (d) {
+      var list = d.gifts || [], active = list.filter(function (g) { return g.state === "active"; });
+      var used = list.reduce(function (s, g) { return s + g.used; }, 0);
+      var reach = active.reduce(function (s, g) { return s + g.recipients; }, 0);
+      $("[data-gift-kpis]").innerHTML = [
+        kpi("Active gifts", num(active.length), num(list.length) + " in total"),
+        kpi("People with an active gift", num(reach), "counted once per gift"),
+        kpi("Gift tokens used", fmt(used), "across every gift"),
+        kpi("People who used gifts", num(list.reduce(function (s, g) { return s + g.usersUsed; }, 0)), "across every gift")
+      ].join("");
+      $("[data-gift-list]").innerHTML = list.length ? list.map(function (g) {
+        var pct = g.given ? Math.min(100, Math.round(g.used / g.given * 100)) : null;
+        return '<div class="ad-card ad-gift" data-gift="' + esc(g.id) + '">' +
+          '<div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>' + esc(g.name) + "</h3>" +
+          '<div class="ad-muted" style="font-size:13px">' + esc(giftWhat(g)) + " · " + esc(g.audience) + " · " + num(g.recipients) + " people</div></div>" +
+          "<div>" + giftState(g) + "</div></div>" +
+          '<div class="ad-gift-use"><div><small>Used</small><b>' + fmt(g.used) + "</b>" + (pct != null ? '<span class="ad-muted"> of ' + fmt(g.given) + "</span>" : '<span class="ad-muted"> so far</span>') + "</div>" +
+          "<div><small>People who used it</small><b>" + num(g.usersUsed) + '</b><span class="ad-muted"> of ' + num(g.recipients) + "</span></div>" +
+          "<div><small>Created</small><b style=\"font-size:14px\">" + since(g.created) + '</b><span class="ad-muted"> by ' + esc(g.createdBy) + "</span></div></div>" +
+          (pct != null ? '<div class="get-bar" style="margin:10px 0 0"><i style="width:' + pct + '%"></i></div>' : "") +
+          '<div class="ad-row-actions" style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-gift-open="' + esc(g.id) + '">Who used it</button>' +
+          (g.state === "active" ? '<button class="btn btn-warn btn-sm" data-gift-end="' + esc(g.id) + '">End now</button>' : "") +
+          '<button class="btn btn-ghost btn-sm" data-gift-delete="' + esc(g.id) + '">Remove</button></div>' +
+          '<div data-gift-people="' + esc(g.id) + '"></div></div>';
+      }).join("") : '<div class="ad-card"><div class="ad-empty">No gifts yet. Create one on the left.</div></div>';
+    }, function (e) { toast(errText(e), true); });
+  }
+
+  function renderGiftForm() {
+    var host = $("[data-gift-form]");
+    if (host.dataset.ready) return;
+    host.dataset.ready = "1";
+    var prefill = state.giftPrefill || [];
+    state.giftPrefill = null;
+    host.innerHTML =
+      '<label>Name (shown to people)<input class="input" data-gift-name maxlength="80" placeholder="e.g. Christmas gift"></label>' +
+      '<div><div class="ad-hint" style="margin-bottom:6px">Type</div><div class="ad-seg" data-gift-mode><button type="button" data-mode="pack" class="on">One-off pack</button><button type="button" data-mode="daily">Extra every day</button></div>' +
+        '<div class="ad-hint" data-gift-mode-hint style="margin-top:6px">A pack is used once their normal daily allowance runs out, until it is spent or the gift ends.</div></div>' +
+      '<label>Tokens<input class="input" type="number" min="1" step="1000" data-gift-amount placeholder="e.g. 50000"></label>' +
+      '<div class="ad-chips" style="margin:-4px 0 0">' + [10000, 25000, 50000, 100000, 500000].map(function (n) { return '<button type="button" class="ad-chip" data-gift-pick="' + n + '">' + fmt(n) + "</button>"; }).join("") + "</div>" +
+      '<div><div class="ad-hint" style="margin-bottom:6px">Who gets it</div><div class="ad-seg" data-gift-aud><button type="button" data-aud="all"' + (prefill.length ? "" : ' class="on"') + '>Everyone</button><button type="button" data-aud="plans">Plans</button><button type="button" data-aud="users"' + (prefill.length ? ' class="on"' : "") + '>Chosen people</button></div></div>' +
+      '<div class="ad-inline" data-gift-plans style="gap:16px" hidden>' + PLAN_ORDER.map(function (p) { return '<label class="ad-check"><input type="checkbox" data-gift-plan="' + p + '"> ' + cap(p) + "</label>"; }).join("") + "</div>" +
+      '<label data-gift-users' + (prefill.length ? "" : " hidden") + '>Emails or user IDs (one per line or comma separated)<textarea data-gift-userlist placeholder="alex@example.com&#10;steve@example.com">' + esc(prefill.join("\n")) + "</textarea></label>" +
+      '<div><div class="ad-hint" style="margin-bottom:6px">How long</div><div class="ad-seg" data-gift-len><button type="button" data-len="none" class="on">No end</button><button type="button" data-len="7">7 days</button><button type="button" data-len="30">30 days</button><button type="button" data-len="custom">Until…</button></div></div>' +
+      '<label data-gift-until hidden>Ends<input class="input" type="datetime-local" data-gift-until-input></label>' +
+      '<label class="ad-check"><input type="checkbox" data-gift-notify checked> Email everyone who gets it (from noreply@)</label>' +
+      '<label data-gift-msg>Personal note in the email (optional)<textarea data-gift-message maxlength="2000" placeholder="e.g. Merry Christmas and thanks for building with us!"></textarea></label>' +
+      '<div class="ad-row-actions"><button class="btn btn-ghost" data-gift-count>Count people</button><button class="btn btn-primary" data-gift-create>Give tokens</button><span class="ad-muted" data-gift-info style="font-size:13px"></span></div>';
+    if (prefill.length) { $("[data-gift-users]").hidden = false; }
+  }
+
+  function giftAudience() {
+    var aud = ($("[data-gift-aud] .on") || {}).dataset ? $("[data-gift-aud] .on").dataset.aud : "all";
+    if (aud === "plans") return { type: "plans", plans: $$("[data-gift-plan]").filter(function (c) { return c.checked; }).map(function (c) { return c.dataset.giftPlan; }) };
+    if (aud === "users") return { type: "users", users: $("[data-gift-userlist]").value.split(/[\s,;]+/).map(function (s) { return s.trim(); }).filter(Boolean) };
+    return { type: "all" };
+  }
+  function giftEnds() {
+    var len = $("[data-gift-len] .on").dataset.len;
+    if (len === "none") return null;
+    if (len === "custom") { var v = $("[data-gift-until-input]").value; return v ? new Date(v).toISOString() : ""; }
+    return new Date(Date.now() + Number(len) * 864e5).toISOString();
+  }
+
+  function showGiftPeople(id) {
+    var box = $('[data-gift-people="' + id + '"]');
+    if (box.innerHTML) { box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="ad-skel" style="margin-top:10px"></div>';
+    A.gift(id).then(function (d) {
+      var people = d.gift.people || [];
+      box.innerHTML = '<div class="ad-rows" style="margin-top:10px">' + (people.length ? people.map(function (p) {
+        return '<div class="r link" data-open-user="' + esc(p.id) + '">' + userCell(p) + "<b>" + fmt(p.used) + " used</b></div>";
+      }).join("") : '<div class="ad-empty">Nobody has used it yet.</div>') + "</div>";
+    }, function (e) { box.innerHTML = ""; toast(errText(e), true); });
+  }
+
+  /* -------------------------------------------------------------- balance */
+  function money2(n, cur) {
+    var sym = cur === "USD" ? "$" : cur === "CNY" ? "¥" : "";
+    return sym + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (sym ? "" : " " + cur);
+  }
+  function balanceText(b) {
+    var cur = Object.keys(b.totals || {});
+    return cur.length ? cur.map(function (c) { return money2(b.totals[c], c); }).join(" + ") : "-";
+  }
+  function loadBalance(refresh, btn) {
+    var p = A.balance(refresh);
+    (btn ? run(btn, p, "Balance refreshed", "Checking") : p).then(function (b) {
+      $("[data-balance-total]").textContent = balanceText(b);
+      $("[data-balance-sub]").textContent = (b.low ? "Running low - top up soon. " : "Remaining credit on your AI provider account. ") + "Checked " + since(b.checkedAt) + ".";
+      $("[data-balance-keys]").innerHTML = (b.keys || []).map(function (k) {
+        var bal = k.balances && k.balances.length ? k.balances.map(function (x) { return money2(x.total, x.currency) + (x.granted ? ' <span class="ad-muted" style="font-size:12px">(' + money2(x.granted, x.currency) + " granted)</span>" : ""); }).join(", ") : "";
+        return '<div class="r"><span><b style="color:var(--text)">' + esc(k.label) + '</b> <span class="ad-tag ' + (k.status === "active" ? "good" : "warn") + '">' + esc(k.status) + "</span></span>" +
+          "<span>" + (k.error ? '<span class="ad-tag bad">' + esc(k.error) + "</span>" : bal || "-") + "</span></div>";
+      }).join("") || '<div class="ad-empty">No AI keys on the server yet.</div>';
+    }, function () { $("[data-balance-total]").textContent = "Unavailable"; });
   }
 
   /* -------------------------------------------------------------- health */
@@ -637,6 +768,11 @@
   function bulkAction(action) {
     var ids = selectedIds();
     if (!ids.length) return;
+    if (action === "gift") {
+      state.giftPrefill = ids.map(function (id) { return typeof state.selected[id] === "string" ? state.selected[id] : id; });
+      var form = $("[data-gift-form]"); if (form) form.dataset.ready = "";
+      return go("gifts");
+    }
     if (action === "email") {
       var emails = ids.map(function (id) { return state.selected[id]; }).filter(Boolean);
       go("messages");
@@ -789,6 +925,10 @@
         '<div class="r"><span>Used today</span><span>' + num(u.usedToday) + "</span></div></div>" +
         '<div class="ad-inline" style="margin-top:12px"><input class="input" type="number" min="0" step="1000" data-limit placeholder="Custom tokens per day, e.g. 500000"><button class="btn" data-limit-save>Set limit</button>' +
         (u.dailyLimitOverride != null ? '<button class="btn btn-ghost" data-limit-clear>Use plan default</button>' : "") + "</div></div>" +
+      ((u.gifts || []).length ? '<div class="ad-card"><h3>Token gifts</h3><p class="ad-sub">Active gifts on this account (manage them in Token gifts).</p><div class="ad-rows">' + u.gifts.map(function (g) {
+        return '<div class="r"><span><b style="color:var(--text);display:block">' + esc(g.name) + '</b><span style="font-size:12.5px">' + esc(giftWhat(g)) + (g.endsAt ? " · until " + when(g.endsAt) : " · no end") + "</span></span>" +
+          "<span>" + fmt(g.used) + " used<br><span class=\"ad-muted\" style=\"font-size:12px\">" + fmt(g.left) + " left today</span></span></div>";
+      }).join("") + "</div></div>" : "") +
       '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Bonus tokens for today</h3><p class="ad-sub">One-off extra allowance; disappears at the next reset. Open apps update within seconds.</p></div>' +
         '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Bonus today</div><b style="font:700 20px var(--display);color:' + (u.bonusToday ? "var(--mint)" : "var(--muted)") + '">' + (u.bonusToday ? "+" + num(u.bonusToday) : "0") + "</b></div></div>" +
         '<div class="ad-chips" style="margin-bottom:10px">' + [1000, 5000, 10000, 50000, 250000, 1000000].map(function (n) { return '<button class="ad-chip" data-bonus-pick="' + n + '">' + fmt(n) + "</button>"; }).join("") + "</div>" +
@@ -1158,6 +1298,7 @@
   /* -------------------------------------------------------------- system */
   function loadSystem() {
     loadHealth();
+    loadBalance(false);
     loadSenders().then(function (s) {
       $("[data-keys]").innerHTML = s.keys.length ? s.keys.map(function (k) {
         var tag = k.status === "active" ? "good" : k.status === "degraded" ? "warn" : "bad";
@@ -1189,7 +1330,7 @@
     var h = location.hash.replace(/^#/, "");
     var m = h.match(/^users\/([0-9a-f-]{36})$/i);
     if (m) { if (state.view !== "users") go("users", false); openUser(m[1]); return; }
-    var view = ["dashboard", "insights", "ads", "revenue", "settings", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
+    var view = ["dashboard", "insights", "ads", "revenue", "gifts", "settings", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
     if (view !== state.view || !state.booted) go(view, false);
     state.booted = true;
   }
@@ -1289,6 +1430,74 @@
     }
     if (t.closest("[data-signout]")) api.logout().then(function () { location.href = "login.html"; });
 
+    // Token gifts
+    var gm = t.closest("[data-gift-mode] button");
+    if (gm) {
+      $$("[data-gift-mode] button").forEach(function (b) { b.classList.toggle("on", b === gm); });
+      $("[data-gift-mode-hint]").textContent = gm.dataset.mode === "daily"
+        ? "Added on top of their normal allowance every day while the gift runs."
+        : "A pack is used once their normal daily allowance runs out, until it is spent or the gift ends.";
+      return;
+    }
+    var ga = t.closest("[data-gift-aud] button");
+    if (ga) {
+      $$("[data-gift-aud] button").forEach(function (b) { b.classList.toggle("on", b === ga); });
+      $("[data-gift-plans]").hidden = ga.dataset.aud !== "plans";
+      $("[data-gift-users]").hidden = ga.dataset.aud !== "users";
+      $("[data-gift-info]").textContent = "";
+      return;
+    }
+    var gl = t.closest("[data-gift-len] button");
+    if (gl) {
+      $$("[data-gift-len] button").forEach(function (b) { b.classList.toggle("on", b === gl); });
+      $("[data-gift-until]").hidden = gl.dataset.len !== "custom";
+      return;
+    }
+    if (t.dataset.giftPick) { $("[data-gift-amount]").value = t.dataset.giftPick; return; }
+    if (t.closest("[data-gift-count]")) {
+      return run(t.closest("[data-gift-count]"), A.giftPreview(giftAudience()), null, "Counting").then(function (r) {
+        $("[data-gift-info]").textContent = num(r.recipients) + " people" + (r.sample.length ? " (e.g. " + r.sample.slice(0, 3).join(", ") + ")" : "");
+      });
+    }
+    if (t.closest("[data-gift-create]")) {
+      var gbtn = t.closest("[data-gift-create]");
+      var gift = {
+        name: $("[data-gift-name]").value.trim(), mode: $("[data-gift-mode] .on").dataset.mode,
+        amount: Math.round(Number($("[data-gift-amount]").value)), audience: giftAudience(), endsAt: giftEnds(),
+        notify: $("[data-gift-notify]").checked, message: $("[data-gift-message]").value.trim()
+      };
+      if (!gift.name) return toast("Give the gift a name.", true);
+      if (!(gift.amount > 0)) return toast("Enter how many tokens to give.", true);
+      if (gift.endsAt === "") return toast("Pick when the gift ends.", true);
+      return run(gbtn, A.giftPreview(gift.audience), null, "Checking").then(function (r) {
+        return ask({
+          title: "Give " + (gift.mode === "daily" ? "+" + num(gift.amount) + " tokens a day" : num(gift.amount) + " tokens") + " to " + num(r.recipients) + " people?",
+          text: "'" + gift.name + "' " + (gift.endsAt ? "runs until " + when(gift.endsAt) : "has no end date") + "." + (gift.notify ? " Everyone gets an email." : " No email is sent."),
+          ok: "Give tokens"
+        });
+      }).then(function (v) {
+        if (!v) return;
+        run(gbtn, A.createGift(gift), null, "Giving").then(function (res) {
+          toast("Gift sent to " + num(res.gift.recipients) + " people" + (res.emailed ? " · emails on their way" : ""));
+          $("[data-gift-form]").dataset.ready = ""; loadGifts();
+        });
+      });
+    }
+    var gopen = t.closest("[data-gift-open]"); if (gopen) return showGiftPeople(gopen.dataset.giftOpen);
+    var gend = t.closest("[data-gift-end]");
+    if (gend) {
+      return ask({ title: "End this gift now?", text: "Unused tokens from it stop working right away. Its history stays here.", ok: "End gift", danger: true }).then(function (v) {
+        if (v) run(gend, A.endGift(gend.dataset.giftEnd), "Gift ended", "Ending").then(loadGifts);
+      });
+    }
+    var gdel = t.closest("[data-gift-delete]");
+    if (gdel) {
+      return ask({ title: "Remove this gift?", text: "It stops right away and its usage history is deleted. The activity log keeps a record.", ok: "Remove", danger: true }).then(function (v) {
+        if (v) run(gdel, A.deleteGift(gdel.dataset.giftDelete), "Gift removed", "Removing").then(loadGifts);
+      });
+    }
+    if (t.closest("[data-balance-refresh]")) return loadBalance(true, t.closest("[data-balance-refresh]"));
+
     // Insights / Ads / Settings
     var ir = t.closest("[data-ins-range] button"); if (ir) { state.insDays = Number(ir.dataset.days); return loadInsights(); }
     var ar = t.closest("[data-ads-range] button"); if (ar) { state.adsDays = Number(ar.dataset.days); return loadAds(); }
@@ -1325,16 +1534,29 @@
       state.promoMode = pm.dataset.promoMode === "1";
       return renderLook(state.cfg.values, state.cfg.fields);
     }
+    if (t.closest("[data-promo-same]")) {
+      var rows = $$("[data-promo-row]"), first = rows.filter(function (r) { return $("[data-promo-plan]", r).checked; })[0];
+      if (!first) return toast("Turn on at least one plan first.", true);
+      var fid = first.dataset.promoRow, fp = $('[data-promo-pct="' + fid + '"]').value, fc = $('[data-promo-code="' + fid + '"]').value;
+      rows.forEach(function (r) { var id = r.dataset.promoRow; $('[data-promo-pct="' + id + '"]').value = fp; $('[data-promo-code="' + id + '"]').value = fc; });
+      return promoPreview();
+    }
     if (t.closest("[data-promo-save]")) {
-      var untilP = $("[data-promo-until]").value;
-      var promo = {
-        label: $("[data-promo-label]").value.trim(), percent: Number($("[data-promo-percent]").value),
-        code: $("[data-promo-code]").value.trim().toUpperCase(), terms: $("[data-promo-terms]").value.trim(),
-        plans: $$("[data-promo-plan]").filter(function (c) { return c.checked; }).map(function (c) { return c.dataset.promoPlan; }),
-        until: untilP ? new Date(untilP).toISOString() : null
-      };
+      var untilP = $("[data-promo-until]").value, perPlan = {}, missing = "";
+      $$("[data-promo-row]").forEach(function (r) {
+        var id = r.dataset.promoRow;
+        if (!$("[data-promo-plan]", r).checked) return;
+        var code = $('[data-promo-code="' + id + '"]').value.trim().toUpperCase();
+        if (!code && !missing) missing = cap(id);
+        perPlan[id] = { percent: Number($('[data-promo-pct="' + id + '"]').value), code: code };
+      });
+      if (!Object.keys(perPlan).length) return toast("Turn on at least one plan.", true);
+      if (missing) return toast(missing + " needs its Lemon Squeezy discount code.", true);
+      var promo = { label: $("[data-promo-label]").value.trim(), terms: $("[data-promo-terms]").value.trim(),
+        plans: perPlan, until: untilP ? new Date(untilP).toISOString() : null };
+      var summary = Object.keys(perPlan).map(function (id) { return cap(id) + " " + perPlan[id].percent + "% (" + perPlan[id].code + ")"; }).join(", ");
       var btnP = t.closest("[data-promo-save]");
-      return ask({ title: "Start " + (promo.label || "the promotion") + "?", text: promo.percent + "% off " + promo.plans.join(", ") + " with code " + promo.code + ". The website shows the sale prices right away.", ok: "Go live" }).then(function (v) {
+      return ask({ title: "Start " + (promo.label || "the promotion") + "?", text: summary + ". The website shows the sale prices right away.", ok: "Go live" }).then(function (v) {
         if (v) saveConfig(btnP, { promotion: promo }, "Promotion is live");
       });
     }
@@ -1384,7 +1606,7 @@
   });
   document.addEventListener("input", function (e) {
     if (e.target.matches && e.target.matches("[data-ann-text], [data-ann-link], [data-ann-linktext]")) annPreview();
-    if (e.target.matches && e.target.matches("[data-promo-percent]")) promoPreview();
+    if (e.target.matches && e.target.matches("[data-promo-pct]")) promoPreview();
   });
   document.addEventListener("change", function (e) {
     if (e.target.matches && e.target.matches("[data-promo-plan]")) promoPreview();

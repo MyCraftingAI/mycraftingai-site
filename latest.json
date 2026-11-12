@@ -1,10 +1,10 @@
 {
-  "version": "1.0.6",
+  "version": "1.0.7",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 52400148,
-  "sha256": "3daca2b4161c947554d1fcc30689276a659bdf97d70f69278c8637ad37268794",
-  "published": "2026-11-12T14:07:17Z",
+  "size": 52414406,
+  "sha256": "a2f55292afe658d10b54db0d6ac4886b9e6002b71fb303c549f64373299cbc0a",
+  "published": "2026-11-12T17:30:20Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Account changes apply instantly**: bonus tokens, plan upgrades, subscription changes and unlocks now show up within seconds while the app is open - no restart needed. The chat tells you exactly what changed.\n- **Seasonal looks**: the app can follow MyCraftingAI's seasonal themes (Christmas, Halloween, Black Friday and more) with matching colours and a small badge in the title bar.\n- **Offers in the app**: when a promotion is running, it appears in the title bar and in upgrade prompts - one click opens the plans page."
+  "notes": "- **Beautiful seasonal themes**: during Christmas, Halloween, Black Friday and other seasons the app gets matching colours, a pixel-art badge in the title bar, a gently animated decoration (Christmas lights, bunting, icicles...) and a seasonal pointer - over buttons it becomes the season's pixel art, like a Christmas tree. Turn the effects off any time in Settings > Appearance.\n- **Token gifts**: when MyCraftingAI gives you extra tokens, the app tells you right away what you received and until when.\n- **Clearer offers**: running promotions show the best discount per plan in the title bar and in upgrade prompts."
 }

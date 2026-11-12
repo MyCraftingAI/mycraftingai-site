@@ -379,6 +379,13 @@
         setConfig: function (changes) { return request("PATCH", "/v1/admin/config", { changes: changes }); },
         resetConfig: function (name) { return request("DELETE", "/v1/admin/config/" + encodeURIComponent(name)); },
         userRewards: function (id, d) { return request("POST", u(id) + "/rewards", d); },
+        gifts: function () { return request("GET", "/v1/admin/gifts"); },
+        gift: function (id) { return request("GET", "/v1/admin/gifts/" + encodeURIComponent(id)); },
+        giftPreview: function (audience) { return request("POST", "/v1/admin/gifts/preview", { audience: audience }); },
+        createGift: function (d) { return request("POST", "/v1/admin/gifts", d); },
+        endGift: function (id) { return request("POST", "/v1/admin/gifts/" + encodeURIComponent(id) + "/end", {}); },
+        deleteGift: function (id) { return request("DELETE", "/v1/admin/gifts/" + encodeURIComponent(id)); },
+        balance: function (refresh) { return request("GET", "/v1/admin/balance" + (refresh ? "?refresh=true" : "")); },
         /** Daily metrics as CSV, downloaded with the session cookie. */
         exportMetrics: function (days) {
           if (mode !== "live") return fail("not_live", 503);

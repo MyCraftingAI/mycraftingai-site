@@ -654,7 +654,12 @@
   /** The admin's running promotion for ``planId`` (Live settings), or null. */
   function activePromo(planId) {
     var promo = window.MCA && window.MCA.look && window.MCA.look.promotion;
-    return promo && promo.code && (promo.plans || []).indexOf(planId) >= 0 ? promo : null;
+    if (!promo || !promo.plans) return null;
+    var spec = Array.isArray(promo.plans)  // older one-discount shape
+      ? (promo.plans.indexOf(planId) >= 0 && promo.code ? { percent: promo.percent, code: promo.code } : null)
+      : promo.plans[planId];
+    if (!spec || !spec.code || !spec.percent) return null;
+    return { percent: spec.percent, code: spec.code, label: promo.label || "Sale", terms: promo.terms || "" };
   }
   function salePrice(price, promo) { return Math.round(price * (100 - promo.percent)) / 100; }
 
