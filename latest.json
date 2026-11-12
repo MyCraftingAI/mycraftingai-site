@@ -1,10 +1,10 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 52331675,
-  "sha256": "05333658ad5996827f4fea841e8bcccc701954580ae8f6c80414f0463d9d0519",
-  "published": "2026-11-11T21:28:34Z",
+  "size": 52361300,
+  "sha256": "1527c1f7ec193b779a084960b4d581bfb3628406a3234b8d18858dccb3ad895a",
+  "published": "2026-11-12T06:18:24Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": ""
+  "notes": "- **Updates tab in Settings**: see your version, check for updates, read what's new and install with one click.\n- **Automatic updates**: MyCraftingAI checks every 30 minutes, downloads new versions in the background and installs them when you close the app or choose Restart and update.\n- **Verified downloads**: every update is checked against its published SHA-256 fingerprint before it runs.\n- A small \"Update\" badge on Settings tells you when a new version is waiting.\n- The logs folder button now opens the right folder in the installed app."
 }
