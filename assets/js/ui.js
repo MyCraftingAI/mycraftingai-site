@@ -142,6 +142,126 @@
     if (first) first.focus();
   }
 
+  /* --------------------------------------------- Terms / Privacy agreement
+   * Every time the account is loaded (api.me) we check that the signed-in
+   * user agreed to the current Terms of Service + Privacy Policy:
+   *   - new Google accounts go to the welcome page (username + agreement);
+   *   - after a Terms update, a prompt that can't be dismissed asks everyone
+   *     to accept again (or sign out).
+   * The pages that are part of signing in, and the policies themselves, are
+   * never blocked. The server enforces the same rule for AI requests. */
+  var LEGAL_OPEN_PAGES = ["welcome.html", "login.html", "signup.html", "forgot.html", "terms.html",
+                          "privacy.html", "desktop.html", "404.html", "unlock.html"];
+
+  function currentPage() {
+    return (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  }
+
+  function legalGate() {
+    var api = window.MCA && window.MCA.api;
+    if (!api || typeof api.me !== "function" || api.me.legalGated) return;
+    var original = api.me, handled = false;
+    api.me = function () {
+      return original.apply(api, arguments).then(function (me) {
+        if (!handled && me && me.legal && LEGAL_OPEN_PAGES.indexOf(currentPage()) === -1) {
+          if (me.legal.needsUsername) {
+            handled = true;
+            var here = currentPage() + location.search;
+            location.replace("welcome.html?next=" + encodeURIComponent(here));
+          } else if (me.legal.accepted === false) {
+            handled = true;
+            whenReady(function () { legalPrompt(me); });
+          }
+        }
+        return me;
+      });
+    };
+    api.me.legalGated = true;
+  }
+
+  function whenReady(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  function legalPrompt(me) {
+    var api = window.MCA.api;
+    var legal = me.legal || {};
+    var host = document.createElement("div");
+    host.className = "modal legal-modal open";
+    host.setAttribute("role", "dialog");
+    host.setAttribute("aria-modal", "true");
+    host.setAttribute("aria-labelledby", "legal-title");
+    host.innerHTML =
+      '<div class="modal-card">' +
+      '<span class="chip"><span class="dot" style="background:var(--amber)"></span>Policy update</span>' +
+      '<h3 id="legal-title">We\'ve updated our Terms and Privacy Policy</h3>' +
+      "<p>To keep using MyCraftingAI, please review and accept the updated Terms of Service and Privacy Policy.</p>" +
+      '<div class="legal-box">' +
+      '<div class="legal-box-head"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6l7-3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg><b>What\'s changed</b></div>' +
+      '<p data-legal-summary></p>' +
+      '<div class="legal-links"><a href="terms.html" target="_blank" rel="noopener">Terms of Service &#8599;</a>' +
+      '<a href="privacy.html" target="_blank" rel="noopener">Privacy Policy &#8599;</a></div>' +
+      '<div class="legal-version" data-legal-version></div></div>' +
+      '<label class="check"><input type="checkbox" data-legal-check> <span>I have read and agree to the updated Terms of Service and Privacy Policy.</span></label>' +
+      '<div class="notice" data-legal-notice role="status"></div>' +
+      '<div class="actions"><button class="btn btn-ghost" type="button" data-legal-signout>Sign out</button>' +
+      '<button class="btn btn-primary" type="button" data-legal-accept disabled>Accept and continue</button></div>' +
+      "</div>";
+    function fill(l) {
+      legal = l || legal;
+      var day = "";
+      try {
+        if (legal.publishedAt) day = new Date(legal.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      } catch (e) { /* ignore */ }
+      host.querySelector("[data-legal-summary]").textContent = legal.summary ||
+        "We've made updates to our Terms of Service and Privacy Policy. Please take a moment to read them.";
+      host.querySelector("[data-legal-version]").textContent = "Version " + (legal.version || "") + (day ? " · published " + day : "");
+    }
+    fill(legal);
+    document.body.appendChild(host);
+    document.body.classList.add("legal-locked");
+    var check = host.querySelector("[data-legal-check]");
+    var accept = host.querySelector("[data-legal-accept]");
+    var signout = host.querySelector("[data-legal-signout]");
+    var note = host.querySelector("[data-legal-notice]");
+    function say(kind, text) { note.className = "notice " + kind + (text ? " show" : ""); note.textContent = text || ""; }
+    check.addEventListener("change", function () { accept.disabled = !check.checked; });
+    // Keep keyboard focus inside the prompt.
+    host.addEventListener("keydown", function (e) {
+      if (e.key !== "Tab") return;
+      var items = Array.prototype.slice.call(host.querySelectorAll("a, input, button:not([disabled])"));
+      var first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    accept.addEventListener("click", function () {
+      accept.disabled = true;
+      accept.innerHTML = '<span class="spinner" aria-hidden="true"></span>Saving';
+      say("", "");
+      api.legal.accept(legal.version).then(function () {
+        host.remove();
+        document.body.classList.remove("legal-locked");
+        try { document.dispatchEvent(new CustomEvent("mca:legal-accepted")); } catch (e) { /* old browser */ }
+      }, function (err) {
+        accept.textContent = "Accept and continue";
+        if (err.code === "legal_outdated") {
+          check.checked = false;
+          api.me().then(function (fresh) { fill(fresh.legal); });
+          say("warn", err.message);
+          return;
+        }
+        accept.disabled = !check.checked;
+        say("error", err.message);
+      });
+    });
+    signout.addEventListener("click", function () {
+      signout.disabled = true;
+      api.logout().then(function () { location.href = "index.html"; }, function () { location.href = "index.html"; });
+    });
+    check.focus();
+  }
+
   function contactLinks() {
     document.addEventListener("click", function (e) {
       var target = e.target.closest("[data-contact]");
@@ -504,6 +624,7 @@
   };
   window.MCA.modal = modal;
   window.MCA.escapeHtml = escapeHtml;
+  legalGate();  // before any page script asks for the account
   window.MCA.formatTokens = function (n) {
     if (n === null || n === undefined) return "Custom";
     if (n >= 1e6) return (n / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M";

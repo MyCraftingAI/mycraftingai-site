@@ -40,8 +40,15 @@
     invalid_state: "This sign-in link is not valid any more. Start again from the app.",
     two_factor_required: "Enter the 6-digit code we emailed you.",
     challenge_expired: "This sign-in has expired. Please sign in again.",
-    too_many_codes: "Too many codes requested. Please sign in again."
+    too_many_codes: "Too many codes requested. Please sign in again.",
+    terms_required: "Please agree to the Terms of Service and Privacy Policy to continue.",
+    legal_outdated: "The Terms and Privacy Policy were just updated. Please review the latest version.",
+    username_taken: "That username is taken. Try another one.",
+    invalid_username: "Usernames are 3-32 letters, numbers, dots, dashes or underscores."
   };
+
+  /** Preview mode only: the Terms version the local stand-in asks for. */
+  var PREVIEW_LEGAL = "2026-11-12";
 
   function fail(code, status, message) {
     return Promise.reject(new ApiError(code, message || MESSAGES[code], status));
@@ -105,8 +112,18 @@
       plan: { id: plan.id, name: plan.name, dailyTokens: plan.dailyTokens },
       usage: { usedToday: usage, dailyLimit: plan.dailyTokens, resetsAt: reset.toISOString() },
       settings: previewSettings(user),
-      subscription: sub ? previewSub(sub) : null
+      subscription: sub ? previewSub(sub) : null,
+      legal: {
+        version: PREVIEW_LEGAL, summary: user.legalSummary || "", publishedAt: null,
+        accepted: user.terms === PREVIEW_LEGAL, acceptedVersion: user.terms || null, acceptedAt: null,
+        needsUsername: !!user.needsUsername, termsUrl: "terms.html", privacyUrl: "privacy.html"
+      }
     };
+  }
+
+  function previewNameTaken(users, name, me) {
+    var key = String(name || "").toLowerCase();
+    return Object.keys(users).some(function (k) { return k !== me && String(users[k].name || "").toLowerCase() === key; });
   }
 
   function previewSettings(user) {
@@ -140,7 +157,7 @@
         if (users[email]) return delay().then(function () { return fail("email_taken", 409); });
         return sha256(body.password).then(function (hash) {
           var code = sixDigits();
-          users[email] = { email: email, name: body.name || email.split("@")[0], hash: hash, verified: false, code: code, plan: body.plan === "free" ? "free" : "free", created: new Date().toISOString() };
+          users[email] = { email: email, name: body.name || email.split("@")[0], hash: hash, verified: false, code: code, plan: body.plan === "free" ? "free" : "free", created: new Date().toISOString(), terms: body.acceptTerms ? PREVIEW_LEGAL : null };
           store.set("users", users);
           return delay({ status: "verify_email", previewCode: code });
         });
@@ -249,9 +266,30 @@
         });
       case "POST /v1/preview/google":
         var gmail = "preview.user@gmail.com";
-        users[gmail] = users[gmail] || { email: gmail, name: "Preview User", hash: "-", verified: true, plan: "free", provider: "google", created: new Date().toISOString() };
+        users[gmail] = users[gmail] || { email: gmail, name: "Preview", hash: "-", verified: true, plan: "free", provider: "google", created: new Date().toISOString(), needsUsername: true, terms: null };
         store.set("users", users); store.set("session", { email: gmail });
         return delay(publicUser(users[gmail]));
+      case "POST /v1/users/legal/accept":
+      case "POST /v1/users/onboarding":
+        if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+        var who = users[session.email];
+        if (body.version && body.version !== PREVIEW_LEGAL) return delay().then(function () { return fail("legal_outdated", 409); });
+        if (path === "/v1/users/onboarding") {
+          if (!body.acceptTerms) return delay().then(function () { return fail("terms_required", 400); });
+          if (!/^[A-Za-z0-9_.-]{3,32}$/.test(String(body.username || ""))) return delay().then(function () { return fail("invalid_username", 400); });
+          if (previewNameTaken(users, body.username, session.email)) return delay().then(function () { return fail("username_taken", 409); });
+          who.name = body.username; who.needsUsername = false;
+        }
+        who.terms = PREVIEW_LEGAL;
+        store.set("users", users);
+        return delay(publicUser(who));
+    }
+    if (method === "GET" && path.indexOf("/v1/users/username-available?") === 0) {
+      if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+      var wanted = new URLSearchParams(path.split("?")[1]).get("name") || "";
+      if (!/^[A-Za-z0-9_.-]{3,32}$/.test(wanted)) return delay({ available: false, reason: MESSAGES.invalid_username });
+      return delay(previewNameTaken(users, wanted, session.email)
+        ? { available: false, reason: "That username is taken." } : { available: true, reason: "" });
     }
     return fail("error", 404, "Unknown preview route " + path);
   }
@@ -284,6 +322,13 @@
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
+    /** Terms of Service + Privacy Policy: agree to the current version. */
+    legal: {
+      accept: function (version) { return request("POST", "/v1/users/legal/accept", { version: version || null }); }
+    },
+    /** Welcome step after a Google sign-up: username + Terms/Privacy agreement. */
+    onboarding: function (d) { return request("POST", "/v1/users/onboarding", d); },
+    usernameAvailable: function (name) { return request("GET", "/v1/users/username-available?name=" + encodeURIComponent(name)); },
     /** Permanently delete the signed-in account (server wants "DELETE" + password). */
     deleteAccount: function (confirm, password) { return request("DELETE", "/v1/users/me", { confirm: confirm, password: password || "" }); },
     /** Email preferences (codes and critical notices can't be switched off). */
@@ -378,6 +423,8 @@
         config: function () { return request("GET", "/v1/admin/config"); },
         setConfig: function (changes) { return request("PATCH", "/v1/admin/config", { changes: changes }); },
         resetConfig: function (name) { return request("DELETE", "/v1/admin/config/" + encodeURIComponent(name)); },
+        legal: function () { return request("GET", "/v1/admin/legal"); },
+        publishLegal: function (summary, notify) { return request("POST", "/v1/admin/legal/publish", { summary: summary, notify: !!notify }); },
         userRewards: function (id, d) { return request("POST", u(id) + "/rewards", d); },
         gifts: function () { return request("GET", "/v1/admin/gifts"); },
         gift: function (id) { return request("GET", "/v1/admin/gifts/" + encodeURIComponent(id)); },

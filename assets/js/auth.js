@@ -153,7 +153,10 @@
   var GOOGLE_ERRORS = {
     google_cancelled: "Google sign-in was cancelled. You can try again or use your email.",
     account_disabled: "This account is disabled. Contact support@mycraftingai.com.",
-    two_factor_required: "Enter the code we emailed you to finish signing in."
+    two_factor_required: "Enter the code we emailed you to finish signing in.",
+    signups_closed: "New sign-ups are paused for a short while. Please try again later.",
+    invalid_state: "That Google sign-in took too long or was already used. Please try again.",
+    google_disabled: "Google sign-in is not available right now. Please use your email and password."
   };
 
   /** Step 2 of a sign-in when 2-step verification is on. */
@@ -302,7 +305,7 @@
       var submit = $('button[type="submit"]', form);
       busy(submit, true, "Creating account");
       notice(form, "", "");
-      api.signup({ name: name, email: address, password: password, plan: plan || "free" }).then(function (r) {
+      api.signup({ name: name, email: address, password: password, plan: plan || "free", acceptTerms: true }).then(function (r) {
         busy(submit, false);
         showVerify(address, r.previewCode);
       }, function (err) {
@@ -684,6 +687,11 @@
     }
     var here = "desktop.html?state=" + encodeURIComponent(state) + "&port=" + port;
     api.me().then(function (me) {
+      if (me.legal && (me.legal.needsUsername || me.legal.accepted === false)) {
+        // Finish the welcome step (username, Terms/Privacy) before connecting the app.
+        location.replace("welcome.html?next=" + encodeURIComponent(here));
+        return;
+      }
       return api.desktopCode({ state: state }).then(function (r) {
         var code = String(r.code);
         var query = "?code=" + encodeURIComponent(code) + "&state=" + encodeURIComponent(state);
@@ -715,11 +723,134 @@
     });
   }
 
+  /** After a Google sign-up (or when the Terms change): username + Terms/Privacy. */
+  function welcomePage() {
+    var loading = $('[data-step="loading"]'), step = $('[data-step="welcome"]');
+    var form = $("#welcome-form");
+    var input = $("#username"), hint = $("[data-username-hint]");
+    var defaultHint = hint.textContent;
+    var me = null, needsName = false, checkTimer = null, lastChecked = "";
+
+    if (api.mode === "offline") { notice(loading, "info", api.messages.not_live); return; }
+
+    function fmtDay(iso) {
+      try { return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }); }
+      catch (e) { return ""; }
+    }
+
+    function render(data) {
+      me = data;
+      var legal = me.legal || {};
+      if (!legal.needsUsername && legal.accepted !== false) { location.replace(next); return; }
+      needsName = !!legal.needsUsername;
+      var name = (me.user && me.user.name) || "";
+      $("[data-signed-as]").innerHTML =
+        '<span class="avatar">' + window.MCA.escapeHtml((name || me.user.email || "?").charAt(0).toUpperCase()) + "</span>" +
+        "<span><b>" + window.MCA.escapeHtml(me.user.email) + "</b>" +
+        (me.user.provider === "google" ? "Signed in with Google" : "Signed in") + "</span>";
+      if (needsName) {
+        input.value = name;
+        $("[data-welcome-title]").textContent = "Welcome to MyCraftingAI";
+        $("[data-welcome-sub]").textContent = "Your account is ready. Choose the username you'd like, then accept our Terms to finish.";
+        $("[data-legal-summary]").textContent = "Please read how MyCraftingAI works, what you can expect from us, and how we handle your data.";
+      } else {
+        $("[data-username-field]").hidden = true;
+        $("[data-welcome-chip]").innerHTML = '<span class="dot" style="background:var(--amber)"></span>Policy update';
+        $("[data-welcome-title]").textContent = "We've updated our Terms";
+        $("[data-welcome-sub]").textContent = "Please review and accept the updated Terms of Service and Privacy Policy to keep using MyCraftingAI.";
+        $("[data-legal-heading]").textContent = "What's changed";
+        $("[data-legal-summary]").textContent = legal.summary ||
+          "We've updated our Terms of Service and Privacy Policy. Please take a moment to read them.";
+        $("[data-welcome-submit]").textContent = "Accept and continue";
+      }
+      $("[data-legal-version]").textContent = "Version " + (legal.version || "") +
+        (legal.publishedAt ? " · published " + fmtDay(legal.publishedAt) : "");
+      loading.hidden = true;
+      step.hidden = false;
+      (needsName ? input : $("#accept")).focus();
+    }
+
+    function setHint(text, kind) {
+      hint.textContent = text || defaultHint;
+      hint.classList.toggle("ok-hint", kind === "ok");
+    }
+
+    function checkName() {
+      var value = input.value.trim();
+      if (value === lastChecked) return;
+      lastChecked = value;
+      if (!/^[A-Za-z0-9_.-]{3,32}$/.test(value)) {
+        setHint("");
+        if (value.length >= 3 || /[^A-Za-z0-9_.-]/.test(value)) fieldError("username", api.messages.invalid_username);
+        return;
+      }
+      fieldError("username", "");
+      api.usernameAvailable(value).then(function (r) {
+        if (input.value.trim() !== value) return;
+        if (r.available) setHint("“" + value + "” is available.", "ok");
+        else { setHint(""); fieldError("username", r.reason || api.messages.username_taken); }
+      }, function () { setHint(""); });
+    }
+
+    input.addEventListener("input", function () {
+      clearTimeout(checkTimer);
+      checkTimer = setTimeout(checkName, 350);
+    });
+    $("#accept").addEventListener("change", function () { if (this.checked) fieldError("accept", ""); });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!me) return;
+      var username = input.value.trim();
+      var ok = true;
+      if (needsName) ok = fieldError("username", /^[A-Za-z0-9_.-]{3,32}$/.test(username) ? "" : api.messages.invalid_username);
+      ok = fieldError("accept", $("#accept").checked ? "" : "Please tick the box to agree to the Terms of Service and Privacy Policy.") && ok;
+      if (!ok) return;
+      var button = $("[data-welcome-submit]");
+      busy(button, true, "Saving");
+      notice(form, "", "");
+      var version = me.legal && me.legal.version;
+      var call = needsName
+        ? api.onboarding({ username: username, acceptTerms: true, version: version })
+        : api.legal.accept(version);
+      call.then(function () {
+        notice(form, "ok", needsName ? "All set - welcome aboard!" : "Thank you. Taking you back...");
+        setTimeout(function () { location.replace(next); }, 500);
+      }, function (err) {
+        busy(button, false);
+        if (err.code === "legal_outdated") {
+          // A newer version was published while this page was open: show it.
+          $("#accept").checked = false;
+          api.me().then(render);
+          notice(form, "warn", err.message);
+          return;
+        }
+        if (err.code === "username_taken" || err.code === "invalid_username") { fieldError("username", err.message); input.focus(); return; }
+        if (err.code === "unauthorized" || err.status === 401) { location.href = "login.html?next=" + encodeURIComponent(next); return; }
+        notice(form, "error", err.message);
+      });
+    });
+
+    $("[data-welcome-signout]").addEventListener("click", function (e) {
+      e.preventDefault();
+      api.logout().then(function () { location.href = "login.html"; }, function () { location.href = "login.html"; });
+    });
+
+    api.me().then(render, function (err) {
+      if (err.code === "unauthorized" || err.status === 401) {
+        location.replace("login.html?next=" + encodeURIComponent("welcome.html?next=" + encodeURIComponent(next)));
+        return;
+      }
+      notice(loading, "error", err.message);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     authSide();
     wireRevealButtons();
     keepNextLinks();
     var page = document.body.dataset.page;
-    ({ login: loginPage, signup: signupPage, forgot: forgotPage, account: accountPage, desktop: desktopPage }[page] || function () {})();
+    ({ login: loginPage, signup: signupPage, forgot: forgotPage, account: accountPage, desktop: desktopPage,
+       welcome: welcomePage }[page] || function () {})();
   });
 })();

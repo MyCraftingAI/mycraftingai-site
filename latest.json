@@ -1,10 +1,10 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 52414406,
-  "sha256": "a2f55292afe658d10b54db0d6ac4886b9e6002b71fb303c549f64373299cbc0a",
-  "published": "2026-11-12T17:30:20Z",
+  "size": 52429607,
+  "sha256": "6c2bec40546813c8b9ddaca282ac9f3f07769c3316c7e2e16dfa077fa614292e",
+  "published": "2026-11-12T18:55:04Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Beautiful seasonal themes**: during Christmas, Halloween, Black Friday and other seasons the app gets matching colours, a pixel-art badge in the title bar, a gently animated decoration (Christmas lights, bunting, icicles...) and a seasonal pointer - over buttons it becomes the season's pixel art, like a Christmas tree. Turn the effects off any time in Settings > Appearance.\n- **Token gifts**: when MyCraftingAI gives you extra tokens, the app tells you right away what you received and until when.\n- **Clearer offers**: running promotions show the best discount per plan in the title bar and in upgrade prompts."
+  "notes": "- **Sign up with Google fixed**: creating a new account with \"Continue with Google\" works again. New Google accounts choose their username and accept the Terms on a short welcome step.\n- **Terms and Privacy updates**: when we update the Terms of Service or the Privacy Policy, the app shows a short summary of what changed and asks you to review and accept it. After installing an update you're asked once to confirm you agree.\n- **Clearer messages**: if AI requests are waiting for you to accept updated Terms, the app tells you exactly what to do."
 }

@@ -369,6 +369,29 @@
   }
   function loadSettings() {
     A.config().then(renderSettings, function (e) { toast(errText(e), true); });
+    loadLegal();
+  }
+
+  /* ------------------------------------------------- Terms & Privacy version */
+  function loadLegal() {
+    A.legal().then(renderLegal, function (e) {
+      var box = $("[data-cfg-legal]");
+      if (box) box.innerHTML = '<p class="ad-muted">' + esc(errText(e)) + "</p>";
+    });
+  }
+  function renderLegal(d) {
+    var box = $("[data-cfg-legal]");
+    if (!box) return;
+    var l = d.legal || {};
+    var share = d.users ? Math.round(d.accepted / d.users * 100) : 100;
+    box.innerHTML =
+      '<div class="ad-status on"><span class="ic">●</span><div><b>Current version: ' + esc(l.version || "-") + "</b><span>" +
+        (l.publishedAt ? "Published " + when(l.publishedAt) : "Original version") + " · " + num(d.accepted) + " of " + num(d.users) +
+        " accounts agreed (" + share + "%)" + (d.pending ? " · " + num(d.pending) + " will be asked next time they sign in or open the app" : "") + "</span></div></div>" +
+      (l.summary ? '<div class="ad-hint" style="white-space:pre-line">Last “what changed” note: ' + esc(l.summary) + "</div>" : "") +
+      '<label>What changed (shown to everyone in the agreement prompt)<textarea class="input" rows="3" maxlength="600" style="min-height:90px" data-legal-summary placeholder="e.g. We clarified who owns AI-generated mods and how long usage logs are kept."></textarea></label>' +
+      '<label class="ad-check"><input type="checkbox" data-legal-notify> Also email every verified account about the update (recommended for important changes)</label>' +
+      '<div class="ad-row-actions"><button class="btn btn-primary" data-legal-publish>Publish new version</button></div>';
   }
   function renderSettings(c) {
     var v = c.values, f = c.fields;
@@ -884,6 +907,9 @@
         '<div class="r"><span>Sign-in method</span><span>' + (u.provider === "google" ? "Google" : "Email + password") + "</span></div>" +
         '<div class="r"><span>AI</span><span>' + (u.aiEnabled ? '<span class="ad-tag good">on</span>' : '<span class="ad-tag warn">paused</span> ' + esc(u.aiReason || "")) + "</span></div>" +
         '<div class="r"><span>2-step verification</span><span>' + (u.twoFactor ? "on" : "off") + "</span></div>" +
+        '<div class="r"><span>Terms &amp; Privacy</span><span>' + (u.termsVersion
+          ? "Agreed to " + esc(u.termsVersion) + (u.termsAcceptedAt ? " · " + when(u.termsAcceptedAt) : "")
+          : '<span class="ad-tag warn">not agreed yet</span>') + "</span></div>" +
         '<div class="r"><span>Active sessions</span><span>' + u.sessions.length + "</span></div>" +
         '<div class="r"><span>Joined</span><span>' + when(u.created) + "</span></div>" +
         '<div class="r"><span>Last sign-in</span><span>' + when(u.lastLogin) + "</span></div>" +
@@ -1581,6 +1607,26 @@
         if (v) saveConfig(t.closest("[data-ann-remove]"), { announcement: null }, "Announcement removed");
       });
     }
+  });
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest && e.target.closest("[data-legal-publish]");
+    if (!btn) return;
+    var summary = ($("[data-legal-summary]").value || "").trim();
+    var notify = $("[data-legal-notify]").checked;
+    if (!summary) { toast("Describe what changed - people see this note when they're asked to agree.", true); $("[data-legal-summary]").focus(); return; }
+    ask({
+      title: "Publish a new Terms & Privacy version?",
+      text: "Everyone (including you) must agree again: the website shows a prompt and the app shows a pop-up, and AI requests wait until they accept." +
+        (notify ? " An email about the update goes to every verified account." : ""),
+      ok: "Publish", danger: true
+    }).then(function (v) {
+      if (!v) return;
+      run(btn, A.publishLegal(summary, notify), notify ? "Published - emails are on their way" : "Published - live now", "Publishing").then(function (d) {
+        renderLegal(d);
+        // Admins agree like everyone else: the site prompt appears on the next account check.
+        window.MCA.api.me();
+      });
+    });
   });
   document.addEventListener("change", function (e) {
     var box = e.target.closest && e.target.closest("[data-cfg-bool]");

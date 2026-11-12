@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome - MyCraftingAI</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body data-page="welcome">
+  <div class="auth">
+    <aside class="auth-side" data-auth-side></aside>
+    <main class="auth-main">
+      <div class="auth-card">
+        <section data-step="loading" aria-live="polite">
+          <h1>One moment</h1>
+          <p class="sub"><span class="spinner" aria-hidden="true"></span> Loading your account...</p>
+          <div class="notice" data-notice role="status" style="margin-top:18px"></div>
+        </section>
+
+        <section data-step="welcome" hidden>
+          <span class="chip" data-welcome-chip><span class="dot"></span>Account created</span>
+          <h1 style="margin-top:16px" data-welcome-title>Welcome to MyCraftingAI</h1>
+          <p class="sub" data-welcome-sub>Choose your username and accept our Terms to finish setting up your account.</p>
+          <form class="form" id="welcome-form" novalidate>
+            <div class="notice" data-notice role="status"></div>
+            <div class="signed-as" data-signed-as></div>
+            <div class="field" data-username-field>
+              <label for="username">Username</label>
+              <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="32" required>
+              <div class="pw-hint" data-username-hint>3-32 letters, numbers, dots, dashes or underscores. Shown in the app and on your account.</div>
+              <div class="err" data-err="username"></div>
+            </div>
+            <div class="legal-box" data-legal-box>
+              <div class="legal-box-head">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6l7-3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
+                <b data-legal-heading>Terms of Service &amp; Privacy Policy</b>
+              </div>
+              <p data-legal-summary>Please read how MyCraftingAI works, what you can expect from us, and how we handle your data.</p>
+              <div class="legal-links">
+                <a href="terms.html" target="_blank" rel="noopener">Read the Terms of Service &#8599;</a>
+                <a href="privacy.html" target="_blank" rel="noopener">Read the Privacy Policy &#8599;</a>
+              </div>
+              <div class="legal-version" data-legal-version></div>
+            </div>
+            <label class="check"><input type="checkbox" id="accept" required> <span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+            <div class="err" data-err="accept" style="margin-top:-8px"></div>
+            <button class="btn btn-primary btn-block btn-lg" type="submit" data-welcome-submit>Agree and continue</button>
+          </form>
+          <p class="auth-foot">Not you? <a href="#" data-welcome-signout>Sign out</a></p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

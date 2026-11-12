@@ -703,3 +703,26 @@ html[data-theme]:not([data-theme="classic"]) body::before {
 .plan .promo-note { font-size: 12.5px; line-height: 1.45; color: var(--azure); margin: 6px 0 12px; }
 .plan .promo-note code { font: 600 12px var(--mono); }
 #compare td s { color: var(--faint); margin-right: 4px; }
+
+/* Welcome step (after Google sign-up) and the updated-Terms prompt */
+.signed-as { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--rim); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--muted); }
+.signed-as:empty { display: none; }
+.signed-as .avatar { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font: 700 15px var(--display); color: #fff; background: linear-gradient(135deg, var(--accent), var(--azure)); }
+.signed-as b { display: block; color: var(--text); font-weight: 600; }
+.field .ok-hint { color: var(--mint); }
+.legal-box { border: 1px solid var(--rim); border-radius: var(--radius-sm); background: var(--surface); padding: 16px; font-size: 14px; }
+.legal-box-head { display: flex; align-items: center; gap: 10px; color: var(--text); }
+.legal-box-head svg { width: 20px; height: 20px; color: var(--azure); flex: none; }
+.legal-box p { margin-top: 8px; color: var(--muted); line-height: 1.55; white-space: pre-line; }
+.legal-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; }
+.legal-links a { font-weight: 600; }
+.legal-version { margin-top: 10px; font: 500 12px var(--mono); color: var(--faint); }
+.legal-version:empty { display: none; }
+.legal-modal .modal-card { max-width: 500px; }
+.legal-modal .modal-card h3 { margin-top: 14px; }
+.legal-modal .legal-box { margin-top: 16px; }
+.legal-modal .check { margin-top: 16px; }
+.legal-modal .notice { margin-top: 14px; }
+.legal-modal .actions { align-items: center; }
+.legal-modal .actions .btn-ghost { margin-right: auto; }
+body.legal-locked { overflow: hidden; }
