@@ -246,3 +246,21 @@ body[data-page="admin"] { background: var(--ground); }
 .ad-user-cell span { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
 .ad-rows .r.link { cursor: pointer; }
 .ad-rows .r.link:hover b { color: #b9c2ff; }
+
+/* ---- Theme picker / promotion ---------------------------------------------------- */
+.ad-themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 6px 0 8px; }
+.ad-theme { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--rim); background: rgba(255,255,255,.02); color: var(--text); font: 500 13.5px var(--font); cursor: pointer; text-align: left; transition: border-color .15s, background .15s, transform .15s; }
+.ad-theme:hover { border-color: var(--edge); transform: translateY(-1px); }
+.ad-theme.on { border-color: var(--sw); background: color-mix(in srgb, var(--sw) 14%, transparent); box-shadow: 0 0 0 1px var(--sw) inset; }
+.ad-theme .sw { flex: 0 0 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 15px; background: linear-gradient(135deg, var(--sw), var(--sw2)); }
+.ad-theme .ck { position: absolute; top: 6px; right: 8px; font-size: 11px; color: var(--sw); display: none; }
+.ad-theme.on .ck { display: block; }
+.ad-promo-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ad-promo-mode button { text-align: left; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--rim); background: rgba(255,255,255,.02); color: var(--muted); cursor: pointer; font: 400 13px var(--font); }
+.ad-promo-mode button b { display: block; color: var(--text); font-size: 14px; margin-bottom: 2px; }
+.ad-promo-mode button.on { border-color: var(--accent); background: rgba(79,99,245,.12); }
+.ad-promo-preview { display: flex; gap: 10px; flex-wrap: wrap; }
+.ad-promo-preview div { flex: 1; min-width: 120px; border: 1px solid var(--rim); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--muted); }
+.ad-promo-preview b { display: block; color: var(--text); font: 700 18px var(--display); }
+.ad-promo-preview s { color: var(--faint); font-size: 12.5px; margin-right: 4px; }
+@media (max-width: 560px) { .ad-promo-mode { grid-template-columns: 1fr; } }

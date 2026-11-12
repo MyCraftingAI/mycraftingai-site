@@ -335,12 +335,132 @@
     });
   }
 
-  /** Banner set from the admin panel (Settings > Announcement). Dismissable. */
-  function announcementBar() {
+  /* ------------------------------------------------------ seasonal look
+   * Theme, promotion and banner come from the admin panel (Live settings) via
+   * GET /v1/public/site. The last answer is cached so the next page opens in
+   * the right colours straight away. ?theme=<id> previews a theme locally. */
+  var LOOK_KEY = "mca_site_look";
+  var THEME_IDS = ["classic", "halloween", "black_friday", "cyber_monday", "autumn", "christmas", "winter",
+    "new_year", "valentines", "spring", "easter", "summer"];
+  var FX = {
+    halloween: { items: ["🦇", "🎃", "👻", "🦇"], n: 12 },
+    black_friday: { items: ["🏷️", "🛍️", "💸"], n: 8 },
+    cyber_monday: { items: ["⚡", "💻", "⚡"], n: 9 },
+    autumn: { items: ["🍂", "🍁", "🍂"], n: 14 },
+    christmas: { items: ["❄️", "❄️", "🎄", "🎁", "❄️"], n: 18 },
+    winter: { items: ["❄️", "❅", "❆"], n: 20 },
+    new_year: { items: ["🎉", "✨", "🎆", "✨"], n: 12, rise: true },
+    valentines: { items: ["💖", "💕", "💗"], n: 12, rise: true },
+    spring: { items: ["🌸", "🌷", "🌸"], n: 12 },
+    easter: { items: ["🥚", "🐣", "🌷"], n: 10 },
+    summer: { items: ["☀️", "🌴", "🍉"], n: 8, rise: true }
+  };
+  var GREET = {
+    halloween: ["🎃", "Happy Halloween from MyCraftingAI"],
+    black_friday: ["🏷️", "Black Friday at MyCraftingAI"],
+    cyber_monday: ["⚡", "Cyber Monday at MyCraftingAI"],
+    autumn: ["🍂", "Cosy autumn modding"],
+    christmas: ["🎄", "Merry Christmas from MyCraftingAI"],
+    winter: ["❄️", "Winter modding season"],
+    new_year: ["🎆", "Happy New Year from MyCraftingAI"],
+    valentines: ["💖", "Happy Valentine's Day"],
+    spring: ["🌸", "Spring is here"],
+    easter: ["🐣", "Happy Easter from MyCraftingAI"],
+    summer: ["☀️", "Summer modding season"]
+  };
+
+  function previewTheme() {
+    var m = /[?&]theme=([a-z_]+)/.exec(location.search);
+    return m && THEME_IDS.indexOf(m[1]) >= 0 ? m[1] : "";
+  }
+  function cachedLook() {
+    try { return JSON.parse(localStorage.getItem(LOOK_KEY) || "null"); } catch (e) { return null; }
+  }
+  function isAdminPage() { return document.body && document.body.dataset.page === "admin"; }
+
+  function setTheme(look) {
+    var theme = previewTheme() || (look && look.theme) || "classic";
+    if (THEME_IDS.indexOf(theme) < 0 || isAdminPage()) theme = "classic";
+    document.documentElement.setAttribute("data-theme", theme);
+    return theme;
+  }
+
+  function themeEffects(theme, on) {
+    var old = document.querySelector(".theme-fx");
+    if (old) old.remove();
+    var spec = FX[theme];
+    if (!spec || !on || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    var layer = document.createElement("div");
+    layer.className = "theme-fx" + (spec.rise ? " float" : "");
+    layer.setAttribute("aria-hidden", "true");
+    var count = window.innerWidth < 700 ? Math.ceil(spec.n / 2) : spec.n;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("i");
+      el.textContent = spec.items[i % spec.items.length];
+      el.style.left = (Math.random() * 100).toFixed(1) + "%";
+      el.style.fontSize = (12 + Math.random() * 14).toFixed(0) + "px";
+      el.style.animationDuration = (11 + Math.random() * 12).toFixed(1) + "s";
+      el.style.animationDelay = (-Math.random() * 20).toFixed(1) + "s";
+      el.style.setProperty("--sway", (Math.random() * 80 - 40).toFixed(0) + "px");
+      layer.appendChild(el);
+    }
+    document.body.appendChild(layer);
+  }
+
+  function seasonStrip(theme, look) {
+    var old = document.querySelector(".season-strip");
+    if (old) old.remove();
+    var promo = look && look.promotion;
+    var greet = GREET[theme];
+    if (!greet && !promo) return;
+    var key = "mca_strip_dismissed", id = theme + "|" + (promo ? promo.code : "");
+    try { if (localStorage.getItem(key) === id) return; } catch (e) { /* private mode */ }
+    var plans = promo ? promo.plans.map(function (p) { return p.charAt(0).toUpperCase() + p.slice(1); }).join(", ") : "";
+    var bar = document.createElement("div");
+    bar.className = "season-strip";
+    bar.innerHTML = '<div class="wrap">' +
+      (greet ? '<span class="em" aria-hidden="true">' + greet[0] + "</span><span><b>" + escapeHtml(greet[1]) + "</b></span>" : "") +
+      (promo ? "<span>" + (greet ? "&middot; " : "") + "<b>" + escapeHtml(promo.label) + ":</b> " + promo.percent + "% off " + escapeHtml(plans) +
+        ' with code <span class="code">' + escapeHtml(promo.code) + "</span>" + (promo.terms ? " &middot; " + escapeHtml(promo.terms) : "") + "</span>" +
+        '<a class="go" href="index.html#pricing">See plans &rarr;</a>' : "") +
+      '<button type="button" aria-label="Hide">&times;</button></div>';
+    bar.querySelector("button").addEventListener("click", function () {
+      try { localStorage.setItem(key, id); } catch (e) { /* ignore */ }
+      bar.remove();
+    });
+    var header = document.querySelector("[data-site-header]");
+    if (header && header.parentNode) header.parentNode.insertBefore(bar, header.nextSibling);
+  }
+
+  function applyLook(look) {
+    window.MCA.look = look || {};
+    var theme = setTheme(look);
+    if (isAdminPage()) return;
+    themeEffects(theme, !look || look.effects !== false);
+    seasonStrip(theme, look);
+    try { document.dispatchEvent(new CustomEvent("mca:look", { detail: window.MCA.look })); } catch (e) { /* old browser */ }
+  }
+
+  // Right away (before the first paint) from the cached answer.
+  window.MCA = window.MCA || {};
+  setTheme(cachedLook());
+
+  function siteLook() {
     var api = window.MCA && window.MCA.api;
-    if (!api || !api.announcement || document.body.dataset.page === "admin") return;
-    api.announcement().then(function (r) {
-      var a = r && r.announcement;
+    var cached = cachedLook();
+    applyLook(cached || { theme: "classic" });
+    if (!api || !api.site) return;
+    api.site().then(function (look) {
+      try { localStorage.setItem(LOOK_KEY, JSON.stringify(look)); } catch (e) { /* private mode */ }
+      if (JSON.stringify(look) !== JSON.stringify(cached)) applyLook(look);
+      announcementBar(look && look.announcement);
+    }, function () { /* keep the cached look */ });
+  }
+
+  /** Banner set from the admin panel (Settings > Announcement). Dismissable. */
+  function announcementBar(a) {
+    if (isAdminPage()) return;
+    (function () {
       if (!a || !a.text) return;
       var key = "mca_notice_dismissed";
       try { if (localStorage.getItem(key) === String(a.id || a.text)) return; } catch (e) { /* private mode */ }
@@ -358,7 +478,7 @@
       var header = document.querySelector("[data-site-header]");
       if (header && header.parentNode) header.parentNode.insertBefore(bar, header.nextSibling);
       else document.body.insertBefore(bar, document.body.firstChild);
-    }, function () { /* no banner */ });
+    })();
   }
 
   function cookieSettingsLinks() {
@@ -394,7 +514,7 @@
     contactLinks();
     cookieSettingsLinks();
     legalToc();
-    announcementBar();
+    siteLook();
     setTimeout(function () { consentBanner(false); }, 700);
     effects();
   });

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261114">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261115">
 </head>
 <body data-page="admin">
   <div class="ad-gate" data-gate>
@@ -194,6 +194,15 @@
           </div>
         </div>
         <div class="ad-card">
+          <div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Theme</h3><p class="ad-sub">The look of the website and the desktop app. Open apps switch within seconds - no restart.</p></div><a class="btn btn-ghost btn-sm" data-theme-preview target="_blank" rel="noopener">Preview website ↗</a></div>
+          <div class="ad-themes" data-cfg-themes></div>
+          <div class="ad-rows" data-cfg-theme-switches style="margin-top:6px"></div>
+        </div>
+        <div class="ad-card">
+          <h3>Subscription prices</h3><p class="ad-sub">Keep prices the same, or run a promotion with a Lemon Squeezy discount code. The website shows the sale price and adds the code at checkout; the app shows the offer in its title bar.</p>
+          <div class="ad-form" data-cfg-promo></div>
+        </div>
+        <div class="ad-card">
           <h3>Announcement</h3><p class="ad-sub">A banner on the website and/or a message in the app (shown once per announcement).</p>
           <div class="ad-form" data-cfg-ann></div>
         </div>
@@ -320,6 +329,7 @@
             <option value="resume_ai">AI resumed</option>
             <option value="set_plan">Plan changes</option>
             <option value="bonus_tokens">Bonus tokens</option>
+            <option value="bonus_removed">Bonus tokens removed</option>
             <option value="daily_limit">Daily limits</option>
             <option value="set_active">Account enable/disable</option>
             <option value="delete_user">Deletions</option>
@@ -374,8 +384,8 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261114"></script>
-  <script src="assets/js/ui.js?v=20261114"></script>
-  <script src="assets/js/admin.js?v=20261114"></script>
+  <script src="assets/js/api.js?v=20261115"></script>
+  <script src="assets/js/ui.js?v=20261115"></script>
+  <script src="assets/js/admin.js?v=20261115"></script>
 </body>
 </html>

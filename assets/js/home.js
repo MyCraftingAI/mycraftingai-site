@@ -9,36 +9,318 @@
   function fmt(n) { return window.MCA.formatTokens(n); }
 
   /* ================================================== pixel workbench */
+  /* Workbench sprites (16 x 16, "." = transparent). The active theme from the
+     admin panel picks one; Classic shows the MyCraftingAI app icon. */
+  var SEASON_ART = {
+    classic: {
+      file: "mycraftingai.png",
+      colors: { B: "#4f63f5", L: "#6376ff", H: "#8aa0ff", D: "#3342c2", k: "#1a1f5c", W: "#ffffff", e: "#dfe4ff", c: "#a9b6ff" },
+      art: [
+        "..kkkkkkkkkkkk..",
+        ".kHHHHHHHHHHHHk.",
+        "kLBBBBBBBBBBBBDk",
+        "kLBBBBBWWBBBBBDk",
+        "kLBBBBBWeBBBBBDk",
+        "kLBBBBBWWBBBBBDk",
+        "kLBBBBBWeBBBBBDk",
+        "kLBWWWWccWWWWBDk",
+        "kLBWeWeccWeWeBDk",
+        "kLBBBBBWWBBBBBDk",
+        "kLBBBBBWeBBBBBDk",
+        "kLBBBBBWWBBBBBDk",
+        "kLBBBBBWeBBBBBDk",
+        "kLBBBBBBBBBBBBDk",
+        ".kDDDDDDDDDDDDk.",
+        "..kkkkkkkkkkkk.."
+      ]
+    },
+    halloween: {
+      file: "jack_o_lantern.png",
+      colors: { s: "#3e7a2a", S: "#2a5a1c", o: "#ff8a1a", O: "#e0650a", d: "#a8440a", D: "#6e2a06", y: "#ffd23f", Y: "#fff1a8", k: "#1a0d05" },
+      art: [
+        "................",
+        ".......SS.......",
+        "........sS......",
+        "....DOOssOOD....",
+        "..DOOooOOooOOD..",
+        ".DOooooOOoooooD.",
+        ".OooyooOOooyooO.",
+        "DOoyyyoOOoyyyooD",
+        "DOyYYYyOOyYYYyoD",
+        "DOoooooOOoooooOD",
+        "DOoyoyyyyyyoyooD",
+        "DOoyyyYYYYyyyooD",
+        ".DOooyykkyyooOD.",
+        ".DdOoooOOooooOd.",
+        "..DdOOOOOOOOdD..",
+        "....DDDDDDDD...."
+      ]
+    },
+    black_friday: {
+      file: "sale_tag.png",
+      colors: { k: "#2a2008", g: "#e8b92f", G: "#b8891a", l: "#ffe27a", w: "#ffffff", d: "#111111", s: "#8a8a8a" },
+      art: [
+        "................",
+        "................",
+        "................",
+        "...ss...........",
+        "..s.kkkkkkkkkkk.",
+        ".s.kglllllllllk.",
+        ".skggggddggdggk.",
+        ".ksggggddgdgggk.",
+        "kggkgggggdggggk.",
+        ".ksgggggdgddggk.",
+        "..kggggdggddggk.",
+        "...kgGGGGGGGGGk.",
+        "....kkkkkkkkkkk.",
+        "................",
+        "................",
+        "................"
+      ]
+    },
+    cyber_monday: {
+      file: "power_bolt.png",
+      colors: { c: "#14c8e0", C: "#0b8ea1", l: "#a6f3fb", w: "#ffffff", p: "#ec4899", P: "#9d174d", k: "#06222a" },
+      art: [
+        ".........kkkkk..",
+        "........kclwck..",
+        ".......kcllck...",
+        "......kcllck....",
+        ".....kcllck.....",
+        "....kcllcCkkkk..",
+        "...kcllllllwck..",
+        "..kclllllllck...",
+        "..kkkkCcllck....",
+        "......kcllk..p..",
+        ".....kcllk..ppp.",
+        "....kclck....p..",
+        "...kclck..p.....",
+        "..kcCk...ppp....",
+        "..kkk.....p.....",
+        "................"
+      ]
+    },
+    autumn: {
+      file: "maple_leaf.png",
+      colors: { r: "#d9622b", R: "#a8401a", o: "#f0a23a", y: "#ffd27a", b: "#6e3a14", k: "#3a1a08" },
+      art: [
+        ".......k........",
+        "......kok.......",
+        "..k...kok...k...",
+        "..kok.krok.kok..",
+        "...kokrrrokok...",
+        ".kkkorrbrrook...",
+        "kooorrrbrrrrok..",
+        ".korrrrbrrrrook.",
+        "..korRrbrRrrk...",
+        "...kRRrbrRRk....",
+        "..kRRRrbrRRRk...",
+        ".kkkkkRbRkkkk...",
+        "......kbk.......",
+        ".......bk.......",
+        ".......b........",
+        "................"
+      ]
+    },
+    christmas: {
+      file: "snowy_tree.png",
+      colors: { y: "#ffd23f", Y: "#fff1a8", g: "#2fae66", G: "#1f6b34", w: "#f4f8ff", W: "#cfe3ff", r: "#d93a3a", b: "#4da3e8", t: "#7a4a24", T: "#5a3418" },
+      art: [
+        ".......Yy.......",
+        "......yYYy......",
+        ".......yy.......",
+        ".......Gg.......",
+        "......wwwg......",
+        ".....GggrgG.....",
+        "....wwwwwwgG....",
+        "....GgbgggggG...",
+        "...wwwwwwwwgG...",
+        "...GggggrggbgG..",
+        "..wwwwwwwwwwwgG.",
+        "..GgrggbgggrgggG",
+        ".......tT.......",
+        ".W.....tT....W..",
+        "wwwWwwwwwwwwWwww",
+        "WWWWWWWWWWWWWWWW"
+      ]
+    },
+    winter: {
+      file: "snowman.png",
+      colors: { w: "#f4f8ff", W: "#b8cfe8", k: "#1c2433", o: "#f08a24", r: "#d93a3a", R: "#9e2626", h: "#2a2f3a", b: "#7a4a24", f: "#9ccbf3" },
+      art: [
+        "..f.....hhh...f.",
+        "......hhhhh.....",
+        ".....hhhhhhh....",
+        "......wwwww...f.",
+        ".f...wkwwkW.....",
+        ".....wwoowW.....",
+        "......wwwW......",
+        ".....RrrrrrR....",
+        "....wwwRwwwWb...",
+        "..b.wwwrkwwWb.f.",
+        "...bwwwwwwwWb...",
+        ".f..wwwwkwwW....",
+        "...wwwwwwwwwW...",
+        "...wwwwwkwwwW...",
+        "....WwwwwwwW....",
+        "..WWWWWWWWWWWW.."
+      ]
+    },
+    new_year: {
+      file: "firework.png",
+      colors: { p: "#9b5cf6", P: "#c9a9ff", y: "#e8b92f", Y: "#fff1a8", w: "#ffffff", c: "#14c8e0", r: "#e64a86" },
+      art: [
+        ".......y........",
+        "..p....y....c...",
+        "...p...Y...c....",
+        "....P..y..c.....",
+        ".y...P.Y.c...r..",
+        "..y...PwPc..r...",
+        "...yYYwwwYYrr...",
+        "yyyYYwwYwwYYyyy.",
+        "...rrYwwwYYyy...",
+        "..r...cwPP..y...",
+        ".r...c.Y.P...y..",
+        "....c..y..P.....",
+        "...c...Y...p....",
+        "..c....y....p...",
+        ".......y........",
+        "................"
+      ]
+    },
+    valentines: {
+      file: "heart.png",
+      colors: { k: "#4a0e24", r: "#e64a86", R: "#b8305e", p: "#f59bbe", w: "#ffffff" },
+      art: [
+        "................",
+        "................",
+        "..kkkk....kkkk..",
+        ".krrrrk..krrrrk.",
+        "krwprrrkkrrrrrRk",
+        "krpprrrrrrrrrrRk",
+        "krprrrrrrrrrrrRk",
+        "krrrrrrrrrrrrrRk",
+        ".krrrrrrrrrrrRk.",
+        "..krrrrrrrrrRk..",
+        "...krrrrrrrRk...",
+        "....krrrrrRk....",
+        ".....krrrRk.....",
+        "......krRk......",
+        ".......kk.......",
+        "................"
+      ]
+    },
+    spring: {
+      file: "tulip.png",
+      colors: { p: "#f48fb1", P: "#d6457c", l: "#ffd0e0", g: "#3fbf7f", G: "#2a8a5a", y: "#ffd23f", k: "#4a1a2c" },
+      art: [
+        "................",
+        ".....k.kk.k.....",
+        "....kpkllkpk....",
+        "....kplplppk....",
+        "....kppplppk....",
+        "....kPpppppk....",
+        ".....kPPPPk.....",
+        "......kGgk......",
+        "..kk...gG...kk..",
+        "..kgk..gG..kgk..",
+        "...kgk.gG.kgk...",
+        "....kgkgGkgk....",
+        ".....kgggGk.....",
+        "......kgGk......",
+        ".......gG.......",
+        "................"
+      ]
+    },
+    easter: {
+      file: "easter_egg.png",
+      colors: { k: "#3a2a5a", v: "#a78bfa", V: "#7458d6", y: "#fde047", Y: "#e0b800", w: "#ffffff", p: "#f59bbe", g: "#8fe0b5" },
+      art: [
+        "................",
+        "......kkkk......",
+        ".....kwvvvk.....",
+        "....kwvvvvVk....",
+        "....kvvvvvVk....",
+        "...kyyyyyyyYk...",
+        "...kpypypypYk...",
+        "...kvvvvvvvVk...",
+        "...kggggggggk...",
+        "...kvgvvgvvVk...",
+        "...kvvvvvvvVk...",
+        "...kyyyyyyyYk...",
+        "....kvvvvvVk....",
+        "....kVvvvVVk....",
+        ".....kkkkkk.....",
+        "................"
+      ]
+    },
+    summer: {
+      file: "watermelon.png",
+      colors: { r: "#f25c6b", R: "#c93a4a", k: "#2a1418", g: "#3fbf7f", G: "#2a8a5a", w: "#e8f8e0", d: "#1a0a0e", y: "#ffd27a" },
+      art: [
+        "................",
+        "................",
+        "................",
+        "kkkkkkkkkkkkkkkk",
+        "krrrrrrrrrrrrrRk",
+        ".krrdrrrrrdrrRk.",
+        ".krrrrrrdrrrrRk.",
+        "..krrdrrrrrdRk..",
+        "..krrrrrrrrrRk..",
+        "...krrrdrrrRk...",
+        "...kwwwwwwwwk...",
+        "....kgggggGk....",
+        ".....kGGGGk.....",
+        "......kkkk......",
+        "................",
+        "................"
+      ]
+    }
+  };
+
   function workbench() {
     var grid = $("#pixel-grid");
     if (!grid) return;
     var SIZE = 16;
-    var PALETTE = ["#2a0a10", "#7a1426", "#b8203a", "#dc3350", "#ff8a9a", "#ffe8ec", "#5e5e5e", "#9c6b3c", "#3dd68c", "#8aa0ff"];
+    // Extra swatches when a sprite uses fewer than ten colours.
+    var EXTRA_COLOURS = ["#ffffff", "#1a1a22", "#5e5e5e", "#9c6b3c", "#3dd68c", "#8aa0ff", "#f2555a", "#f5b74a", "#4f63f5", "#b79cff"];
+    var PALETTE = EXTRA_COLOURS;
     var pixels = [];
-    var colour = PALETTE[3];
+    var colour = PALETTE[0];
+    var season = "";      // theme whose sprite is on the canvas
+    var dirty = false;    // the visitor painted: don't swap their drawing away
     var tool = "pencil";
     var mirror = false;
     var painting = false;
     var erasing = false;
 
-    function gem() {
-      var art = [];
-      for (var y = 0; y < SIZE; y++) {
+    function activeTheme() {
+      var theme = document.documentElement.getAttribute("data-theme") || "classic";
+      return SEASON_ART[theme] ? theme : "classic";
+    }
+
+    /** The sprite for the active theme (the MyCraftingAI icon for Classic). */
+    function sprite() {
+      var spec = SEASON_ART[activeTheme()];
+      var used = [], art = [];
+      spec.art.forEach(function (row) {
         for (var x = 0; x < SIZE; x++) {
-          var d = Math.abs(x - 7.5) + Math.abs(y - 7.5);
-          var c = null;
-          if (d <= 7.6) {
-            if (d > 6.6) c = PALETTE[0];
-            else {
-              var shade = 3 - Math.floor((x + y - 10) / 6);
-              c = PALETTE[Math.max(1, Math.min(3, shade))];
-              if (x + y < 12 && d < 5 && Math.abs(x - y) <= 1 && x < 7) c = x > 3 ? PALETTE[4] : PALETTE[5];
-            }
-          }
-          art.push(c);
+          var c = row.charAt(x) === "." ? null : spec.colors[row.charAt(x)];
+          art.push(c || null);
+          if (c && used.indexOf(c) < 0) used.push(c);
         }
-      }
+      });
+      // Swatches: the sprite's own colours, most-used first, topped up to ten.
+      used.sort(function (a, b) {
+        return art.filter(function (c) { return c === b; }).length - art.filter(function (c) { return c === a; }).length;
+      });
+      PALETTE = used.concat(EXTRA_COLOURS.filter(function (c) { return used.indexOf(c) < 0; })).slice(0, 10);
       return art;
+    }
+
+    function fileName() {
+      var spec = SEASON_ART[activeTheme()];
+      return spec.file;
     }
 
     for (var i = 0; i < SIZE * SIZE; i++) {
@@ -94,6 +376,7 @@
       var value = erasing || tool === "eraser" ? null : colour;
       if (tool === "fill" && !erasing) flood(index, value);
       else put(index, value);
+      dirty = true;
       render();
     }
 
@@ -124,23 +407,44 @@
       });
     }
     $$("[data-tool]").forEach(function (b) { b.addEventListener("click", function () { setTool(b.dataset.tool); }); });
-    $('[data-action="reset"]').addEventListener("click", function () { pixels = gem(); render(); });
+    $('[data-action="reset"]').addEventListener("click", function () { load(); });
 
     var palette = $("#palette");
-    PALETTE.slice().reverse().forEach(function (c) {
-      var sw = document.createElement("button");
-      sw.type = "button";
-      sw.className = "swatch";
-      sw.style.background = c;
-      sw.title = c;
-      sw.setAttribute("aria-label", "Colour " + c);
-      sw.setAttribute("aria-pressed", String(c === colour));
-      sw.addEventListener("click", function () {
-        colour = c;
-        if (tool === "eraser") setTool("pencil");
-        $$(".swatch", palette).forEach(function (s) { s.setAttribute("aria-pressed", String(s === sw)); });
+    function buildPalette() {
+      $$(".swatch", palette).forEach(function (s) { s.remove(); });
+      PALETTE.slice().reverse().forEach(function (c) {
+        var sw = document.createElement("button");
+        sw.type = "button";
+        sw.className = "swatch";
+        sw.style.background = c;
+        sw.title = c;
+        sw.setAttribute("aria-label", "Colour " + c);
+        sw.setAttribute("aria-pressed", String(c === colour));
+        sw.addEventListener("click", function () {
+          colour = c;
+          if (tool === "eraser") setTool("pencil");
+          $$(".swatch", palette).forEach(function (s) { s.setAttribute("aria-pressed", String(s === sw)); });
+        });
+        palette.insertBefore(sw, palette.firstChild);
       });
-      palette.insertBefore(sw, palette.firstChild);
+    }
+
+    /** Put the active theme's sprite on the canvas (file name and swatches too). */
+    function load() {
+      season = activeTheme();
+      pixels = sprite();
+      colour = PALETTE[0];
+      dirty = false;
+      var title = $(".bench-title b");
+      if (title) title.textContent = fileName();
+      grid.setAttribute("aria-label", "16 by 16 pixel canvas: " + fileName().replace(/\.png$/, "").replace(/_/g, " "));
+      buildPalette();
+      render();
+    }
+
+    // The admin switched the theme (or the fresh answer differs from the cache).
+    document.addEventListener("mca:look", function () {
+      if (activeTheme() !== season && !dirty) load();
     });
 
     document.addEventListener("keydown", function (e) {
@@ -150,8 +454,7 @@
       if (name && grid.getBoundingClientRect().top < innerHeight) setTool(name);
     });
 
-    pixels = gem();
-    render();
+    load();
   }
 
   /* ===================================================== example runs */
@@ -347,6 +650,49 @@
     update();
   }
 
+  /* ===================================================== promotions */
+  /** The admin's running promotion for ``planId`` (Live settings), or null. */
+  function activePromo(planId) {
+    var promo = window.MCA && window.MCA.look && window.MCA.look.promotion;
+    return promo && promo.code && (promo.plans || []).indexOf(planId) >= 0 ? promo : null;
+  }
+  function salePrice(price, promo) { return Math.round(price * (100 - promo.percent)) / 100; }
+
+  /** Show sale prices on the cards and in the table (or restore normal prices). */
+  function applyPromo() {
+    DATA.plans.forEach(function (plan) {
+      var card = document.getElementById("plan-" + plan.id);
+      if (!card || !plan.price) return;
+      var promo = activePromo(plan.id);
+      var priceBox = card.querySelector(".price");
+      var badge = card.querySelector(".sale"), note = card.querySelector(".promo-note");
+      if (badge) badge.remove();
+      if (note) note.remove();
+      if (!promo) {
+        priceBox.innerHTML = "<b>$" + plan.price.toFixed(2) + "</b><span>/ month</span>";
+        return;
+      }
+      priceBox.innerHTML = "<s>$" + plan.price.toFixed(2) + "</s><b>$" + salePrice(plan.price, promo).toFixed(2) + "</b><span>/ month</span>";
+      badge = document.createElement("span");
+      badge.className = "sale";
+      badge.textContent = promo.percent + "% off";
+      card.appendChild(badge);
+      note = document.createElement("p");
+      note.className = "promo-note";
+      note.innerHTML = window.MCA.escapeHtml(promo.label) + " &middot; code <code>" + window.MCA.escapeHtml(promo.code) +
+        "</code> added at checkout" + (promo.terms ? " &middot; " + window.MCA.escapeHtml(promo.terms) : "");
+      card.querySelector(".tokens").insertAdjacentElement("afterend", note);
+    });
+    var cells = document.querySelectorAll("[data-compare-price]");
+    Array.prototype.forEach.call(cells, function (td) {
+      var plan = DATA.plans.filter(function (p) { return p.id === td.dataset.comparePrice; })[0];
+      if (!plan || !plan.price) return;
+      var promo = activePromo(plan.id);
+      td.innerHTML = promo ? "<s>$" + plan.price.toFixed(2) + "</s>$" + salePrice(plan.price, promo).toFixed(2) : "$" + plan.price.toFixed(2);
+    });
+  }
+  document.addEventListener("mca:look", applyPromo);
+
   /* ========================================================= pricing */
   function pricing() {
     var host = $("#pricing-cards");
@@ -386,6 +732,8 @@
       window.MCA.api.me().then(function (me) {
         var target = new URL(url);
         if (me.user && me.user.email) target.searchParams.set("checkout[email]", me.user.email);
+        var promo = activePromo(id);
+        if (promo) target.searchParams.set("checkout[discount_code]", promo.code);
         location.href = target.href;
       }, function () {
         location.href = "signup.html?plan=" + encodeURIComponent(id);
@@ -414,7 +762,7 @@
       return "<td>" + ((p.rewarded || []).length ? "Optional, for unlocks" : "None") + "</td>";
     }).join("") + "</tr>";
     rows += "<tr><td>Price / month</td>" + DATA.plans.map(function (p) {
-      return "<td>" + (p.price === null ? "Custom" : "$" + (p.price ? p.price.toFixed(2) : "0")) + "</td>";
+      return "<td" + (p.price ? ' data-compare-price="' + p.id + '"' : "") + ">" + (p.price === null ? "Custom" : "$" + (p.price ? p.price.toFixed(2) : "0")) + "</td>";
     }).join("") + "</tr>";
     compare.innerHTML = "<table>" + head + "<tbody>" + rows + "</tbody></table>";
     var toggle = $("#compare-toggle");
@@ -427,6 +775,7 @@
 
     // The cards were added after ui.js set up scroll reveal.
     $$(".plan.reveal", host).forEach(function (el, i) { setTimeout(function () { el.classList.add("in"); }, 80 * i); });
+    applyPromo();  // a promotion that was already known before the cards existed
   }
 
   document.addEventListener("DOMContentLoaded", function () {

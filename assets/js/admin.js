@@ -21,7 +21,7 @@
   ];
   var ACTION_COLOR = {
     pause_ai: "#f5b74a", resume_ai: "#3dd68c", email: "#8aa0ff", broadcast: "#8aa0ff", delete_user: "#f2555a",
-    set_active: "#f2555a", set_plan: "#4f63f5", bonus_tokens: "#3dd68c", daily_limit: "#4f63f5"
+    set_active: "#f2555a", set_plan: "#4f63f5", bonus_tokens: "#3dd68c", bonus_removed: "#f5b74a", daily_limit: "#4f63f5"
   };
   var TEMPLATES = {
     welcome: ["Welcome to MyCraftingAI, {name}",
@@ -385,6 +385,7 @@
         '<span class="ad-row-actions"><button class="btn btn-sm" data-cfg-save-num="' + r[0] + '">Save</button>' +
         (isDefault ? "" : '<button class="btn btn-ghost btn-sm" data-cfg-reset="' + r[0] + '">Default</button>') + "</span></div>";
     }).join("");
+    renderLook(v, f);
     var a = v.announcement || {};
     var where = a.where || ["site", "app"];
     $("[data-cfg-ann]").innerHTML =
@@ -402,6 +403,71 @@
       (v.announcement ? '<button class="btn btn-ghost" data-ann-remove>Remove</button>' : "") + "</div>";
     annPreview();
   }
+  /* ---------------------------------------------------- theme & promotion */
+  var THEME_LOOK = {
+    classic: ["◆", "#4f63f5", "#8aa0ff"], halloween: ["🎃", "#ff7a1a", "#9b5cf6"],
+    black_friday: ["🏷️", "#e8b92f", "#111111"], cyber_monday: ["⚡", "#14c8e0", "#ec4899"],
+    autumn: ["🍂", "#d9622b", "#f5b74a"], christmas: ["🎄", "#d93a3a", "#2fae66"],
+    winter: ["❄️", "#4da3e8", "#dcebff"], new_year: ["🎆", "#9b5cf6", "#e8b92f"],
+    valentines: ["💖", "#e64a86", "#ffa0be"], spring: ["🌸", "#3fbf7f", "#f48fb1"],
+    easter: ["🐣", "#a78bfa", "#fde047"], summer: ["☀️", "#f5a524", "#14b8a6"]
+  };
+  var PROMO_LABEL = { black_friday: "Black Friday", cyber_monday: "Cyber Monday", christmas: "Christmas sale", new_year: "New Year sale",
+    halloween: "Halloween sale", summer: "Summer sale", valentines: "Valentine's offer", easter: "Easter offer", spring: "Spring sale", autumn: "Autumn sale", winter: "Winter sale" };
+
+  function renderLook(v, f) {
+    var options = (f.theme && f.theme.options) || [];
+    $("[data-cfg-themes]").innerHTML = options.map(function (o) {
+      var look = THEME_LOOK[o.id] || THEME_LOOK.classic;
+      return '<button type="button" class="ad-theme' + (v.theme === o.id ? " on" : "") + '" data-theme-pick="' + esc(o.id) + '" style="--sw:' + look[1] + ";--sw2:" + look[2] + '">' +
+        '<span class="sw">' + look[0] + "</span>" + esc(o.label) + '<span class="ck">●</span></button>';
+    }).join("");
+    $("[data-theme-preview]").href = "index.html?theme=" + encodeURIComponent(v.theme || "classic");
+    $("[data-cfg-theme-switches]").innerHTML =
+      toggleRow("theme_effects", "Seasonal decorations on the website", v.theme_effects ? "On - snow, leaves, bats... drift gently (hidden for people who prefer less motion)" : "Off - colours only", v.theme_effects) +
+      toggleRow("theme_app", "Use the theme in the desktop app", v.theme_app ? "On - accent colours and a title-bar badge follow the theme" : "Off - the app keeps its classic look", v.theme_app);
+
+    var p = v.promotion, on = state.promoMode != null ? state.promoMode : !!p;
+    state.promoMode = on;
+    var plans = (f.promotion && f.promotion.plans) || ["builder", "pro", "studio"];
+    var chosen = p ? p.plans : ["builder", "pro", "studio"];
+    var html = '<div class="ad-promo-mode">' +
+      '<button type="button" data-promo-mode="0" class="' + (on ? "" : "on") + '"><b>Same prices</b>Normal prices everywhere, no code.</button>' +
+      '<button type="button" data-promo-mode="1" class="' + (on ? "on" : "") + '"><b>Run a promotion</b>Sale prices on the website, code added at checkout.</button></div>';
+    if (on) {
+      html +=
+        (p ? '<div class="ad-status on"><span class="ic">●</span><div><b>Live: ' + esc(p.label) + " - " + p.percent + "% off</b><span>Code " + esc(p.code) + " · " + esc(p.plans.join(", ")) + (p.until ? " · until " + when(p.until) : "") + "</span></div></div>" : "") +
+        '<div class="ad-inline" style="gap:10px;flex-wrap:wrap">' +
+          '<label style="flex:2;min-width:180px">Name shown to people<input class="input" data-promo-label maxlength="60" value="' + esc(p ? p.label : (PROMO_LABEL[v.theme] || "")) + '" placeholder="e.g. Black Friday"></label>' +
+          '<label style="flex:1;min-width:110px">Discount %<input class="input" type="number" min="1" max="90" data-promo-percent value="' + esc(p ? p.percent : 30) + '"></label>' +
+          '<label style="flex:1;min-width:140px">Lemon Squeezy code<input class="input" data-promo-code maxlength="40" value="' + esc(p ? p.code : "") + '" placeholder="e.g. BF30" style="text-transform:uppercase"></label></div>' +
+        '<div><div class="ad-hint" style="margin-bottom:6px">Plans on sale</div><div class="ad-inline" style="gap:16px">' + plans.map(function (id) {
+          return '<label class="ad-check"><input type="checkbox" data-promo-plan="' + id + '"' + (chosen.indexOf(id) >= 0 ? " checked" : "") + "> " + id.charAt(0).toUpperCase() + id.slice(1) + "</label>";
+        }).join("") + "</div></div>" +
+        '<div class="ad-inline" style="gap:10px;flex-wrap:wrap"><label style="flex:2;min-width:200px">Terms (optional)<input class="input" data-promo-terms maxlength="160" value="' + esc(p ? p.terms : "") + '" placeholder="e.g. First 3 months, new subscriptions only"></label>' +
+          '<label style="flex:1;min-width:170px">Ends (optional)<input class="input" type="datetime-local" data-promo-until value="' + esc(p && p.until ? p.until.slice(0, 16) : "") + '"></label></div>' +
+        '<div class="ad-promo-preview" data-promo-preview></div>' +
+        '<div class="ad-hint">Create the same code in Lemon Squeezy first (Store → Discounts), with the same percentage and duration - Lemon Squeezy is what actually charges the discounted price.</div>' +
+        '<div class="ad-row-actions"><button class="btn btn-primary" data-promo-save>' + (p ? "Update promotion" : "Start promotion") + "</button>" +
+        (p ? '<button class="btn btn-ghost" data-promo-stop>End promotion</button>' : "") + "</div>";
+    } else if (p) {
+      html += '<div class="ad-row-actions"><button class="btn" data-promo-stop>End the running promotion (' + esc(p.label) + ")</button></div>";
+    }
+    $("[data-cfg-promo]").innerHTML = html;
+    promoPreview();
+  }
+
+  function promoPreview() {
+    var box = $("[data-promo-preview]"); if (!box) return;
+    var pct = Math.max(0, Math.min(90, Number(($("[data-promo-percent]") || {}).value) || 0));
+    var plans = (window.MCA_PLANS && window.MCA_PLANS.plans) || [];
+    box.innerHTML = $$("[data-promo-plan]").filter(function (c) { return c.checked; }).map(function (c) {
+      var plan = plans.filter(function (x) { return x.id === c.dataset.promoPlan; })[0];
+      if (!plan || !plan.price) return "";
+      return "<div>" + esc(plan.name) + "<b><s>$" + plan.price.toFixed(2) + "</s>$" + (Math.round(plan.price * (100 - pct)) / 100).toFixed(2) + "</b>per month</div>";
+    }).join("");
+  }
+
   function annPreview() {
     var box = $("[data-ann-preview]"); if (!box) return;
     var text = $("[data-ann-text]").value.trim(), lt = $("[data-ann-linktext]").value.trim(), link = $("[data-ann-link]").value.trim();
@@ -723,10 +789,15 @@
         '<div class="r"><span>Used today</span><span>' + num(u.usedToday) + "</span></div></div>" +
         '<div class="ad-inline" style="margin-top:12px"><input class="input" type="number" min="0" step="1000" data-limit placeholder="Custom tokens per day, e.g. 500000"><button class="btn" data-limit-save>Set limit</button>' +
         (u.dailyLimitOverride != null ? '<button class="btn btn-ghost" data-limit-clear>Use plan default</button>' : "") + "</div></div>" +
-      '<div class="ad-card"><h3>Bonus tokens for today</h3><p class="ad-sub">One-off extra allowance; disappears at the next reset.</p>' +
-        '<div class="ad-chips" style="margin-bottom:10px">' + [10000, 50000, 250000, 1000000].map(function (n) { return '<button class="ad-chip" data-bonus-pick="' + n + '">+' + fmt(n) + "</button>"; }).join("") + "</div>" +
-        '<div class="ad-inline"><input class="input" type="number" min="1" data-bonus placeholder="Tokens"><button class="btn btn-primary" data-bonus-give>Add tokens</button></div>' +
-        '<label class="ad-check" style="margin-top:10px"><input type="checkbox" data-bonus-notify> Tell the user by email</label></div>' +
+      '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Bonus tokens for today</h3><p class="ad-sub">One-off extra allowance; disappears at the next reset. Open apps update within seconds.</p></div>' +
+        '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Bonus today</div><b style="font:700 20px var(--display);color:' + (u.bonusToday ? "var(--mint)" : "var(--muted)") + '">' + (u.bonusToday ? "+" + num(u.bonusToday) : "0") + "</b></div></div>" +
+        '<div class="ad-chips" style="margin-bottom:10px">' + [1000, 5000, 10000, 50000, 250000, 1000000].map(function (n) { return '<button class="ad-chip" data-bonus-pick="' + n + '">' + fmt(n) + "</button>"; }).join("") + "</div>" +
+        '<div class="ad-inline" style="flex-wrap:wrap;gap:8px"><input class="input" type="number" min="1" step="1000" data-bonus placeholder="Tokens, e.g. 5000" style="flex:1;min-width:150px">' +
+          '<button class="btn btn-primary" data-bonus-give>+ Add</button>' +
+          '<button class="btn btn-warn" data-bonus-remove' + (u.bonusToday ? "" : " disabled title=\"No bonus to remove today\"") + '>&minus; Remove</button>' +
+          (u.bonusToday ? '<button class="btn btn-ghost" data-bonus-clear>Remove all bonus</button>' : "") + "</div>" +
+        '<label class="ad-check" style="margin-top:10px"><input type="checkbox" data-bonus-notify> Tell the user by email</label>' +
+        '<div class="ad-hint" style="margin-top:6px">Remove takes back bonus tokens given today (never more than the bonus). To lower their allowance further, set a custom daily limit above.</div></div>' +
       '<div class="ad-card"><h3>Today\'s usage</h3><p class="ad-sub">Set today\'s counter back to zero (e.g. after a bug or a failed request).</p><button class="btn" data-reset-usage>Reset today\'s usage</button></div>';
   }
 
@@ -886,6 +957,24 @@
       var n = Math.round(Number($("[data-bonus]").value));
       if (!(n > 0)) return toast("Enter how many tokens to add.", true);
       return run(t, A.bonus(u.id, n, $("[data-bonus-notify]").checked), null, "Adding").then(function (d) { applied(d, "+" + fmt(n) + " tokens for today"); });
+    }
+    if (t.matches("[data-bonus-remove], [data-bonus-clear]")) {
+      var all = t.matches("[data-bonus-clear]");
+      var want = all ? null : Math.round(Number($("[data-bonus]").value));
+      if (!all && !(want > 0)) return toast("Enter how many tokens to remove.", true);
+      var take = all ? u.bonusToday : Math.min(want, u.bonusToday || 0);
+      return ask({
+        title: "Remove " + num(take) + " bonus tokens from " + u.username + "?",
+        text: ((all ? "All of today's bonus is taken back. " : (want > (u.bonusToday || 0)
+          ? "They only have +" + num(u.bonusToday) + " bonus today, so that much is removed. "
+          : "")) + "Their allowance today becomes " + tokens(u.dailyLimit == null ? null : u.dailyLimit - take) + ".").trim(),
+        ok: "Remove tokens", danger: true
+      }).then(function (v) {
+        if (!v) return;
+        run(t, A.removeBonus(u.id, all ? null : want, $("[data-bonus-notify]").checked), null, "Removing").then(function (d) {
+          applied(d, "-" + fmt(d.bonusRemoved) + " bonus tokens · bonus now " + (d.bonusToday ? "+" + fmt(d.bonusToday) : "0"));
+        });
+      });
     }
     if (t.matches("[data-reset-usage]")) {
       return ask({ title: "Reset today's usage?", text: u.username + " has used " + num(u.usedToday) + " tokens today. This sets it back to 0.", ok: "Reset" }).then(function (v) {
@@ -1223,6 +1312,38 @@
       var tf = {}; tf[st2.dataset.cfgSaveText] = $('[data-cfg-text="' + st2.dataset.cfgSaveText + '"]').value;
       return saveConfig(st2, tf, "Message saved");
     }
+    var tp = t.closest("[data-theme-pick]");
+    if (tp) {
+      var themeId = tp.dataset.themePick, label = tp.textContent.replace("●", "").trim();
+      if (state.cfg && state.cfg.values.theme === themeId) return;
+      return ask({ title: "Switch to " + label + "?", text: "The website and every open app change within seconds.", ok: "Switch theme" }).then(function (v) {
+        if (v) saveConfig(tp, { theme: themeId }, label + " theme is live");
+      });
+    }
+    var pm = t.closest("[data-promo-mode]");
+    if (pm) {
+      state.promoMode = pm.dataset.promoMode === "1";
+      return renderLook(state.cfg.values, state.cfg.fields);
+    }
+    if (t.closest("[data-promo-save]")) {
+      var untilP = $("[data-promo-until]").value;
+      var promo = {
+        label: $("[data-promo-label]").value.trim(), percent: Number($("[data-promo-percent]").value),
+        code: $("[data-promo-code]").value.trim().toUpperCase(), terms: $("[data-promo-terms]").value.trim(),
+        plans: $$("[data-promo-plan]").filter(function (c) { return c.checked; }).map(function (c) { return c.dataset.promoPlan; }),
+        until: untilP ? new Date(untilP).toISOString() : null
+      };
+      var btnP = t.closest("[data-promo-save]");
+      return ask({ title: "Start " + (promo.label || "the promotion") + "?", text: promo.percent + "% off " + promo.plans.join(", ") + " with code " + promo.code + ". The website shows the sale prices right away.", ok: "Go live" }).then(function (v) {
+        if (v) saveConfig(btnP, { promotion: promo }, "Promotion is live");
+      });
+    }
+    if (t.closest("[data-promo-stop]")) {
+      var btnS = t.closest("[data-promo-stop]");
+      return ask({ title: "End the promotion?", text: "Prices go back to normal everywhere.", ok: "End promotion", danger: true }).then(function (v) {
+        if (v) { state.promoMode = false; saveConfig(btnS, { promotion: null }, "Prices are back to normal"); }
+      });
+    }
     if (t.closest("[data-ann-publish]")) {
       var where = $$("[data-ann-where]").filter(function (x) { return x.checked; }).map(function (x) { return x.dataset.annWhere; });
       var until = $("[data-ann-until]").value;
@@ -1246,10 +1367,14 @@
     change[name] = on;
     var risky = (name === "ai_global_pause" && on) || (name === "signups_open" && !on) || (name === "rewards_enabled" && !on);
     var titles = { ai_global_pause: on ? "Pause AI for everyone?" : "Turn AI back on?", signups_open: on ? "Open sign-ups?" : "Close new sign-ups?",
-      rewards_enabled: on ? "Turn ad unlocks on?" : "Turn ad unlocks off?" };
+      rewards_enabled: on ? "Turn ad unlocks on?" : "Turn ad unlocks off?",
+      theme_effects: on ? "Show seasonal decorations?" : "Hide seasonal decorations?",
+      theme_app: on ? "Use the theme in the desktop app?" : "Keep the app on its classic look?" };
     var texts = { ai_global_pause: on ? "Every AI request is refused with the maintenance message until you switch it off. Admins can still use AI." : "AI requests work again for everyone.",
       signups_open: on ? "New accounts can be created again." : "Nobody can create an account (email or Google). Existing users can still sign in.",
-      rewards_enabled: on ? "Free accounts can unlock Build & Run and Texture Studio with an ad again." : "Free accounts can't unlock with ads; running unlocks finish normally." };
+      rewards_enabled: on ? "Free accounts can unlock Build & Run and Texture Studio with an ad again." : "Free accounts can't unlock with ads; running unlocks finish normally.",
+      theme_effects: on ? "Snow, leaves and other seasonal touches drift gently on the website." : "The website keeps the theme colours without moving decorations.",
+      theme_app: on ? "Open apps switch to the theme colours within seconds." : "Open apps switch back to the classic colours within seconds." };
     box.checked = !on;  // until confirmed
     ask({ title: titles[name], text: texts[name], ok: "Confirm", danger: risky }).then(function (v) {
       if (!v) return;
@@ -1259,6 +1384,10 @@
   });
   document.addEventListener("input", function (e) {
     if (e.target.matches && e.target.matches("[data-ann-text], [data-ann-link], [data-ann-linktext]")) annPreview();
+    if (e.target.matches && e.target.matches("[data-promo-percent]")) promoPreview();
+  });
+  document.addEventListener("change", function (e) {
+    if (e.target.matches && e.target.matches("[data-promo-plan]")) promoPreview();
   });
   document.addEventListener("change", function (e) {
     if (e.target.matches && e.target.matches("[data-ann-level]")) annPreview();

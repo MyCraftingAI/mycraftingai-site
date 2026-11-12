@@ -16,6 +16,12 @@
   var KEY = "mca_unlock_ticket";
   var ticket = "";
   var info = null;
+  var source = "";  // "google" (rewarded ad) or "house" (our own message), sent with the claim
+
+  /** Anonymous page counter; never allowed to break the page. */
+  function track(name) {
+    try { if (api && api.track) api.track(name); } catch (e) { /* ignore */ }
+  }
 
   var ICONS = {
     lock: '<svg viewBox="0 0 24 24" width="30" height="30"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2H9V7a3 3 0 0 1 5.8-1.1 1 1 0 1 0 1.9-.6A5 5 0 0 0 12 2Z"/></svg>',
@@ -135,6 +141,8 @@
   }
 
   function sponsor(seconds) {
+    source = "house";
+    track("unlock.house");
     render("play", "",
       "<h1>A short message from MyCraftingAI</h1>" +
       '<p class="lede">No ad is available for you right now, so here is a quick note from us instead. Your unlock is on its way.</p>' +
@@ -174,7 +182,7 @@
         return;
       }
       fromError(err);
-    });
+    }).catch(unexpected);
   }
 
   function watch(e) {
@@ -198,7 +206,20 @@
         closed: function () { stopBeats(); track("unlock.closed"); intro("The ad was closed before the end, so nothing was unlocked yet. You can try again."); },
         unavailable: function () { sponsor(fallbackSeconds); }
       });
-    }, fromError);
+    }, fromError).catch(unexpected);
+  }
+
+  /** Anything unexpected: say so and offer a retry, never hang on "Loading". */
+  function unexpected(err) {
+    stopBeats();
+    run++;
+    if (window.console && console.error) console.error("Unlock page error:", err);
+    render("err", "err",
+      "<h1>Something went wrong</h1>" +
+      '<p class="lede">The unlock page hit a problem. Your unlock link still works - try again.</p>' +
+      '<div class="unlock-actions"><button class="btn btn-primary" type="button" data-retry>Try again</button></div>');
+    var retry = card.querySelector("[data-retry]");
+    if (retry) retry.addEventListener("click", function () { location.reload(); });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -207,10 +228,18 @@
       failed("Open this page from the app", "In MyCraftingAI on the Free plan, press Build & Run or open Texture Studio and choose Watch ad. This page then opens with your personal unlock link.");
       return;
     }
+    // Safety net: if the server doesn't answer at all, don't spin forever.
+    var watchdog = setTimeout(function () {
+      if (!info) failed("Can't reach MyCraftingAI", "Check your internet connection, then reload this page. Your unlock link stays valid for 30 minutes.");
+    }, 20000);
     api.rewards.info(ticket).then(function (r) {
+      clearTimeout(watchdog);
       info = r;
       track("unlock.view");
       if (info.status === "granted") done(); else intro("");
-    }, fromError);
+    }, function (err) {
+      clearTimeout(watchdog);
+      fromError(err);
+    }).catch(unexpected);
   });
 })();

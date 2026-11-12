@@ -635,3 +635,71 @@ main, .site-footer { position: relative; z-index: 1; }
 .site-notice.info { background: rgba(79,99,245,.14); color: #cfd6ff; }
 .site-notice.success { background: rgba(61,214,140,.12); color: #9df0c4; }
 .site-notice.warning { background: rgba(245,183,74,.13); color: #f8d79a; }
+
+/* ====================================================================== themes
+   Seasonal looks chosen in the admin panel (Live settings > Theme). ui.js sets
+   <html data-theme="...">; "classic" is the normal look above. Every theme only
+   re-tints the accent colours, adds a soft seasonal glow and (optionally) a few
+   drifting decorations - layout and text stay exactly the same. */
+html[data-theme="halloween"]    { --accent: #ff7a1a; --accent-hi: #ff9442; --azure: #ffb070; --accent-rgb: 255,122,26;  --theme-2: 155,92,246; }
+html[data-theme="black_friday"] { --accent: #e8b92f; --accent-hi: #f3c94a; --azure: #f6d77a; --accent-rgb: 232,185,47;  --theme-2: 255,255,255; --ground: #050505; --ground-2: #0a0a0a; }
+html[data-theme="cyber_monday"] { --accent: #14c8e0; --accent-hi: #3ad6eb; --azure: #7be7f4; --accent-rgb: 20,200,224;  --theme-2: 236,72,153; }
+html[data-theme="autumn"]       { --accent: #d9622b; --accent-hi: #e77a46; --azure: #f0a774; --accent-rgb: 217,98,43;   --theme-2: 245,183,74; }
+html[data-theme="christmas"]    { --accent: #d93a3a; --accent-hi: #e85a5a; --azure: #f08080; --accent-rgb: 217,58,58;   --theme-2: 47,174,102; }
+html[data-theme="winter"]       { --accent: #4da3e8; --accent-hi: #6bb6ee; --azure: #9ccbf3; --accent-rgb: 77,163,232;  --theme-2: 220,235,255; }
+html[data-theme="new_year"]     { --accent: #9b5cf6; --accent-hi: #b07cf8; --azure: #c9a9ff; --accent-rgb: 155,92,246;  --theme-2: 232,185,47; }
+html[data-theme="valentines"]   { --accent: #e64a86; --accent-hi: #ee6a9c; --azure: #f59bbe; --accent-rgb: 230,74,134;  --theme-2: 255,160,190; }
+html[data-theme="spring"]       { --accent: #3fbf7f; --accent-hi: #5ccf94; --azure: #8fe0b5; --accent-rgb: 63,191,127;  --theme-2: 244,143,177; }
+html[data-theme="easter"]       { --accent: #a78bfa; --accent-hi: #b9a1fb; --azure: #d4c5fd; --accent-rgb: 167,139,250; --theme-2: 253,224,71; }
+html[data-theme="summer"]       { --accent: #f5a524; --accent-hi: #f8b84c; --azure: #ffd27a; --accent-rgb: 245,165,36;  --theme-2: 20,184,166; }
+
+/* Accent-coloured details that are hard-coded in the classic look. */
+html[data-theme]:not([data-theme="classic"]) .btn-primary { box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 8px 24px -10px rgba(var(--accent-rgb), .8); }
+html[data-theme]:not([data-theme="classic"]) ::selection { background: rgba(var(--accent-rgb), .55); }
+html[data-theme]:not([data-theme="classic"]) .cursor-light { background: radial-gradient(560px circle at var(--cx, 50%) var(--cy, 30%), rgba(var(--accent-rgb), .16), rgba(var(--accent-rgb), .05) 40%, transparent 70%); }
+html[data-theme]:not([data-theme="classic"]) .glow-card::after { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(var(--accent-rgb), .13), transparent 45%); }
+html[data-theme="black_friday"] .btn-primary, html[data-theme="summer"] .btn-primary, html[data-theme="winter"] .btn-primary { color: #111; }
+html[data-theme="black_friday"] .btn-primary:hover, html[data-theme="summer"] .btn-primary:hover, html[data-theme="winter"] .btn-primary:hover { color: #000; }
+html[data-theme]:not([data-theme="classic"]) body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(900px 420px at 15% -8%, rgba(var(--accent-rgb), .16), transparent 70%),
+    radial-gradient(700px 380px at 95% 0%, rgba(var(--theme-2), .09), transparent 70%);
+}
+
+/* Drifting decorations (snow, leaves, bats...). Off on touch screens and for reduced motion. */
+.theme-fx { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }  /* behind the content: only visible in the gaps */
+.theme-fx i {
+  position: absolute; top: -40px; font-style: normal; line-height: 1; opacity: .75;
+  animation: theme-fall linear infinite; will-change: transform;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+}
+@keyframes theme-fall {
+  0%   { transform: translate3d(0, -6vh, 0) rotate(0deg); }
+  50%  { transform: translate3d(var(--sway, 30px), 52vh, 0) rotate(160deg); }
+  100% { transform: translate3d(0, 110vh, 0) rotate(330deg); }
+}
+.theme-fx.float i { top: auto; bottom: -40px; animation-name: theme-rise; }
+@keyframes theme-rise {
+  0%   { transform: translate3d(0, 6vh, 0) scale(.9); opacity: 0; }
+  15%  { opacity: .8; }
+  100% { transform: translate3d(var(--sway, 30px), -110vh, 0) scale(1.1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .theme-fx { display: none; } }
+
+/* Season strip under the header: greeting + promotion. */
+.season-strip { position: relative; z-index: 2; background: linear-gradient(90deg, rgba(var(--accent-rgb, 79,99,245), .22), rgba(var(--theme-2, 138,160,255), .12)); border-bottom: 1px solid rgba(var(--accent-rgb, 79,99,245), .35); font-size: 14px; }
+.season-strip .wrap { display: flex; align-items: center; gap: 12px; min-height: 44px; padding-top: 8px; padding-bottom: 8px; flex-wrap: wrap; }
+.season-strip .em { font-size: 18px; }
+.season-strip b { color: var(--text); }
+.season-strip .code { font: 600 12.5px var(--mono); background: rgba(0,0,0,.35); border: 1px dashed rgba(var(--accent-rgb, 79,99,245), .7); border-radius: 6px; padding: 2px 8px; color: var(--azure); }
+.season-strip .go { margin-left: auto; color: var(--text); font-weight: 600; white-space: nowrap; }
+.season-strip button { background: none; border: 0; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px; }
+
+/* Promotion on the pricing cards */
+.plan .sale { position: absolute; top: -11px; right: 16px; height: 22px; padding: 0 10px; border-radius: 6px; font: 700 11px/22px var(--mono); letter-spacing: .05em; text-transform: uppercase; color: #111; background: linear-gradient(90deg, var(--azure), var(--accent)); box-shadow: 0 6px 18px -6px rgba(var(--accent-rgb, 79,99,245), .9); }
+.plan .price { flex-wrap: wrap; }
+.plan .price s { flex-basis: 100%; color: var(--faint); font-size: 14px; font-weight: 500; margin: 0 0 -6px; }
+.plan .promo-note { font-size: 12.5px; line-height: 1.45; color: var(--azure); margin: 6px 0 12px; }
+.plan .promo-note code { font: 600 12px var(--mono); }
+#compare td s { color: var(--faint); margin-right: 4px; }

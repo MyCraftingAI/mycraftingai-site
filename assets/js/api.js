@@ -314,6 +314,11 @@
         }).catch(function () { /* ignore */ });
       } catch (e) { /* old browser */ }
     },
+    /** Theme, promotion and banner from the admin panel's Live settings. */
+    site: function () {
+      if (mode !== "live") return Promise.resolve({ theme: "classic", effects: true, promotion: null, announcement: null });
+      return live("GET", "/v1/public/site");
+    },
     /** The banner an admin set for the website ({announcement: null} when none). */
     announcement: function () {
       if (mode !== "live") return Promise.resolve({ announcement: null });
@@ -356,6 +361,8 @@
         user: function (id) { return request("GET", u(id)); },
         update: function (id, changes) { return request("PATCH", u(id), changes); },
         bonus: function (id, tokens, notify) { return request("POST", u(id) + "/bonus", { tokens: tokens, notify: !!notify }); },
+        /** Take back today's bonus tokens (tokens = null: all of it). */
+        removeBonus: function (id, tokens, notify) { return request("POST", u(id) + "/bonus/remove", { tokens: tokens, notify: !!notify }); },
         emailUser: function (id, d) { return request("POST", u(id) + "/email", d); },
         action: function (id, name) { return request("POST", u(id) + "/" + name, {}); },
         revokeSessions: function (id) { return request("POST", u(id) + "/revoke-sessions", {}); },

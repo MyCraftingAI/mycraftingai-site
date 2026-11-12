@@ -1,10 +1,10 @@
 {
-  "version": "1.0.5",
+  "version": "1.0.6",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 52394201,
-  "sha256": "99cffc22582408a0e8f554a408de5546e3adf7464e4c3348cf235b96b3367551",
-  "published": "2026-11-12T12:44:40Z",
+  "size": 52400148,
+  "sha256": "3daca2b4161c947554d1fcc30689276a659bdf97d70f69278c8637ad37268794",
+  "published": "2026-11-12T14:07:17Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Thinking modes**: choose None, Low, Normal or High under the message box. None answers straight away with a compact prompt, so a quick question costs a fraction of the tokens; High thinks it through and double-checks every file. Free includes None, Builder adds Low and Normal, Pro and up include all four.\n- **Much smaller requests**: greetings and short questions no longer send your whole project context, and each mode sends only as much history and file list as it needs.\n- **Build & Run and Texture Studio on Free**: watch one short ad on our website to unlock one Build & Run (including its automatic fixes) or five minutes of Texture Studio. The app itself never shows ads.\n- **Much faster project opening**: long chat histories no longer freeze the window. The latest messages appear instantly and the assistant still remembers the whole conversation.\n- **No more pause when you press Send**: messages appear in the chat right away, even in long conversations.\n- **Proper taskbar icon**: MyCraftingAI now shows its own icon on the taskbar, in Alt+Tab and on pinned shortcuts.\n- Java is no longer checked again on every message, and no console window flashes while it's checked."
+  "notes": "- **Account changes apply instantly**: bonus tokens, plan upgrades, subscription changes and unlocks now show up within seconds while the app is open - no restart needed. The chat tells you exactly what changed.\n- **Seasonal looks**: the app can follow MyCraftingAI's seasonal themes (Christmas, Halloween, Black Friday and more) with matching colours and a small badge in the title bar.\n- **Offers in the app**: when a promotion is running, it appears in the title bar and in upgrade prompts - one click opens the plans page."
 }
