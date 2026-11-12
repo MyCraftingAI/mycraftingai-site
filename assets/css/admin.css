@@ -208,3 +208,41 @@ body[data-page="admin"] { background: var(--ground); }
   .ad-panel-head { padding: 16px 16px 0; }
   .ad-panel-body { padding: 16px 16px 60px; }
 }
+
+/* ---- Insights / Ads / Revenue / Live settings ---------------------------------- */
+.ad-nav .ad-count.warn { background: rgba(245,183,74,.2); color: #ffd28a; }
+.ad-kpis + .ad-kpis { margin-top: 14px; }
+.ad-bars { display: grid; gap: 10px; margin-top: 6px; }
+.ad-bar { display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 10px; font-size: 13.5px; }
+.ad-bar > span:first-child { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-bar .track { height: 10px; border-radius: 6px; background: rgba(255,255,255,.05); overflow: hidden; }
+.ad-bar .track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .4s ease; }
+.ad-bar b { text-align: right; font: 600 13px var(--mono); white-space: nowrap; min-width: 56px; }
+.ad-funnel { display: grid; gap: 8px; margin-top: 4px; }
+.ad-funnel .step { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+.ad-funnel .step .lbl { font-size: 13.5px; color: var(--muted); }
+.ad-funnel .step .val { font: 600 13.5px var(--mono); }
+.ad-funnel .step .track { grid-column: 1 / -1; height: 8px; border-radius: 6px; background: rgba(255,255,255,.05); overflow: hidden; }
+.ad-funnel .step .track i { display: block; height: 100%; border-radius: inherit; }
+.ad-funnel h4 { margin: 14px 0 6px; font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.ad-funnel h4:first-child { margin-top: 0; }
+.ad-toggle { position: relative; display: inline-block; width: 42px; height: 24px; flex: 0 0 42px; }
+.ad-toggle input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; z-index: 1; }
+.ad-toggle i { position: absolute; inset: 0; border-radius: 99px; background: rgba(255,255,255,.12); transition: background .2s; }
+.ad-toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.ad-toggle input:checked + i { background: var(--accent); }
+.ad-toggle input:checked + i::after { transform: translateX(18px); }
+.ad-toggle.danger input:checked + i { background: #e0565b; }
+.ad-toggle input:disabled + i { opacity: .5; }
+.ad-num { display: grid; grid-template-columns: 1fr 120px auto; gap: 10px; align-items: center; font-size: 14px; }
+.ad-num span { color: var(--muted); }
+.ad-num small { color: var(--dim); display: block; font-size: 12px; }
+.ad-ann-preview { border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-top: 4px; }
+.ad-ann-preview.info { background: rgba(79,99,245,.14); color: #cfd6ff; }
+.ad-ann-preview.success { background: rgba(61,214,140,.12); color: #9df0c4; }
+.ad-ann-preview.warning { background: rgba(245,183,74,.13); color: #f8d79a; }
+.ad-user-cell { display: flex; flex-direction: column; min-width: 0; }
+.ad-user-cell b { color: var(--text); font-weight: 600; }
+.ad-user-cell span { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
+.ad-rows .r.link { cursor: pointer; }
+.ad-rows .r.link:hover b { color: #b9c2ff; }

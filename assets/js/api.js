@@ -99,10 +99,33 @@
     var plan = plans.filter(function (p) { return p.id === user.plan; })[0] || plans[0] || { id: "free", name: "Free", dailyTokens: 10000 };
     var usage = user.usage && user.usage.day === today() ? user.usage.used : 0;
     var reset = new Date(); reset.setUTCHours(24, 0, 0, 0);
+    var sub = user.subscription || null;
     return {
       user: { email: user.email, name: user.name, provider: user.provider || "password", created: user.created },
       plan: { id: plan.id, name: plan.name, dailyTokens: plan.dailyTokens },
-      usage: { usedToday: usage, dailyLimit: plan.dailyTokens, resetsAt: reset.toISOString() }
+      usage: { usedToday: usage, dailyLimit: plan.dailyTokens, resetsAt: reset.toISOString() },
+      settings: previewSettings(user),
+      subscription: sub ? previewSub(sub) : null
+    };
+  }
+
+  function previewSettings(user) {
+    var s = user.settings || {};
+    return {
+      email_notifications_enabled: s.email_notifications_enabled !== false,
+      security_alerts_enabled: s.security_alerts_enabled !== false,
+      billing_emails_enabled: s.billing_emails_enabled !== false,
+      two_factor_enabled: false
+    };
+  }
+
+  function previewSub(sub) {
+    var active = sub.status === "active";
+    return {
+      plan: sub.plan, planName: sub.planName || sub.plan, status: sub.status,
+      renewsAt: active ? sub.renewsAt : null, endsAt: sub.endsAt || null,
+      cancelled: sub.status === "cancelled", canCancel: active, canResume: sub.status === "cancelled",
+      portalUrl: ""
     };
   }
 
@@ -157,9 +180,73 @@
       case "GET /v1/me":
         if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
         return delay(publicUser(users[session.email]));
+      case "GET /v1/users/settings":
+      case "PATCH /v1/users/settings":
+        if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+        var me = users[session.email];
+        if (method === "PATCH") {
+          me.settings = me.settings || {};
+          Object.keys(body).forEach(function (k) { me.settings[k] = !!body[k]; });
+          store.set("users", users);
+        }
+        return delay(previewSettings(me));
+      case "POST /v1/billing/cancel":
+      case "POST /v1/billing/resume":
+        if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+        var owner = users[session.email], s = owner.subscription;
+        var cancelling = path.slice(-6) === "cancel";
+        if (!s || (cancelling ? s.status !== "active" : s.status !== "cancelled")) {
+          return delay().then(function () { return fail("no_subscription", 400, cancelling ? "There's no active subscription to cancel on this account." : "There's no cancelled subscription to resume."); });
+        }
+        if (cancelling) { s.status = "cancelled"; s.endsAt = s.renewsAt; } else { s.status = "active"; s.endsAt = null; }
+        store.set("users", users);
+        return delay({ subscription: previewSub(s) });
+      case "DELETE /v1/users/me":
+        if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+        if (body.confirm !== "DELETE") return delay().then(function () { return fail("confirm_required", 400, "Type DELETE to confirm."); });
+        delete users[session.email]; store.set("users", users); store.set("session", null);
+        return delay({});
       case "POST /v1/desktop/code":
         if (!session) return delay().then(function () { return fail("unauthorized", 401); });
         return delay({ code: sixDigits() + sixDigits(), expiresIn: 120 });
+      case "POST /v1/rewards/watch/info":
+      case "POST /v1/rewards/watch/start":
+      case "POST /v1/rewards/watch/beat":
+      case "POST /v1/rewards/watch/complete":
+        // Local stand-in for the unlock page, same rules as the server: only time
+        // between close heartbeats (a visible page) counts; 6 s minimum here.
+        var tickets = store.get("reward_tickets", {});
+        var t = tickets[body.ticket] || { kind: /tex/i.test(body.ticket || "") ? "textures" : "build", status: "pending", began: 0, h: 0, w: 0 };
+        var minSeconds = 6, now = Date.now(), action = path.split("/").pop();
+        if (action === "start") { if (!t.began) { t.began = now; t.status = "watching"; } t.h = now; }
+        if ((action === "beat" || action === "complete") && !t.began && t.status !== "granted") {
+          return delay().then(function () { return fail("not_started", 409, "Start the ad first."); });
+        }
+        if (action === "beat" && t.status !== "granted") {
+          var gap = (now - (t.h || now)) / 1000;
+          if (gap > 0 && gap <= 4) t.w = (t.w || 0) + gap;
+          t.h = now;
+        }
+        if (action === "complete" && t.status !== "granted") {
+          if ((t.w || 0) < minSeconds) {
+            var wait = Math.ceil(minSeconds - (t.w || 0));
+            tickets[body.ticket] = t; store.set("reward_tickets", tickets);
+            return delay().then(function () {
+              var e = new ApiError("too_early", "The ad hasn't finished yet.", 409);
+              e.data = { retryAfter: wait };
+              throw e;
+            });
+          }
+          t.status = "granted";
+        }
+        tickets[body.ticket] = t; store.set("reward_tickets", tickets);
+        return delay({
+          kind: t.kind,
+          title: t.kind === "build" ? "Unlock one Build & Run" : "Unlock Texture Studio",
+          reward: t.kind === "build" ? "1 Build & Run" : "5 minutes of Texture Studio",
+          status: t.status, minSeconds: minSeconds, watchedSeconds: Math.floor(t.w || 0),
+          secondsLeft: Math.max(0, Math.ceil(minSeconds - (t.w || 0))), beatSeconds: 2
+        });
       case "POST /v1/preview/google":
         var gmail = "preview.user@gmail.com";
         users[gmail] = users[gmail] || { email: gmail, name: "Preview User", hash: "-", verified: true, plan: "free", provider: "google", created: new Date().toISOString() };
@@ -197,6 +284,41 @@
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
+    /** Permanently delete the signed-in account (server wants "DELETE" + password). */
+    deleteAccount: function (confirm, password) { return request("DELETE", "/v1/users/me", { confirm: confirm, password: password || "" }); },
+    /** Email preferences (codes and critical notices can't be switched off). */
+    settings: {
+      get: function () { return request("GET", "/v1/users/settings"); },
+      update: function (changes) { return request("PATCH", "/v1/users/settings", changes); }
+    },
+    /** Subscription: cancel at the end of the paid period, or resume before it ends. */
+    billing: {
+      get: function () { return request("GET", "/v1/billing"); },
+      cancel: function () { return request("POST", "/v1/billing/cancel", {}); },
+      resume: function () { return request("POST", "/v1/billing/resume", {}); }
+    },
+    /** Free plan ad unlocks: the unlock page holds a single-use ticket, no session. */
+    rewards: {
+      info: function (ticket) { return request("POST", "/v1/rewards/watch/info", { ticket: ticket }); },
+      start: function (ticket) { return request("POST", "/v1/rewards/watch/start", { ticket: ticket }); },
+      beat: function (ticket) { return request("POST", "/v1/rewards/watch/beat", { ticket: ticket }); },
+      complete: function (ticket, source) { return request("POST", "/v1/rewards/watch/complete", { ticket: ticket, source: source || "" }); }
+    },
+    /** Anonymous page counter (download page, unlock page). Never blocks, never fails. */
+    track: function (name) {
+      if (mode !== "live") return;
+      try {
+        fetch(base + "/v1/metrics/event", {
+          method: "POST", credentials: "omit", keepalive: true,
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name })
+        }).catch(function () { /* ignore */ });
+      } catch (e) { /* old browser */ }
+    },
+    /** The banner an admin set for the website ({announcement: null} when none). */
+    announcement: function () {
+      if (mode !== "live") return Promise.resolve({ announcement: null });
+      return live("GET", "/v1/public/announcement");
+    },
     /** 2-step verification: finish a sign-in, resend its code, switch it on/off. */
     twoFactor: {
       verify: function (d) { return request("POST", "/v1/auth/2fa/verify", d); },
@@ -240,7 +362,24 @@
         endSession: function (id, sid) { return request("DELETE", u(id) + "/sessions/" + encodeURIComponent(sid)); },
         remove: function (id) { return request("DELETE", u(id)); },
         email: function (d) { return request("POST", "/v1/admin/email", d); },
-        broadcast: function (d) { return request("POST", "/v1/admin/broadcast", d); }
+        broadcast: function (d) { return request("POST", "/v1/admin/broadcast", d); },
+        insights: function (days) { return request("GET", "/v1/admin/insights?days=" + (days || 30)); },
+        githubRefresh: function () { return request("POST", "/v1/admin/insights/github-refresh", {}); },
+        rewards: function (days) { return request("GET", "/v1/admin/rewards?days=" + (days || 30)); },
+        revenue: function () { return request("GET", "/v1/admin/revenue"); },
+        health: function () { return request("GET", "/v1/admin/health"); },
+        config: function () { return request("GET", "/v1/admin/config"); },
+        setConfig: function (changes) { return request("PATCH", "/v1/admin/config", { changes: changes }); },
+        resetConfig: function (name) { return request("DELETE", "/v1/admin/config/" + encodeURIComponent(name)); },
+        userRewards: function (id, d) { return request("POST", u(id) + "/rewards", d); },
+        /** Daily metrics as CSV, downloaded with the session cookie. */
+        exportMetrics: function (days) {
+          if (mode !== "live") return fail("not_live", 503);
+          return fetch(base + "/v1/admin/metrics.csv?days=" + (days || 90), { credentials: "include" }).then(function (r) {
+            if (!r.ok) throw new ApiError("error", "Export failed (" + r.status + ").", r.status);
+            return r.blob();
+          });
+        }
       };
     })(),
     /** Which sign-in methods the server has switched on, e.g. {google: true}. */

@@ -45,6 +45,7 @@
 
   /* -------------------------------------------------------------- helpers */
   function num(n) { return n == null ? "-" : Number(n).toLocaleString("en-US"); }
+  function money(n, cents) { return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: cents === false ? 0 : 2, maximumFractionDigits: cents === false ? 0 : 2 }); }
   function tokens(n) { return n == null ? "Unlimited" : fmt(n); }
   function since(iso) {
     if (!iso) return "never";
@@ -138,6 +139,10 @@
     $("[data-side]").classList.remove("open");
     if (push !== false && location.hash !== "#" + view) history.replaceState(null, "", "#" + view);
     if (view === "dashboard") loadDashboard();
+    if (view === "insights") loadInsights();
+    if (view === "ads") loadAds();
+    if (view === "revenue") loadRevenue();
+    if (view === "settings") loadSettings();
     if (view === "users") loadUsers();
     if (view === "messages") loadMessages();
     if (view === "activity") loadEvents();
@@ -181,6 +186,283 @@
       fillPlanFilter(o.plans);
     }, function (e) { toast(errText(e), true); });
     loadCharts();
+    loadGlance();
+  }
+
+  /** Second KPI row: downloads, app users, ad unlocks, revenue and switches. */
+  function loadGlance() {
+    var host = $("[data-kpis2]");
+    Promise.all([A.insights(7), A.rewards(7), A.revenue(), A.config()]).then(function (r) {
+      var ins = r[0], rw = r[1], rev = r[2], cfg = r[3].values;
+      var today = ins.days[ins.days.length - 1] || {};
+      var granted = rw.funnel.build.granted + rw.funnel.textures.granted;
+      var off = [];
+      if (cfg.ai_global_pause) off.push("AI paused");
+      if (!cfg.signups_open) off.push("sign-ups closed");
+      if (!cfg.rewards_enabled) off.push("ad unlocks off");
+      host.innerHTML = [
+        kpi("Downloads 7d", num(ins.downloads.started), num(today.downloads || 0) + " today · " + num(ins.github.total) + " on GitHub"),
+        kpi("App users today", num(ins.active.dau), num(ins.active.wau) + " this week · " + num(ins.active.mau) + " this month"),
+        kpi("Ad unlocks 7d", num(granted), (rw.completion == null ? "-" : rw.completion + "% completed") + " · " + num(rw.live.textures) + " live now"),
+        kpi("MRR", money(rev.mrr), num(rev.counts.active) + " active · " + num(rev.counts.cancelling) + " cancelling"),
+        kpi("AI requests 7d", num(ins.days.reduce(function (s, d) { return s + d.aiRequests; }, 0)), num(ins.thinking.none) + " in None mode"),
+        kpi("Service", off.length ? "Attention" : "All on", off.length ? off.join(" · ") : "AI, sign-ups and ad unlocks running", !!off.length)
+      ].join("");
+      updateSwitchBadge(cfg);
+    }, function () { host.innerHTML = ""; });
+  }
+
+  function updateSwitchBadge(cfg) {
+    var badge = $("[data-switch-badge]");
+    if (badge) badge.hidden = !(cfg.ai_global_pause || !cfg.signups_open || !cfg.rewards_enabled);
+  }
+
+  /** Horizontal bar list: rows = [[label, value, color, title]]. */
+  function bars(rows, suffix) {
+    var max = Math.max.apply(null, rows.map(function (r) { return r[1]; }).concat([1]));
+    return rows.map(function (r) {
+      return '<div class="ad-bar" title="' + esc(r[3] || "") + '"><span>' + esc(r[0]) + '</span><div class="track"><i style="width:' +
+        (r[1] / max * 100).toFixed(1) + "%;background:" + (r[2] || "#4f63f5") + '"></i></div><b>' + num(r[1]) + (suffix || "") + "</b></div>";
+    }).join("") || '<div class="ad-empty">No data yet.</div>';
+  }
+
+  function userCell(u) {
+    return '<div class="ad-user-cell"><b>' + esc(u.username || "-") + "</b><span>" + esc(u.email || "") + "</span></div>";
+  }
+
+  function downloadBlob(blob, name) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  }
+
+  /* ------------------------------------------------------------ insights */
+  var THINK_COLOR = { none: "#6e6e7a", low: "#8aa0ff", normal: "#4f63f5", high: "#3dd68c" };
+  function loadInsights() {
+    state.insDays = state.insDays || 30;
+    $$("[data-ins-range] button").forEach(function (b) { b.classList.toggle("on", Number(b.dataset.days) === state.insDays); });
+    $("[data-ins-kpis]").innerHTML = '<div class="ad-skel"></div>';
+    A.insights(state.insDays).then(function (d) {
+      var dl = d.downloads, act = d.active;
+      var signups = d.days.reduce(function (s, x) { return s + x.signups; }, 0);
+      var ai = d.days.reduce(function (s, x) { return s + x.aiRequests; }, 0);
+      $("[data-ins-kpis]").innerHTML = [
+        kpi("Downloads", num(dl.started), num(dl.views) + " page views · " + (dl.conversion == null ? "-" : dl.conversion + "% started")),
+        kpi("Left during countdown", num(dl.paused), "visitors who switched away at least once"),
+        kpi("New accounts", num(signups), d.range + " days"),
+        kpi("Daily active", num(act.dau), "today in the desktop app"),
+        kpi("Weekly / monthly", num(act.wau) + " / " + num(act.mau), "active app accounts"),
+        kpi("AI requests", num(ai), num(d.features.textures) + " from Texture Studio")
+      ].join("");
+      chart($("[data-ins-dl]"), d.days, "downloads", "downloadViews", function (x) {
+        return "<b>" + x.day + "</b><br>" + num(x.downloads) + " downloads · " + num(x.downloadViews) + " page views<br>" + num(x.signups) + " new accounts";
+      }, "#3dd68c", "#8aa0ff");
+      chart($("[data-ins-active]"), act.daily, "active", null, function (x) { return "<b>" + x.day + "</b><br>" + num(x.active) + " active accounts"; }, "#8aa0ff");
+      $("[data-ins-versions]").innerHTML = bars(act.versions.map(function (v, i) { return ["v" + v.version, v.users, i === 0 ? "#3dd68c" : "#4f63f5"]; }), " users");
+      var tTotal = 0; Object.keys(d.thinking).forEach(function (k) { tTotal += d.thinking[k]; });
+      $("[data-ins-thinking]").innerHTML = bars(["none", "low", "normal", "high"].map(function (k) {
+        return [k.charAt(0).toUpperCase() + k.slice(1), d.thinking[k], THINK_COLOR[k], tTotal ? Math.round(d.thinking[k] / tTotal * 100) + "%" : ""];
+      }));
+      $("[data-ins-features]").innerHTML =
+        '<div class="r"><span>Mod Assistant requests</span><b>' + num(d.features.code) + "</b></div>" +
+        '<div class="r"><span>Texture Studio requests</span><b>' + num(d.features.textures) + "</b></div>";
+      $("[data-ins-top]").innerHTML = d.topUsers.length ? d.topUsers.map(function (u) {
+        return '<div class="r link" data-open-user="' + esc(u.id) + '">' + userCell(u) + '<span><b>' + fmt(u.tokens) + '</b><br><span class="ad-muted" style="font-size:12px">' + num(u.requests) + " req · " + esc(u.plan) + "</span></span></div>";
+      }).join("") : '<div class="ad-empty">No AI use in the last 7 days.</div>';
+      renderGithub(d.github);
+    }, function (e) { toast(errText(e), true); });
+  }
+
+  function renderGithub(g) {
+    $("[data-gh-sub]").textContent = g.error ? g.error : num(g.total) + " installer downloads in total · " + (g.repo || "");
+    $("[data-gh-list]").innerHTML = (g.releases || []).length ? g.releases.slice(0, 8).map(function (r) {
+      return '<div class="r"><span><b style="color:var(--text)">' + esc(r.name || r.tag) + '</b> <span style="font-size:12px">' + (r.published ? since(r.published) : "") + "</span></span><b class=\"ad-mono\">" + num(r.downloads) + "</b></div>";
+    }).join("") : '<div class="ad-empty">' + esc(g.error || "No releases yet.") + "</div>";
+  }
+
+  /* ----------------------------------------------------------- ads & unlocks */
+  var EVENT_TEXT = { requested: "asked for", started: "started watching for", granted: "unlocked", spent: "used", limit: "hit the daily limit for", admin: "was given" };
+  function loadAds() {
+    state.adsDays = state.adsDays || 30;
+    $$("[data-ads-range] button").forEach(function (b) { b.classList.toggle("on", Number(b.dataset.days) === state.adsDays); });
+    A.rewards(state.adsDays).then(function (d) {
+      var f = d.funnel, granted = f.build.granted + f.textures.granted, requested = f.build.requested + f.textures.requested;
+      $("[data-ads-kpis]").innerHTML = [
+        kpi("Unlocks granted", num(granted), num(f.build.granted) + " Build & Run · " + num(f.textures.granted) + " Texture"),
+        kpi("Requested in app", num(requested), (d.completion == null ? "-" : d.completion + "%") + " completed"),
+        kpi("Google ads vs ours", num(d.sources.google) + " / " + num(d.sources.house), "rewarded ads / MyCraftingAI message"),
+        kpi("Build & Runs used", num(f.build.spent), num(d.live.creditsWaiting) + " unlocked but not used yet"),
+        kpi("Live right now", num(d.live.textures + d.live.build), num(d.live.textures) + " Texture · " + num(d.live.build) + " Build passes"),
+        kpi("Daily limit reached", num(f.build.limit + f.textures.limit), "times someone wanted more", f.build.limit + f.textures.limit > 0)
+      ].join("");
+      d.daily.forEach(function (x) { x.granted = x.buildGranted + x.texturesGranted; });
+      chart($("[data-ads-chart]"), d.daily, "granted", "requested", function (x) {
+        return "<b>" + x.day + "</b><br>" + num(x.buildGranted) + " Build & Run · " + num(x.texturesGranted) + " Texture<br>" + num(x.requested) + " requested · " + num(x.pageViews) + " page views";
+      });
+      function stage(label, value, top, color) {
+        return '<div class="step"><span class="lbl">' + esc(label) + '</span><span class="val">' + num(value) + (top ? " · " + Math.round(value / top * 100) + "%" : "") +
+          '</span><div class="track"><i style="width:' + (top ? Math.min(100, value / top * 100) : 0) + "%;background:" + color + '"></i></div></div>';
+      }
+      $("[data-ads-funnel]").innerHTML = '<div class="ad-funnel">' + ["build", "textures"].map(function (k) {
+        var x = f[k], top = Math.max(1, x.requested);
+        return "<h4>" + (k === "build" ? "Build & Run" : "Texture Studio") + "</h4>" +
+          stage("Asked in the app", x.requested, top, "#8aa0ff") + stage("Started watching", x.started, top, "#4f63f5") +
+          stage("Unlocked", x.granted, top, "#3dd68c") + (k === "build" ? stage("Used to build", x.spent, top, "#f5b74a") : "");
+      }).join("") + "</div>";
+      $("[data-ads-top]").innerHTML = d.topUsers.length ? d.topUsers.map(function (u) {
+        return '<tr data-open-user="' + esc(u.id) + '" style="cursor:pointer"><td>' + userCell(u) + "</td><td>" + num(u.build) + "</td><td>" + num(u.textures) + '</td><td class="ad-muted">' + since(u.last) + "</td></tr>";
+      }).join("") : '<tr><td colspan="4"><div class="ad-empty">No unlocks in this period.</div></td></tr>';
+      $("[data-ads-feed]").innerHTML = d.recent.length ? d.recent.map(function (ev) {
+        var color = ev.event === "granted" ? "#3dd68c" : ev.event === "limit" ? "#f5b74a" : ev.event === "admin" ? "#8a5cf6" : "#4f63f5";
+        var what = ev.kind === "build" ? "Build & Run" : "Texture Studio";
+        return '<div class="ad-ev"><i style="background:' + color + '"></i><div><div><a href="#users/' + esc(ev.userId) + '" data-open-user="' + esc(ev.userId) + '">' + esc(ev.username || ev.email) + "</a> " +
+          esc(EVENT_TEXT[ev.event] || ev.event) + " " + what + (ev.source ? ' <span class="ad-tag info">' + esc(ev.source === "house" ? "our message" : ev.source) + "</span>" : "") +
+          '</div></div><time title="' + esc(when(ev.at)) + '">' + since(ev.at) + "</time></div>";
+      }).join("") : '<div class="ad-empty">Nothing yet.</div>';
+    }, function (e) { toast(errText(e), true); });
+  }
+
+  /* -------------------------------------------------------------- revenue */
+  var SUB_TAG = { active: "good", on_trial: "info", past_due: "warn", cancelled: "bad", expired: "bad", paused: "warn", unpaid: "bad" };
+  function loadRevenue() {
+    A.revenue().then(function (r) {
+      var c = r.counts;
+      $("[data-rev-kpis]").innerHTML = [
+        kpi("MRR", money(r.mrr), "monthly recurring revenue"),
+        kpi("ARR", money(r.arr, false), "MRR × 12"),
+        kpi("Paying subscribers", num(c.active + c.pastDue + c.trial), num(c.trial) + " on trial"),
+        kpi("Avg. per subscriber", money(r.arpu), "per month"),
+        kpi("This month", "+" + num(r.newThisMonth), num(r.cancelledThisMonth) + " cancelled"),
+        kpi("Needs attention", num(c.pastDue), "payments failing (past due)", c.pastDue > 0)
+      ].join("");
+      $("[data-rev-plans]").innerHTML = bars(r.byPlan.map(function (p) { return [p.name + " (" + p.subscribers + ")", Math.round(p.mrr), PLAN_COLOR[p.plan]]; })).replace(/<b>([\d,]+)<\/b>/g, "<b>$$$1</b>");
+      $("[data-rev-health]").innerHTML =
+        '<div class="r"><span>Active</span><b>' + num(c.active) + "</b></div>" +
+        '<div class="r"><span>On trial</span><b>' + num(c.trial) + "</b></div>" +
+        '<div class="r"><span>Past due (payment failing)</span><b>' + num(c.pastDue) + "</b></div>" +
+        '<div class="r"><span>Cancelled, running to period end</span><b>' + num(c.cancelling) + "</b></div>" +
+        '<div class="r"><span>Ended</span><b>' + num(c.ended) + "</b></div>" +
+        '<div class="r"><span>Paid plans given by admins (no subscription)</span><b>' + num(r.complimentary) + "</b></div>";
+      $("[data-rev-subs]").innerHTML = r.subscriptions.length ? r.subscriptions.map(function (s) {
+        return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag paid">' + esc(s.planName) + "</span></td>" +
+          '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(s.status.replace("_", " ")) + "</span></td>" +
+          "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2)) + "</td>" +
+          "<td>" + (s.status === "cancelled" ? "ends " + when(s.endsAt) : when(s.renewsAt)) + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
+      }).join("") : '<tr><td colspan="6"><div class="ad-empty">No subscriptions yet. They appear here as soon as Lemon Squeezy reports a checkout.</div></td></tr>';
+    }, function (e) { toast(errText(e), true); });
+  }
+
+  /* -------------------------------------------------------- live settings */
+  var REWARD_FIELDS = [
+    ["reward_texture_minutes", "Texture Studio time per ad", "minutes"],
+    ["reward_build_pass_minutes", "Build pass per ad (launch + fixes)", "minutes"],
+    ["reward_min_seconds", "Visible watching required", "seconds"],
+    ["reward_build_daily", "Build & Run unlocks per account per day", "per day"],
+    ["reward_texture_daily", "Texture unlocks per account per day", "per day"]
+  ];
+  function toggleRow(name, title, sub, on, danger) {
+    return '<div class="r"><span><b style="color:var(--text);display:block">' + esc(title) + '</b><span style="font-size:12.5px">' + esc(sub) + "</span></span>" +
+      '<label class="ad-toggle' + (danger ? " danger" : "") + '"><input type="checkbox" data-cfg-bool="' + name + '"' + (on ? " checked" : "") + '><i></i></label></div>';
+  }
+  function loadSettings() {
+    A.config().then(renderSettings, function (e) { toast(errText(e), true); });
+  }
+  function renderSettings(c) {
+    var v = c.values, f = c.fields;
+    state.cfg = c;
+    updateSwitchBadge(v);
+    $("[data-cfg-switches]").innerHTML =
+      toggleRow("ai_global_pause", "Maintenance: pause AI for everyone", v.ai_global_pause ? "ON - AI requests are refused (admins still work)" : "Off", v.ai_global_pause, true) +
+      toggleRow("signups_open", "Allow new sign-ups", v.signups_open ? "Open - email and Google sign-ups work" : "Closed - existing users can still sign in", v.signups_open) +
+      toggleRow("rewards_enabled", "Ad unlocks for Free accounts", v.rewards_enabled ? "On - Build & Run and Texture Studio can be unlocked" : "Off - Free accounts see the upgrade option only", v.rewards_enabled);
+    $("[data-cfg-text=ai_pause_message]").value = v.ai_pause_message || "";
+    $("[data-cfg-rewards]").innerHTML = REWARD_FIELDS.map(function (r) {
+      var meta = f[r[0]] || {};
+      var isDefault = v[r[0]] === meta.default;
+      return '<div class="ad-num"><span>' + esc(r[1]) + "<small>" + esc(r[2]) + " · " + meta.min + "-" + meta.max + (isDefault ? " · default" : " · default " + meta.default) + "</small></span>" +
+        '<input class="input" type="number" min="' + meta.min + '" max="' + meta.max + '" value="' + esc(v[r[0]]) + '" data-cfg-num="' + r[0] + '">' +
+        '<span class="ad-row-actions"><button class="btn btn-sm" data-cfg-save-num="' + r[0] + '">Save</button>' +
+        (isDefault ? "" : '<button class="btn btn-ghost btn-sm" data-cfg-reset="' + r[0] + '">Default</button>') + "</span></div>";
+    }).join("");
+    var a = v.announcement || {};
+    var where = a.where || ["site", "app"];
+    $("[data-cfg-ann]").innerHTML =
+      (v.announcement ? '<div class="ad-status on"><span class="ic">●</span><div><b>Live now</b><span>Shown on ' + esc(where.join(" and ").replace("site", "the website").replace("app", "the app")) + (a.until ? " until " + when(a.until) : "") + "</span></div></div>" : "") +
+      '<label>Text<input class="input" data-ann-text maxlength="300" value="' + esc(a.text || "") + '" placeholder="e.g. New: thinking modes are here - pick None, Low, Normal or High under the message box."></label>' +
+      '<div class="ad-inline" style="gap:10px;flex-wrap:wrap"><label style="flex:1;min-width:150px">Style<select data-ann-level>' +
+        [["info", "Information (blue)"], ["success", "Good news (green)"], ["warning", "Warning (amber)"]].map(function (o) { return '<option value="' + o[0] + '"' + (a.level === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") +
+      '</select></label><label style="flex:1;min-width:150px">Show until (optional)<input class="input" type="datetime-local" data-ann-until value="' + esc((a.until || "").slice(0, 16)) + '"></label></div>' +
+      '<div class="ad-inline" style="gap:10px;flex-wrap:wrap"><label style="flex:2;min-width:200px">Link (optional)<input class="input" data-ann-link value="' + esc(a.link || "") + '" placeholder="https://… or /index.html#pricing"></label>' +
+      '<label style="flex:1;min-width:120px">Link text<input class="input" data-ann-linktext maxlength="40" value="' + esc(a.linkText || "") + '" placeholder="Learn more"></label></div>' +
+      '<div class="ad-inline" style="gap:18px"><label class="ad-check"><input type="checkbox" data-ann-where="site"' + (where.indexOf("site") >= 0 ? " checked" : "") + "> Website banner</label>" +
+      '<label class="ad-check"><input type="checkbox" data-ann-where="app"' + (where.indexOf("app") >= 0 ? " checked" : "") + "> Message in the app</label></div>" +
+      '<div class="ad-hint" style="margin-bottom:0">Preview</div><div class="ad-ann-preview" data-ann-preview></div>' +
+      '<div class="ad-row-actions"><button class="btn btn-primary" data-ann-publish>' + (v.announcement ? "Update announcement" : "Publish announcement") + "</button>" +
+      (v.announcement ? '<button class="btn btn-ghost" data-ann-remove>Remove</button>' : "") + "</div>";
+    annPreview();
+  }
+  function annPreview() {
+    var box = $("[data-ann-preview]"); if (!box) return;
+    var text = $("[data-ann-text]").value.trim(), lt = $("[data-ann-linktext]").value.trim(), link = $("[data-ann-link]").value.trim();
+    box.className = "ad-ann-preview " + $("[data-ann-level]").value;
+    box.innerHTML = text ? esc(text) + (link ? ' <u><b>' + esc(lt || "Learn more") + " →</b></u>" : "") : '<span style="opacity:.6">Your announcement appears here.</span>';
+  }
+  function saveConfig(btn, changes, msg) {
+    return run(btn, A.setConfig(changes), msg, "Saving").then(function (c) { renderSettings(c); });
+  }
+
+  function tabUnlocks(u) {
+    var r = u.rewards;
+    if (!r) return '<div class="ad-card"><p class="ad-muted">Unlock data is not available.</p></div>';
+    var s = r.status, b = s.build, t = s.textures, cb = r.counts.build || {}, ct = r.counts.textures || {};
+    function left(sec) { return sec > 0 ? Math.floor(sec / 60) + "m " + ("0" + sec % 60).slice(-2) + "s left" : "none"; }
+    return '<div class="ad-card"><h3>Ad unlocks</h3><p class="ad-sub">' + (r.eligible ? "Free account - can unlock Build & Run and Texture Studio with a short ad." : "Paid plan - includes these tools, no ads needed.") + "</p>" +
+      '<div class="ad-mini">' +
+        "<div><small>Build & Run credits</small><b>" + num(b.credits) + "</b></div>" +
+        "<div><small>Build pass</small><b>" + left(b.secondsLeft) + "</b></div>" +
+        "<div><small>Texture Studio</small><b>" + left(t.secondsLeft) + "</b></div>" +
+        "<div><small>Used today</small><b>" + num(b.usedToday) + " / " + num(t.usedToday) + '</b><span class="ad-muted" style="font-size:12px">build / texture</span></div>' +
+      "</div></div>" +
+      '<div class="ad-card"><h3>All-time</h3><div class="ad-rows">' +
+        '<div class="r"><span>Build & Run: asked / unlocked / used</span><b>' + num(cb.requested || 0) + " / " + num(cb.granted || 0) + " / " + num(cb.spent || 0) + "</b></div>" +
+        '<div class="r"><span>Texture Studio: asked / unlocked</span><b>' + num(ct.requested || 0) + " / " + num(ct.granted || 0) + "</b></div>" +
+        '<div class="r"><span>Daily limit reached</span><b>' + num((cb.limit || 0) + (ct.limit || 0)) + "</b></div>" +
+        '<div class="r"><span>Given by admins</span><b>' + num((cb.admin || 0) + (ct.admin || 0)) + "</b></div></div></div>" +
+      '<div class="ad-card"><h3>Give or remove</h3><p class="ad-sub">For support cases - logged in the activity log.</p>' +
+        '<div class="ad-inline" style="flex-wrap:wrap;gap:8px">' +
+        '<button class="btn btn-sm" data-rw="grant" data-rw-kind="build" data-rw-amount="1">+1 Build & Run</button>' +
+        '<button class="btn btn-sm" data-rw="grant" data-rw-kind="build" data-rw-amount="3">+3 Build & Runs</button>' +
+        '<button class="btn btn-sm" data-rw="grant" data-rw-kind="textures" data-rw-amount="5">+5 min Texture Studio</button>' +
+        '<button class="btn btn-sm" data-rw="grant" data-rw-kind="textures" data-rw-amount="30">+30 min Texture Studio</button>' +
+        '<button class="btn btn-sm" data-rw="reset_today">Reset today\'s limit</button>' +
+        '<button class="btn btn-warn btn-sm" data-rw="end_passes">End unlocks now</button></div></div>' +
+      '<div class="ad-card"><h3>Recent</h3>' + (r.recent.length ? '<div class="ad-timeline">' + r.recent.map(function (e) {
+        return '<div class="ad-ev"><i style="background:' + (e.event === "granted" ? "#3dd68c" : "#4f63f5") + '"></i><div><div>' + esc((EVENT_TEXT[e.event] || e.event).replace(/^./, function (c) { return c.toUpperCase(); })) + " " +
+          (e.kind === "build" ? "Build & Run" : "Texture Studio") + (e.source ? " · " + esc(e.source) : "") + '</div></div><time title="' + esc(when(e.at)) + '">' + since(e.at) + "</time></div>";
+      }).join("") + "</div>" : '<p class="ad-muted" style="margin:8px 0 0">No unlocks yet.</p>') + "</div>";
+  }
+
+  /* -------------------------------------------------------------- health */
+  function loadHealth() {
+    A.health().then(function (h) {
+      var up = h.uptimeSeconds, upText = up > 86400 ? Math.floor(up / 86400) + "d " + Math.floor(up % 86400 / 3600) + "h" : Math.floor(up / 3600) + "h " + Math.floor(up % 3600 / 60) + "m";
+      $("[data-health]").innerHTML = [
+        kpi("API", "v" + h.version, h.environment + " · Python " + h.python),
+        kpi("Uptime", upText, "since the last restart"),
+        kpi("Database", h.database.ms + " ms", h.database.ok ? "responding" : "problem", !h.database.ok),
+        kpi("Redis", h.redis.ms + " ms", h.redis.ok ? "responding" : "problem", !h.redis.ok),
+        kpi("Server time", new Date(h.serverTime).toISOString().slice(11, 16) + " UTC", new Date(h.serverTime).toISOString().slice(0, 10)),
+        kpi("Switches", h.switches.aiPaused ? "AI paused" : "Normal", (h.switches.signupsOpen ? "sign-ups open" : "sign-ups closed") + " · " + (h.switches.rewardsEnabled ? "unlocks on" : "unlocks off"), h.switches.aiPaused || !h.switches.signupsOpen)
+      ].join("");
+      var i = h.integrations;
+      function row(name, ok, okText, badText) { return '<div class="r"><span>' + esc(name) + '</span><span class="ad-tag ' + (ok ? "good" : "warn") + '">' + esc(ok ? okText : badText) + "</span></div>"; }
+      $("[data-integrations]").innerHTML =
+        row("Google sign-in", i.googleSignIn, "configured", "not set up") +
+        row("Lemon Squeezy webhooks", i.lemonSqueezyWebhooks, "configured", "no signing secret") +
+        row("Lemon Squeezy API (cancel / resume)", i.lemonSqueezyApi, "configured", "LEMONSQUEEZY_API_KEY missing") +
+        row("Outgoing email", i.email, "configured", "SMTP not set up");
+    }, function (e) { toast(errText(e), true); });
   }
 
   function loadCharts() {
@@ -194,7 +476,7 @@
   }
 
   /** Bars (+ optional line) in SVG with an HTML tooltip. */
-  function chart(host, days, barKey, lineKey, tip, color) {
+  function chart(host, days, barKey, lineKey, tip, color, lineColor) {
     var W = 600, H = 180, n = days.length, gap = n > 60 ? 1 : 3;
     var bw = (W - gap * (n - 1)) / n;
     var maxB = Math.max.apply(null, days.map(function (d) { return d[barKey]; })) || 1;
@@ -206,7 +488,7 @@
     var line = "";
     if (lineKey) {
       var pts = days.map(function (d, i) { return (i * (bw + gap) + bw / 2).toFixed(1) + "," + (H - d[lineKey] / maxL * (H - 20) - 4).toFixed(1); });
-      line = '<polyline points="' + pts.join(" ") + '" fill="none" stroke="#3dd68c" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>';
+      line = '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + (lineColor || "#3dd68c") + '" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>';
     }
     host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none">' +
       '<line x1="0" y1="' + H + '" x2="' + W + '" y2="' + H + '" stroke="#262630" vector-effect="non-scaling-stroke"/>' + bars + line + "</svg><div class=\"tip\"></div>";
@@ -323,7 +605,7 @@
   }
 
   /* --------------------------------------------------------- user panel */
-  var TABS = [["overview", "Overview"], ["ai", "AI & limits"], ["plan", "Plan"], ["security", "Security"],
+  var TABS = [["overview", "Overview"], ["ai", "AI & limits"], ["unlocks", "Unlocks"], ["plan", "Plan"], ["security", "Security"],
     ["messages", "Email"], ["notes", "Notes"], ["activity", "Activity"], ["danger", "Danger zone"]];
 
   function openUser(id, tab) {
@@ -339,7 +621,7 @@
   function closePanel() {
     $("[data-panel]").classList.remove("show"); $("[data-panel-back]").classList.remove("show");
     state.user = null;
-    if (/^#users\//.test(location.hash)) history.replaceState(null, "", "#users");
+    if (/^#users\//.test(location.hash)) history.replaceState(null, "", "#" + state.view);
   }
   function reloadUser() { if (state.user) return A.user(state.user.id).then(renderPanel); }
   /** After a change: show the fresh account and refresh the list behind it. */
@@ -377,7 +659,7 @@
 
   function renderTab(u, self) {
     var body = $("[data-tab-body]");
-    var html = ({ overview: tabOverview, ai: tabAi, plan: tabPlan, security: tabSecurity, messages: tabMessages,
+    var html = ({ overview: tabOverview, ai: tabAi, unlocks: tabUnlocks, plan: tabPlan, security: tabSecurity, messages: tabMessages,
       notes: tabNotes, activity: tabActivity, danger: tabDanger })[state.tab](u, self);
     body.innerHTML = html;
     body.scrollTop = 0;
@@ -482,7 +764,8 @@
       (self ? "" : row("Admin access", u.admin ? "Can open this panel" : "Regular user", '<button class="btn btn-sm" data-admin-toggle>' + (u.admin ? "Remove admin" : "Make admin") + "</button>")) +
       "</div></div>" +
       '<div class="ad-card"><h3>Email preferences</h3><div class="ad-form" style="gap:8px">' +
-        '<label class="ad-check"><input type="checkbox" data-pref="emailNotifications"' + (u.emailNotifications ? " checked" : "") + "> Product & billing emails</label>" +
+        '<label class="ad-check"><input type="checkbox" data-pref="emailNotifications"' + (u.emailNotifications ? " checked" : "") + "> Product news &amp; announcements</label>" +
+        '<label class="ad-check"><input type="checkbox" data-pref="billingEmails"' + (u.billingEmails !== false ? " checked" : "") + "> Plan &amp; billing updates</label>" +
         '<label class="ad-check"><input type="checkbox" data-pref="securityAlerts"' + (u.securityAlerts ? " checked" : "") + "> New sign-in alerts</label>" +
         '<span class="ad-hint">Codes and critical security mail are always sent.</span></div></div>' +
       '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between"><h3>Active sessions (' + u.sessions.length + ")</h3>" +
@@ -561,6 +844,17 @@
     var self = state.me && state.me.id === u.id;
     if (t.matches("[data-close]")) return closePanel();
     if (t.dataset.tab) { state.tab = t.dataset.tab; $$(".ad-tab").forEach(function (b) { b.classList.toggle("on", b === t); }); return renderTab(u, self); }
+
+    if (t.dataset.rw) {
+      var rw = { action: t.dataset.rw, kind: t.dataset.rwKind || "build", amount: t.dataset.rwAmount ? Number(t.dataset.rwAmount) : null };
+      var apply = function () {
+        run(t, A.userRewards(u.id, rw), "Done - saved to the activity log", "Saving").then(function (r) { u.rewards = r; renderTab(u, self); });
+      };
+      if (rw.action === "end_passes") {
+        return ask({ title: "End " + u.username + "'s unlocks now?", text: "Running Build & Run and Texture Studio unlocks stop and saved Build & Run credits are removed.", ok: "End unlocks", danger: true }).then(function (v) { if (v) apply(); });
+      }
+      return apply();
+    }
 
     var q = t.dataset.q;
     if (q === "email") { state.tab = "messages"; return renderPanel(u); }
@@ -774,6 +1068,7 @@
 
   /* -------------------------------------------------------------- system */
   function loadSystem() {
+    loadHealth();
     loadSenders().then(function (s) {
       $("[data-keys]").innerHTML = s.keys.length ? s.keys.map(function (k) {
         var tag = k.status === "active" ? "good" : k.status === "degraded" ? "warn" : "bad";
@@ -805,7 +1100,7 @@
     var h = location.hash.replace(/^#/, "");
     var m = h.match(/^users\/([0-9a-f-]{36})$/i);
     if (m) { if (state.view !== "users") go("users", false); openUser(m[1]); return; }
-    var view = ["dashboard", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
+    var view = ["dashboard", "insights", "ads", "revenue", "settings", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
     if (view !== state.view || !state.booted) go(view, false);
     state.booted = true;
   }
@@ -904,6 +1199,69 @@
       });
     }
     if (t.closest("[data-signout]")) api.logout().then(function () { location.href = "login.html"; });
+
+    // Insights / Ads / Settings
+    var ir = t.closest("[data-ins-range] button"); if (ir) { state.insDays = Number(ir.dataset.days); return loadInsights(); }
+    var ar = t.closest("[data-ads-range] button"); if (ar) { state.adsDays = Number(ar.dataset.days); return loadAds(); }
+    var jump = t.closest("[data-nav-jump]"); if (jump) return go(jump.dataset.navJump);
+    if (t.closest("[data-gh-refresh]")) {
+      return run(t.closest("[data-gh-refresh]"), A.githubRefresh(), "Download counts refreshed", "Refreshing").then(renderGithub);
+    }
+    if (t.closest("[data-export-metrics]")) {
+      return run(t.closest("[data-export-metrics]"), A.exportMetrics(365), "Export ready", "Exporting").then(function (b) { downloadBlob(b, "mycraftingai-metrics.csv"); });
+    }
+    var sn = t.closest("[data-cfg-save-num]");
+    if (sn) {
+      var field = sn.dataset.cfgSaveNum, input = $('[data-cfg-num="' + field + '"]'), change = {};
+      change[field] = Number(input.value);
+      return saveConfig(sn, change, "Saved - live now");
+    }
+    var rs = t.closest("[data-cfg-reset]");
+    if (rs) return run(rs, A.resetConfig(rs.dataset.cfgReset), "Back to the default", "Resetting").then(renderSettings);
+    var st2 = t.closest("[data-cfg-save-text]");
+    if (st2) {
+      var tf = {}; tf[st2.dataset.cfgSaveText] = $('[data-cfg-text="' + st2.dataset.cfgSaveText + '"]').value;
+      return saveConfig(st2, tf, "Message saved");
+    }
+    if (t.closest("[data-ann-publish]")) {
+      var where = $$("[data-ann-where]").filter(function (x) { return x.checked; }).map(function (x) { return x.dataset.annWhere; });
+      var until = $("[data-ann-until]").value;
+      var ann = {
+        id: "a" + Date.now().toString(36), text: $("[data-ann-text]").value.trim(), level: $("[data-ann-level]").value,
+        link: $("[data-ann-link]").value.trim(), linkText: $("[data-ann-linktext]").value.trim(), where: where,
+        until: until ? new Date(until).toISOString() : null
+      };
+      return saveConfig(t.closest("[data-ann-publish]"), { announcement: ann }, "Announcement is live");
+    }
+    if (t.closest("[data-ann-remove]")) {
+      return ask({ title: "Remove the announcement?", text: "It disappears from the website and the app.", ok: "Remove", danger: true }).then(function (v) {
+        if (v) saveConfig(t.closest("[data-ann-remove]"), { announcement: null }, "Announcement removed");
+      });
+    }
+  });
+  document.addEventListener("change", function (e) {
+    var box = e.target.closest && e.target.closest("[data-cfg-bool]");
+    if (!box) return;
+    var name = box.dataset.cfgBool, on = box.checked, change = {};
+    change[name] = on;
+    var risky = (name === "ai_global_pause" && on) || (name === "signups_open" && !on) || (name === "rewards_enabled" && !on);
+    var titles = { ai_global_pause: on ? "Pause AI for everyone?" : "Turn AI back on?", signups_open: on ? "Open sign-ups?" : "Close new sign-ups?",
+      rewards_enabled: on ? "Turn ad unlocks on?" : "Turn ad unlocks off?" };
+    var texts = { ai_global_pause: on ? "Every AI request is refused with the maintenance message until you switch it off. Admins can still use AI." : "AI requests work again for everyone.",
+      signups_open: on ? "New accounts can be created again." : "Nobody can create an account (email or Google). Existing users can still sign in.",
+      rewards_enabled: on ? "Free accounts can unlock Build & Run and Texture Studio with an ad again." : "Free accounts can't unlock with ads; running unlocks finish normally." };
+    box.checked = !on;  // until confirmed
+    ask({ title: titles[name], text: texts[name], ok: "Confirm", danger: risky }).then(function (v) {
+      if (!v) return;
+      box.checked = on;
+      A.setConfig(change).then(function (c) { renderSettings(c); toast("Saved - live now"); }, function (err) { box.checked = !on; toast(errText(err), true); });
+    });
+  });
+  document.addEventListener("input", function (e) {
+    if (e.target.matches && e.target.matches("[data-ann-text], [data-ann-link], [data-ann-linktext]")) annPreview();
+  });
+  document.addEventListener("change", function (e) {
+    if (e.target.matches && e.target.matches("[data-ann-level]")) annPreview();
   });
   document.addEventListener("change", function (e) { if (e.target.closest("[data-panel]")) panelChange(e); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("[data-modal]").hidden) closePanel(); });

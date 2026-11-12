@@ -1,4 +1,5 @@
-/* Download page: read latest.json and wire the button to the current build. */
+/* Download page: read latest.json and show the current version. The button
+   opens get.html, which prepares the download and then starts it. */
 (function () {
   "use strict";
   var btn = document.querySelector("[data-download]");
@@ -12,9 +13,8 @@
     if (!r.ok) throw 0; return r.json();
   }).then(function (m) {
     if (m.available && m.url) {
-      btn.href = m.url;
+      btn.href = "get.html";
       btn.textContent = "Download for Windows";
-      btn.setAttribute("download", "");
       ver.textContent = "Version " + m.version + " · Windows 10 & 11 · 64-bit" + mb(m.size);
       avail.textContent = "";
     } else {

@@ -421,6 +421,9 @@
       $("[data-provider]").textContent = me.user.provider === "google" ? "Google" : "Email and password";
       if (me.plan.id === "studio" || me.plan.id === "enterprise") $("[data-upgrade]").hidden = true;
       securityCard(!!me.user.twoFactor);
+      subscriptionCard(me);
+      preferencesCard(me.settings || {});
+      deleteCard(me);
       if (me.ai && me.ai.enabled === false) {
         var until = me.ai.pausedUntil ? " until " + new Date(me.ai.pausedUntil).toLocaleString() : "";
         notice(root, "warn", "AI requests are paused on your account" + until + "." +
@@ -489,6 +492,155 @@
       });
     }
 
+    /** Subscription card: plan, renewal / end date, cancel (at period end) and resume. */
+    function subscriptionCard(me) {
+      var card = $("#subscription");
+      if (!card) return;
+      var chip = $("[data-sub-chip]", card), rows = $("[data-sub-rows]", card);
+      var cancelBtn = $("[data-sub-cancel]", card), resumeBtn = $("[data-sub-resume]", card);
+      var portal = $("[data-sub-portal]", card), upgrade = $("[data-sub-upgrade]", card);
+      var esc = window.MCA.escapeHtml;
+
+      function day(iso) {
+        return iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+      }
+      function row(label, value) { return '<div class="row"><span>' + esc(label) + "</span><span>" + value + "</span></div>"; }
+      function setChip(text, colour) {
+        chip.innerHTML = '<span class="dot" style="background:' + colour + '"></span>' + esc(text);
+      }
+
+      function render(sub) {
+        var plan = me.plan || {};
+        var html = "";
+        cancelBtn.hidden = resumeBtn.hidden = portal.hidden = true;
+        upgrade.hidden = false;
+        if (!sub) {
+          var granted = plan.id && plan.id !== "free";
+          setChip(granted ? plan.name : "Free", granted ? "var(--mint)" : "var(--muted)");
+          html += row("Plan", esc(plan.name || "Free"));
+          html += row("Billing", granted
+            ? (plan.endsAt ? "Included until " + esc(day(plan.endsAt)) : "Set up by our team - no card on file")
+            : "No subscription - nothing is charged");
+          upgrade.textContent = granted ? "Compare plans" : "Upgrade plan";
+        } else {
+          var status = sub.status;
+          var label = { active: "Active", on_trial: "Trial", past_due: "Payment due", cancelled: "Cancelled", expired: "Ended", paused: "Paused", unpaid: "Unpaid" }[status] || status;
+          var colour = sub.cancelled ? "var(--amber)" : (status === "active" || status === "on_trial") ? "var(--mint)" : "var(--ruby)";
+          setChip(label, colour);
+          html += row("Plan", esc(sub.planName || plan.name || "-"));
+          html += row("Status", esc(label));
+          if (sub.renewsAt) html += row("Renews on", esc(day(sub.renewsAt)));
+          if (sub.cancelled && sub.endsAt) html += row("Access until", esc(day(sub.endsAt)));
+          if (status === "past_due") html += row("Action needed", "Update your payment method");
+          cancelBtn.hidden = !sub.canCancel;
+          resumeBtn.hidden = !sub.canResume;
+          if (sub.portalUrl && /^https:\/\//.test(sub.portalUrl)) { portal.href = sub.portalUrl; portal.hidden = false; }
+          upgrade.hidden = sub.canCancel || sub.canResume;
+          upgrade.textContent = "See plans";
+        }
+        rows.innerHTML = html;
+      }
+      render(me.subscription || null);
+
+      cancelBtn.addEventListener("click", function () {
+        var sub = me.subscription || {};
+        var until = sub.renewsAt ? day(sub.renewsAt) : "the end of your billing period";
+        window.MCA.modal(
+          "Cancel your subscription?",
+          "You won't be charged again. Your " + (sub.planName || "current") + " plan stays active until " + until +
+          ", then your account moves to Free. Your projects stay on your PC. Payments already made are not refunded.",
+          [
+            { label: "Keep my plan" },
+            { label: "Cancel subscription", primary: true, onClick: function () {
+              busy(cancelBtn, true, "Cancelling");
+              notice(card, "", "");
+              api.billing.cancel().then(function (r) {
+                busy(cancelBtn, false);
+                me.subscription = r.subscription;
+                render(r.subscription);
+                notice(card, "ok", "Your subscription is cancelled. You keep your plan until " +
+                  (r.subscription && r.subscription.endsAt ? day(r.subscription.endsAt) : until) + ". We've emailed a confirmation.");
+              }, function (err) { busy(cancelBtn, false); notice(card, "error", err.message); });
+            } }
+          ]
+        );
+      });
+
+      resumeBtn.addEventListener("click", function () {
+        busy(resumeBtn, true, "Resuming");
+        notice(card, "", "");
+        api.billing.resume().then(function (r) {
+          busy(resumeBtn, false);
+          me.subscription = r.subscription;
+          render(r.subscription);
+          notice(card, "ok", "Welcome back - your subscription renews as normal.");
+        }, function (err) { busy(resumeBtn, false); notice(card, "error", err.message); });
+      });
+    }
+
+    /** Delete account: type DELETE (+ password for email accounts), then confirm. */
+    function deleteCard(me) {
+      var card = $("#delete");
+      if (!card) return;
+      var form = $("[data-delete-form]", card), open = $("[data-delete-open]", card);
+      var google = me.user.provider === "google";
+      $("[data-delete-password]", card).hidden = google;
+      open.addEventListener("click", function () {
+        form.hidden = false; open.hidden = true;
+        var first = $("input", form); if (first) first.focus();
+      });
+      $("[data-delete-cancel]", card).addEventListener("click", function () {
+        form.hidden = true; open.hidden = false; form.reset(); notice(form, "", "");
+      });
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var confirmText = form.confirm.value.trim();
+        if (confirmText !== "DELETE") { notice(form, "error", "Type DELETE in capitals to confirm."); return; }
+        if (!google && !form.password.value) { notice(form, "error", "Enter your password."); return; }
+        var sub = me.subscription;
+        if (sub && sub.canCancel) {
+          notice(form, "error", "Cancel your subscription in the Subscription section first, so you aren't charged again.");
+          return;
+        }
+        var button = $("[data-delete-submit]", form);
+        busy(button, true, "Deleting");
+        api.deleteAccount("DELETE", google ? "" : form.password.value).then(function () {
+          location.href = "index.html?deleted=1";
+        }, function (err) { busy(button, false); notice(form, "error", err.message); });
+      });
+    }
+
+    /** Email preferences: each switch saves on its own; a failure flips it back. */
+    function preferencesCard(settings) {
+      var card = $("#notifications");
+      if (!card) return;
+      var boxes = $$("[data-pref]", card);
+      boxes.forEach(function (box) {
+        box.checked = settings[box.dataset.pref] !== false;
+        box.addEventListener("change", function () {
+          save([box], box.checked);
+        });
+      });
+      $("[data-pref-all]", card).addEventListener("click", function () {
+        var on = boxes.filter(function (b) { return b.checked; });
+        if (!on.length) { notice(card, "info", "Optional emails are already off. You'll only get codes and essential messages."); return; }
+        save(on, false);
+      });
+
+      function save(list, value) {
+        var changes = {};
+        list.forEach(function (b) { changes[b.dataset.pref] = value; b.checked = value; b.disabled = true; });
+        notice(card, "", "");
+        api.settings.update(changes).then(function (r) {
+          boxes.forEach(function (b) { b.disabled = false; b.checked = r[b.dataset.pref] !== false; });
+          notice(card, "ok", list.length > 1 ? "Optional emails are off. Codes and essential messages still arrive." : "Saved.");
+        }, function (err) {
+          list.forEach(function (b) { b.disabled = false; b.checked = !value; });
+          notice(card, "error", err.message);
+        });
+      }
+    }
+
     function tick() {
       if (!resetsAt) return;
       var ms = Math.max(0, resetsAt - Date.now());
@@ -496,16 +648,14 @@
       $("[data-reset]").textContent = h + "h " + ("0" + m).slice(-2) + "m " + ("0" + s).slice(-2) + "s";
     }
 
-    // Download button: always a real link. It starts on the download page and
-    // is upgraded to the installer itself as soon as latest.json answers.
+    // Download button: the download page prepares the installer, then starts it.
     var dl = $("[data-download]");
-    dl.href = cfg.downloadUrl || "download.html";
+    dl.href = "download.html";
     fetch("latest.json?" + Date.now(), { cache: "no-store" }).then(function (r) {
       return r.ok ? r.json() : null;
     }).then(function (m) {
       if (!m || !m.available || !/^https:\/\//.test(m.url || "")) return;
-      dl.href = m.url;
-      dl.setAttribute("download", "");
+      dl.href = "get.html";
       dl.title = "MyCraftingAI " + m.version + " for Windows" + (m.size ? " · " + (m.size / 1048576).toFixed(0) + " MB" : "");
       dl.textContent = "Download for Windows";
     }).catch(function () { /* keep download.html */ });
@@ -539,13 +689,9 @@
         var query = "?code=" + encodeURIComponent(code) + "&state=" + encodeURIComponent(state);
         // Installed app: Windows routes mycraftingai:// links straight to it.
         var appUrl = "mycraftingai://callback" + query;
-        // Developer build (no installer): the app's local listener.
-        var localUrl = "http://" + (cfg.desktopCallbackHost || "127.0.0.1") + ":" + port + "/callback" + query;
         title.textContent = "You're signed in";
         sub.textContent = "as " + me.user.email + ". Press Open in MyCraftingAI and allow your browser to open the app.";
         $("[data-open]").href = appUrl;
-        var legacy = $("[data-open-legacy]");
-        if (legacy) legacy.href = localUrl;
         $("[data-code-text]").textContent = code.replace(/(\d{4})(?=\d)/g, "$1 ");
         $("[data-actions]").hidden = false;
         $("[data-open]").addEventListener("click", function () {

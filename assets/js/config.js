@@ -31,5 +31,27 @@ window.MCA_CONFIG = {
     studio: ""
   },
   /* Never change: the desktop app listens only on this host. */
-  desktopCallbackHost: "127.0.0.1"
+  desktopCallbackHost: "127.0.0.1",
+
+  /* Advertising - only on the download page (get.html) and the unlock page
+     (unlock.html); never on account, sign-in, pricing or legal pages.
+     Leave a value empty and that place shows a MyCraftingAI notice instead.
+       client          Google AdSense publisher id, e.g. "ca-pub-1234567890123456".
+                       Also add website/ads.txt with your publisher id.
+       slots           AdSense display ad unit ids for the download page.
+       rewardedAdUnit  Google Ad Manager rewarded ad unit path, e.g.
+                       "/1234567/mycraftingai_rewarded". Rewarded ads are the
+                       only format Google allows in exchange for a reward;
+                       ordinary AdSense units must never be used for that.
+       downloadDelay   Seconds the download page waits before the download. */
+  ads: {
+    client: "",
+    slots: {
+      downloadTop: "",
+      downloadSide: "",
+      downloadBottom: ""
+    },
+    rewardedAdUnit: "",
+    downloadDelay: 10
+  }
 };

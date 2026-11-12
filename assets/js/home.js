@@ -398,11 +398,21 @@
     var rows = "<tr><td>Daily tokens</td>" + DATA.plans.map(function (p) {
       return "<td class=\"mono\">" + (p.dailyTokens ? fmt(p.dailyTokens) : "Custom") + "</td>";
     }).join("") + "</tr>";
+    var THINK = { none: "None", low: "Low", normal: "Normal", high: "High" };
+    rows += "<tr><td>AI thinking modes</td>" + DATA.plans.map(function (p) {
+      var levels = p.thinking || ["none", "low", "normal", "high"];
+      return "<td>" + (levels.length === 4 ? "All four" : levels.map(function (l) { return THINK[l]; }).join(", ")) + "</td>";
+    }).join("") + "</tr>";
     Object.keys(DATA.features).forEach(function (key) {
       rows += "<tr><td>" + window.MCA.escapeHtml(DATA.features[key]) + "</td>" + DATA.plans.map(function (p) {
-        return p.features.indexOf(key) !== -1 ? '<td class="yes" aria-label="included">&#10003;</td>' : '<td class="nope" aria-label="not included">&mdash;</td>';
+        if (p.features.indexOf(key) !== -1) return '<td class="yes" aria-label="included">&#10003;</td>';
+        if ((p.rewarded || []).indexOf(key) !== -1) return '<td title="Unlock with a short ad on our website">With a short ad</td>';
+        return '<td class="nope" aria-label="not included">&mdash;</td>';
       }).join("") + "</tr>";
     });
+    rows += "<tr><td>Ads</td>" + DATA.plans.map(function (p) {
+      return "<td>" + ((p.rewarded || []).length ? "Optional, for unlocks" : "None") + "</td>";
+    }).join("") + "</tr>";
     rows += "<tr><td>Price / month</td>" + DATA.plans.map(function (p) {
       return "<td>" + (p.price === null ? "Custom" : "$" + (p.price ? p.price.toFixed(2) : "0")) + "</td>";
     }).join("") + "</tr>";

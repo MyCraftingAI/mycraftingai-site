@@ -16,10 +16,19 @@ window.MCA_PLANS = {
         "10,000 new tokens every day",
         "Cached project context doesn't count",
         "Mod Assistant and code editor",
-        "Texture Studio and Build & Run locked"
+        "Thinking mode: None (fastest, fewest tokens)",
+        "Build & Run: one short ad per run",
+        "Texture Studio: 5 minutes per short ad"
       ],
       "popular": false,
-      "countsCached": false
+      "countsCached": false,
+      "thinking": [
+        "none"
+      ],
+      "rewarded": [
+        "build",
+        "textures"
+      ]
     },
     {
       "id": "builder",
@@ -37,12 +46,19 @@ window.MCA_PLANS = {
       "tagline": "Everything unlocked for weekend modding.",
       "highlights": [
         "100,000 tokens every day",
-        "Every tab unlocked",
+        "Every tab unlocked, no ads",
+        "Thinking modes: None, Low and Normal",
         "Texture Studio and pixel-art AI",
         "Build, launch and auto-fix"
       ],
       "popular": false,
-      "countsCached": true
+      "countsCached": true,
+      "thinking": [
+        "none",
+        "low",
+        "normal"
+      ],
+      "rewarded": []
     },
     {
       "id": "pro",
@@ -62,10 +78,18 @@ window.MCA_PLANS = {
       "highlights": [
         "1,000,000 tokens every day",
         "Everything in Builder",
+        "All thinking modes, including High",
         "Priority queue at busy times"
       ],
       "popular": true,
-      "countsCached": true
+      "countsCached": true,
+      "thinking": [
+        "none",
+        "low",
+        "normal",
+        "high"
+      ],
+      "rewarded": []
     },
     {
       "id": "studio",
@@ -88,7 +112,14 @@ window.MCA_PLANS = {
         "Room for large multi-mod projects"
       ],
       "popular": false,
-      "countsCached": true
+      "countsCached": true,
+      "thinking": [
+        "none",
+        "low",
+        "normal",
+        "high"
+      ],
+      "rewarded": []
     },
     {
       "id": "enterprise",
@@ -111,7 +142,14 @@ window.MCA_PLANS = {
         "Direct support line"
       ],
       "popular": false,
-      "countsCached": true
+      "countsCached": true,
+      "thinking": [
+        "none",
+        "low",
+        "normal",
+        "high"
+      ],
+      "rewarded": []
     }
   ],
   "features": {
