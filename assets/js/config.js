@@ -45,11 +45,11 @@ window.MCA_CONFIG = {
                        ordinary AdSense units must never be used for that.
        downloadDelay   Seconds the download page waits before the download. */
   ads: {
-    client: "",
+    client: "ca-pub-7730731521219274",
     slots: {
-      downloadTop: "",
-      downloadSide: "",
-      downloadBottom: ""
+      downloadTop: "7617513329",     /* AdSense "MCA Download Top" (horizontal, responsive) */
+      downloadSide: "4018334614",    /* AdSense "MCA Download Side" (square, responsive) */
+      downloadBottom: "2493499951"   /* AdSense "MCA Download Bottom" (horizontal, responsive) */
     },
     rewardedAdUnit: "",
     downloadDelay: 10
