@@ -38,7 +38,7 @@
       <article class="prose">
         <span class="eyebrow">Legal</span>
         <h1>Privacy Policy</h1>
-        <p class="updated">Effective 12 November 2026</p>
+        <p class="updated">Effective 14 November 2026</p>
 
         <div class="legal-summary">
           <b>The short version</b>
@@ -46,7 +46,8 @@
             <li>We collect what's needed to run your account and the AI features.</li>
             <li>The desktop app has no ads or ad trackers. Google shows ads only on our download and unlock pages, personalised only if you allow it.</li>
             <li>Your projects stay on your computer. The app sends only the files a request needs.</li>
-            <li>We don't keep the text of your AI requests or the answers after they're delivered. We keep only token counts.</li>
+            <li>We don't keep the text of your AI requests or the answers after they're delivered. We keep only token counts, per day and per billing month.</li>
+            <li>When the AI is busy, your request may wait in a short line. Its place in line is kept for a few minutes at most.</li>
             <li>We never sell your personal data.</li>
             <li>Optional cookies stay off until you allow them. You can delete your account at any time.</li>
           </ul>
@@ -59,9 +60,11 @@
         <ul>
           <li><b>Account details:</b> your email address, username, a securely hashed password (never the password itself), and your Google account ID if you sign in with Google. We also keep your plan, whether your email is verified, your 2-step verification setting, your email preferences, and which version of the Terms of Service and this Privacy Policy you agreed to and when.</li>
           <li><b>Sign-in and security data:</b> for each active session, the type of device or app, the IP address and when it was last used. We also keep short-lived records of failed sign-ins and sign-in codes to stop abuse and lock out attackers.</li>
-          <li><b>Usage counts:</b> how many tokens and requests your account uses each day, to apply your plan's allowance and show your usage.</li>
-          <li><b>AI requests:</b> the instructions you type and the project context the app attaches, such as file names and the source files relevant to that request. These pass through our servers to our AI model provider to produce the answer. We don't store the content of requests or answers afterwards.</li>
-          <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, renewal and end dates, and a link to your customer portal. We never receive your full card number.</li>
+          <li><b>Usage counts:</b> how many tokens and requests your account uses each day and in each billing month, to apply your plan's allowance, track your top-up tokens and show your usage.</li>
+          <li><b>AI requests:</b> the instructions you type and the project context the app attaches, such as file names and the source files relevant to that request. In the 3D Studio and Texture Studio this includes your description of a mob or texture and the structure of its model (bone names, sizes and positions). These pass through our servers to our AI model provider to produce the answer. We don't store the content of requests or answers afterwards.</li>
+          <li><b>AI queue records:</b> when many people use the AI at once, a request can wait in line before it starts. While it waits or runs, we keep a short-lived record of it: a random request ID, your account ID and plan, its place in line, how long it has waited and how often it was retried. The app uses this to show you your place in line. The record contains no request content and is deleted when the request finishes, within 15 minutes at most. We also keep overall counters (for example how many requests waited) that are not linked to anyone.</li>
+          <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, the date and time your subscription started (which sets your billing cycle), renewal and end dates, and a link to your customer portal. We keep whether your account has already received its first-month allowance. We never receive your full card number.</li>
+          <li><b>Token top-ups:</b> when you buy tokens, we keep the order number, the number of tokens, the price and processing fee, when you bought them, when they expire and how many you have used. Top-ups our support team adds for you are recorded the same way, with a short note.</li>
           <li><b>Ad unlocks (Free plan):</b> when you unlock a tool by watching an ad, we keep a short-lived record linked to your account: a random single-use ticket, its status and timing, how many seconds the unlock page was open in front (sent every two seconds while it is visible), how many unlocks you used today and when your unlock ends. These records delete themselves within 48 hours.</li>
           <li><b>Messages you send us:</b> support requests and contact-form messages, with the email address you use.</li>
           <li><b>Technical data:</b> when your browser or the app connects to us, our servers briefly log standard request data (IP address, time, requested address, response code) for security and troubleshooting.</li>
@@ -78,8 +81,9 @@
         <h2 id="use">4. How we use your data</h2>
         <ul>
           <li>to create and secure your account, sign you in, and send codes and security notices;</li>
-          <li>to provide the AI features and enforce daily allowances and fair use;</li>
-          <li>to manage subscriptions together with our payment provider;</li>
+          <li>to provide the AI features and apply your daily or monthly allowance, your top-up tokens and fair use;</li>
+          <li>to keep the AI service stable at busy times: requests wait in line, are retried automatically, and plans with priority access are served first;</li>
+          <li>to manage subscriptions and token top-ups together with our payment provider, and to credit purchased tokens to your account;</li>
           <li>to answer support requests and tell you about important changes to the Service;</li>
           <li>to send product news, only if you leave that option on;</li>
           <li>to show ads on our download and unlock pages, and to grant ad unlocks fairly (daily limits and fraud checks);</li>
@@ -89,8 +93,8 @@
 
         <h2 id="legal-bases">5. Legal bases (EEA and UK)</h2>
         <ul>
-          <li><b>Contract:</b> running your account, the AI features and your subscription.</li>
-          <li><b>Legitimate interests:</b> keeping the Service secure, preventing abuse (including ad-unlock fraud), fixing problems, improving the Service, and funding the Free plan with non-personalised ads. We balance these interests against your rights.</li>
+          <li><b>Contract:</b> running your account, the AI features, your subscription and the token top-ups you buy, including the priority your plan gives you when requests wait in line.</li>
+          <li><b>Legitimate interests:</b> keeping the Service secure and stable (including managing busy periods), preventing abuse (including ad-unlock fraud), fixing problems, improving the Service, and funding the Free plan with non-personalised ads. We balance these interests against your rights.</li>
           <li><b>Consent:</b> optional cookies, personalised advertising and product news emails. Where the law requires consent for advertising cookies, we ask for it first. You can withdraw consent at any time.</li>
           <li><b>Legal obligation:</b> keeping records required by tax, accounting and other laws.</li>
         </ul>
@@ -99,10 +103,11 @@
         <p>We use a small number of service providers. Each receives only what it needs, and each is bound to protect it:</p>
         <ul>
           <li><b>AI model providers</b>: third-party providers of the language models that generate answers. They receive only the request content needed to produce an answer.</li>
-          <li><b>Lemon Squeezy</b>: our payment provider and merchant of record. They process checkout, payments, invoices and tax under their own privacy policy.</li>
+          <li><b>Lemon Squeezy</b>: our payment provider and merchant of record for subscriptions and token top-ups. They process checkout, payments, invoices and tax under their own privacy policy. To credit a top-up to the right account, we send them your account ID and the number of tokens with the checkout; they send these back to us with the payment confirmation.</li>
           <li><b>Google</b>: if you choose "Continue with Google", to confirm your identity. The website loads fonts from Google Fonts, which shares your IP address with Google. Google AdSense and Google Ad Manager serve the ads on our download and unlock pages (see <a href="#advertising">Advertising</a>).</li>
           <li><b>Hosting and email providers</b>: run our servers, database backups and outgoing email.</li>
           <li><b>GitHub</b>: hosts the website and app downloads. Downloading the app or checking for updates connects to their servers.</li>
+          <li><b>Software library repositories</b>: when you build a mod, or when the 3D Studio looks up the right version of a library such as GeckoLib, your computer connects to public repositories (for example Maven Central, the NeoForge, Fabric and Forge repositories, and the GeckoLib repository hosted by Cloudsmith). Like any website, they see your IP address and which files are downloaded. We send them no account details.</li>
         </ul>
         <p>We may also disclose data if the law requires it, to protect people's safety or our rights, or as part of a merger or acquisition. If that happens, this policy continues to apply to your data.</p>
 
@@ -126,13 +131,14 @@
           <li><b>Sessions:</b> until you sign out, the session expires, or you end it from the account page.</li>
           <li><b>Security records:</b> sign-in codes expire within minutes. Failed sign-in counters are cleared after a short time. Server logs are kept for up to 30 days.</li>
           <li><b>Ad unlock records:</b> deleted automatically within 48 hours. Unlock links expire after 30 minutes.</li>
+          <li><b>AI queue records:</b> deleted when the request finishes, and within 15 minutes at most.</li>
           <li><b>Usage counts:</b> while your account is open.</li>
           <li><b>Billing records:</b> as long as tax and accounting law requires, which is usually several years. Our payment provider keeps its own records.</li>
           <li><b>Support messages:</b> as long as needed to help you, and up to two years after.</li>
         </ul>
 
         <h2 id="security">9. Security</h2>
-        <p>Our safeguards include encrypted connections (HTTPS/TLS), password hashing with bcrypt, optional 2-step verification, encryption of the AI provider keys we hold, sign-in rate limits and lockouts, session revocation, and staff access limited to what's needed. No system is perfectly secure. If a breach affects your data, we'll notify you and the authorities as the law requires.</p>
+        <p>Our safeguards include encrypted connections (HTTPS/TLS), password hashing with bcrypt, optional 2-step verification, encryption of the AI provider keys we hold (they are never shown again once stored), sign-in rate limits and lockouts, session revocation, and staff access limited to what's needed. Every change made in our administration tools is recorded in an internal activity log. No system is perfectly secure. If a breach affects your data, we'll notify you and the authorities as the law requires.</p>
 
         <h2 id="cookies">10. Cookies and local storage</h2>
         <p>When you first visit, we ask before using any optional cookies. You can change your choice at any time with <a href="#" data-cookie-settings>Cookie settings</a>, also linked at the bottom of every page.</p>

@@ -310,6 +310,72 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
 .compare tbody tr:last-child td { border-bottom: 0; }
 .yes { color: var(--mint); font-weight: 700; }
 .nope { color: var(--faint); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* plan cards: monthly token lines */
+.plan .tokens b { color: var(--text); font-weight: 700; }
+.plan .tokens { line-height: 1.6; }
+
+/* billing facts under the cards */
+.billing-facts { margin-top: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.billing-facts > div { background: var(--ground-2); padding: 16px 18px; }
+.billing-facts b { display: block; font: 600 14.5px var(--font); }
+.billing-facts span { display: block; margin-top: 4px; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+@media (max-width: 900px) { .billing-facts { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .billing-facts { grid-template-columns: 1fr; } }
+
+/* comparison matrix (always visible) */
+.compare-head { margin-top: 64px; text-align: center; }
+.compare-head h3 { font-size: 26px; }
+.compare-head p { margin-top: 8px; color: var(--muted); }
+.compare { background: var(--surface); }
+.compare:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.compare table { min-width: 860px; }
+.compare thead th { position: sticky; top: 0; z-index: 1; vertical-align: bottom; }
+.compare thead th b { display: block; font: 700 16px var(--display); }
+.compare thead th span { display: block; margin-top: 4px; font: 500 13px var(--mono); color: var(--muted); }
+.compare thead th s, .compare td s { color: var(--dim); margin-right: 4px; }
+.compare thead th.pop { background: linear-gradient(180deg, #171b3d, var(--surface)); box-shadow: inset 0 3px 0 var(--accent); }
+.compare tbody th { text-align: left; font-weight: 500; color: #d6d6de; padding: 13px 18px; border-bottom: 1px solid var(--line); }
+.compare tbody th small { display: block; margin-top: 2px; color: var(--dim); font-size: 12.5px; font-weight: 400; }
+.compare tr.grp th { padding: 18px 18px 8px; font: 600 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--azure); background: var(--ground-2); }
+.compare td.mono { font: 500 14px var(--mono); }
+.compare tbody tr:not(.grp):hover { background: rgba(255,255,255,.02); }
+
+/* token top-ups */
+.topup-packs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.pack { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 22px 18px 18px; border: 1px solid var(--rim); border-radius: 16px; background: var(--surface); transition: border-color .2s, transform .25s; }
+.pack:hover { border-color: rgba(138,160,255,.4); transform: translateY(-4px); }
+.pack .save { position: absolute; top: -11px; right: 14px; height: 22px; padding: 0 9px; border-radius: 6px; background: var(--mint); color: #062b1a; font: 700 11px/22px var(--mono); letter-spacing: .03em; }
+.pack-tokens { font: 700 30px var(--display); letter-spacing: -.02em; }
+.pack-tokens span { margin-left: 6px; font: 500 14px var(--font); color: var(--muted); letter-spacing: 0; }
+.pack-price { font: 700 20px var(--display); }
+.pack-price s { margin-right: 8px; color: var(--dim); font-weight: 500; font-size: 15px; }
+.pack-fee { color: var(--muted); font-size: 13px; line-height: 1.45; }
+.pack-fee b { color: var(--text); font-weight: 600; }
+.pack .btn { margin-top: auto; height: 40px; }
+.topup-custom { margin-top: 18px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; padding: 28px; border: 1px solid var(--rim); border-radius: 18px; background: var(--surface); }
+.topup-custom label { display: block; font-weight: 600; font-size: 17px; }
+.topup-custom .hint { color: var(--dim); font-size: 14px; }
+.topup-field { margin: 16px 0 18px; display: flex; align-items: center; gap: 12px; }
+.topup-field input { width: 150px; height: 52px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--rim); background: var(--ground); color: var(--text); font: 700 24px var(--mono); }
+.topup-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,99,245,.25); }
+.topup-field span { color: var(--muted); }
+#topup-range { display: block; width: 100%; }
+.topup-bill { border-radius: 14px; background: var(--ground); border: 1px solid var(--line); padding: 18px 20px; }
+.topup-bill .row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.topup-bill .row span { color: var(--muted); }
+.topup-bill .row b { font-family: var(--mono); font-weight: 600; }
+.topup-bill .row.total { border-bottom: 0; padding-top: 12px; }
+.topup-bill .row.total span { color: var(--text); font-weight: 600; }
+.topup-bill .row.total b { font: 700 22px var(--display); }
+.topup-bill .btn { margin-top: 14px; height: 46px; }
+.topup-bill .fine { margin-top: 10px; color: var(--dim); }
+.fee-why { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border-radius: 50%; border: 1px solid var(--rim); font: 600 10px var(--mono); font-style: normal; color: var(--dim); cursor: help; }
+@media (max-width: 1100px) { .topup-packs { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .topup-custom { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .topup-packs { grid-template-columns: 1fr 1fr; } .pack-tokens { font-size: 24px; } }
+@media (max-width: 400px) { .topup-packs { grid-template-columns: 1fr; } }
 
 /* ---------------------------------------------------------------------- FAQ */
 .faq { max-width: 820px; margin: 0 auto; border-top: 1px solid var(--line); }
@@ -421,6 +487,8 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
 .card .row span:first-child { color: var(--muted); }
 .usage-big { font: 700 40px var(--display); letter-spacing: -.03em; margin-top: 14px; }
 .usage-big small { font: 500 15px var(--font); color: var(--muted); letter-spacing: 0; }
+.usage-split { margin-top: 10px; }
+.usage-split .row { font-size: 14px; padding: 8px 0; }
 @media (max-width: 900px) { .account-grid { grid-template-columns: 1fr; } }
 
 /* ----------------------------------------------------------- legal pages */

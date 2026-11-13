@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261121">
 </head>
 <body>
   <header data-site-header></header>
@@ -174,21 +174,26 @@
     <section class="section" id="calculator">
       <div class="wrap">
         <div class="section-head reveal">
-          <span class="eyebrow">Daily tokens</span>
+          <span class="eyebrow">Monthly tokens</span>
           <h2>How many tokens do you actually need?</h2>
-          <p>Every plan comes with a daily allowance that resets at 00:00 UTC. Move the sliders to see which one fits the way you work.</p>
+          <p>Paid plans come with a monthly allowance that renews on your billing date. Move the sliders to see which one fits the way you work.</p>
         </div>
         <div class="calc reveal">
           <div>
             <div class="calc-row">
-              <label for="c-requests">Assistant requests per day</label>
+              <label for="c-requests">Assistant requests per modding day</label>
               <span class="hint">New items, blocks, recipes, bug fixes...</span>
               <div class="range-line"><input id="c-requests" type="range" min="0" max="120" value="12"><output for="c-requests">12</output></div>
             </div>
             <div class="calc-row">
-              <label for="c-textures">AI textures per day</label>
+              <label for="c-textures">AI textures per modding day</label>
               <span class="hint">Sprites painted by the pixel-art AI.</span>
               <div class="range-line"><input id="c-textures" type="range" min="0" max="80" value="6"><output for="c-textures">6</output></div>
+            </div>
+            <div class="calc-row">
+              <label for="c-days">Modding days per month</label>
+              <span class="hint">How often you sit down to build.</span>
+              <div class="range-line"><input id="c-days" type="range" min="1" max="30" value="10"><output for="c-days">10</output></div>
             </div>
             <div class="calc-row">
               <label for="c-size">Project size</label>
@@ -199,7 +204,7 @@
           <div class="calc-result" aria-live="polite">
             <span class="dim mono" style="font-size:13px">ESTIMATED USE</span>
             <div class="big" id="c-total">0</div>
-            <div class="unit">tokens per day</div>
+            <div class="unit">tokens per month</div>
             <div class="meter"><i id="c-meter"></i></div>
             <div class="dim" style="font-size:14px" id="c-meter-label"></div>
             <div class="rec">
@@ -221,9 +226,51 @@
           <p>Monthly plans. Cancel any time. Your projects and files are yours on every plan.</p>
         </div>
         <div class="pricing" id="pricing-cards"></div>
-        <button class="btn compare-toggle" type="button" id="compare-toggle" aria-expanded="false" aria-controls="compare">Compare every feature</button>
-        <div class="compare" id="compare"></div>
+        <div class="billing-facts reveal">
+          <div><b>Billed monthly</b><span>Your plan renews every month on the date and time you subscribed.</span></div>
+          <div><b>Bigger first month</b><span>Your first month comes with extra tokens to get your project going.</span></div>
+          <div><b>One token pool</b><span>Input and output tokens both count against the same allowance.</span></div>
+          <div><b>No rollover</b><span>Unused plan tokens expire when the month renews. Top-ups don't.</span></div>
+        </div>
+
+        <div class="compare-head reveal">
+          <h3>Compare every feature</h3>
+          <p>Exactly what each plan includes - and what it doesn't.</p>
+        </div>
+        <div class="compare open" id="compare" role="region" aria-label="Plan comparison" tabindex="0"></div>
         <p class="price-note">Prices in USD. Taxes may apply depending on where you live. Cancel any time from your account page - your plan runs to the end of the paid month. Payments are non-refundable (<a href="terms.html#refunds">Terms</a>).</p>
+      </div>
+    </section>
+
+    <!-- ========================================================= TOP-UPS -->
+    <section class="section" id="topup">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Token top-ups</span>
+          <h2>Need more tokens? Top up any time.</h2>
+          <p>Buy exactly what you need, on any plan. Top-up tokens are used after your plan's allowance, and they don't expire when your month renews.</p>
+        </div>
+        <div class="topup-packs" id="topup-packs"></div>
+        <div class="topup-custom reveal" id="topup-custom">
+          <div class="topup-custom-input">
+            <label for="topup-amount">Custom amount</label>
+            <span class="hint" id="topup-hint">Any amount from 500,000 tokens.</span>
+            <div class="topup-field">
+              <input id="topup-amount" type="number" inputmode="decimal" min="0.5" step="0.1" value="1.5" aria-describedby="topup-hint">
+              <span>million tokens</span>
+            </div>
+            <input id="topup-range" type="range" min="0.5" max="50" step="0.1" value="1.5" aria-label="Custom amount in millions of tokens">
+          </div>
+          <div class="topup-bill" aria-live="polite">
+            <div class="row"><span>Tokens</span><b id="topup-tokens">1,500,000</b></div>
+            <div class="row"><span id="topup-rate">Price ($3.00 per million)</span><b id="topup-price">$4.50</b></div>
+            <div class="row"><span>Payment processing fee <i class="fee-why" title="Charged by our payment provider, Lemon Squeezy: a percentage of the price plus a fixed amount per payment.">?</i></span><b id="topup-fee">$0.73</b></div>
+            <div class="row total"><span>Total</span><b id="topup-total">$5.23</b></div>
+            <button class="btn btn-primary btn-block" type="button" id="topup-buy">Buy 1,500,000 tokens</button>
+            <p class="fine" id="topup-note">Valid for 12 months. Added to your account as soon as the payment goes through.</p>
+          </div>
+        </div>
+        <p class="price-note">Top-ups are one-off payments, not subscriptions. You need a free account to buy them. Payments are processed by Lemon Squeezy and are non-refundable (<a href="terms.html#topups">Terms</a>).</p>
       </div>
     </section>
 
@@ -245,23 +292,35 @@
           </details>
           <details>
             <summary>What is a token, and what happens when I run out?</summary>
-            <div class="answer">Tokens measure how much text the AI reads and writes. Each plan has a daily allowance. The app checks before every request and stops before it would go over, so nothing breaks half-way. The allowance refills at 00:00 UTC.</div>
+            <div class="answer">Tokens measure how much text the AI reads and writes - what you send and what it answers both come out of the same allowance. Paid plans get a monthly allowance that renews on the date and time you subscribed; Free gets a small daily allowance that refills at 00:00 UTC. The app checks before every request and stops before it would go over, so nothing breaks half-way. Ran out early? Buy a top-up and keep going straight away.</div>
+          </details>
+          <details>
+            <summary>How does the monthly allowance work?</summary>
+            <div class="answer">Your billing month starts the moment you subscribe and renews on the same date and time every month. Your first month comes with extra tokens (for example 2,000,000 on Builder instead of 1,500,000) - once per account. Unused plan tokens expire when the month renews and don't carry over.</div>
+          </details>
+          <details>
+            <summary>How do token top-ups work?</summary>
+            <div class="answer">Pick a package or type any amount, and you'll see the price, the payment processing fee and the total before you pay. Top-up tokens are added to your account as soon as the payment goes through, are used only after your plan's allowance runs out, and stay valid for 12 months - they don't expire when your month renews. Bigger packages cost less per token.</div>
           </details>
           <details>
             <summary>What can I do on the Free plan?</summary>
-            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10,000 new tokens a day, in the fast None thinking mode. Build &amp; Run and Texture Studio are included from Builder up. On Free you can still use them: watch one short ad on our website for one Build &amp; Run, or for five minutes of Texture Studio. The app itself never shows ads.</div>
+            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10,000 new tokens a day, in the fast None thinking mode. Build &amp; Run and Texture Studio are included from Builder up, and 3D Studio with Studio. On Free you can still use Build &amp; Run and Texture Studio: watch one short ad on our website for one Build &amp; Run, or for five minutes of Texture Studio. The app itself never shows ads.</div>
           </details>
           <details>
             <summary>What are thinking modes?</summary>
-            <div class="answer">They set how much the AI reasons before it answers. <b>None</b> answers straight away and uses the fewest tokens, great for questions and small edits. <b>Low</b> takes a quick think, <b>Normal</b> plans the change first, and <b>High</b> thinks it through and double-checks every file, for big systems and stubborn bugs. Free includes None, Builder adds Low and Normal, and Pro and up include all four. Deeper modes use more tokens.</div>
+            <div class="answer">They set how much the AI reasons before it answers. <b>None</b> answers straight away and uses the fewest tokens, great for questions and small edits. <b>Low</b> takes a quick think, <b>Normal</b> plans the change first, and <b>High</b> thinks it through and double-checks every file, for big systems and stubborn bugs. Free includes None, Builder adds Low and Normal, and Pro and Studio include all four, including High. Deeper modes use more tokens.</div>
+          </details>
+          <details>
+            <summary>Which plan includes 3D Studio?</summary>
+            <div class="answer">3D Studio - GeckoLib models and animations for your mobs - is part of the Studio plan. Builder and Pro include everything else: the Mod Assistant, Texture Studio, Build &amp; Run and attachments, with Pro adding the High thinking mode.</div>
           </details>
           <details>
             <summary>What does "new tokens" mean on Free?</summary>
-            <div class="answer">Every request re-sends your project's context, and most of it is text the AI read a moment ago - that part is cached. On Free, cached context doesn't count: only the new part of your request and the AI's answer use your 10,000 daily tokens. That's usually enough for a handful of real requests a day. Paid plans count everything, which is why their allowances are much larger.</div>
+            <div class="answer">Every request re-sends your project's context, and most of it is text the AI read a moment ago - that part is cached. On Free, cached context doesn't count: only the new part of your request and the AI's answer use your 10,000 daily tokens. That's usually enough for a handful of real requests a day. Paid plans count everything - input and output tokens from one pool - which is why their allowances are much larger.</div>
           </details>
           <details>
             <summary>How many times does it try to fix a failing build?</summary>
-            <div class="answer">You decide. In Settings &rarr; Assistant, set any number of attempts or switch on Unlimited. With Unlimited it keeps going until the build passes or your daily tokens run out.</div>
+            <div class="answer">You decide. In Settings &rarr; Assistant, set any number of attempts or switch on Unlimited. With Unlimited it keeps going until the build passes or your tokens run out.</div>
           </details>
           <details>
             <summary>Who owns the mods I make?</summary>
@@ -269,7 +328,7 @@
           </details>
           <details>
             <summary>How do I pay?</summary>
-            <div class="answer">Checkout runs through Lemon Squeezy, our payment provider. You can cancel from your account page at any time: you won't be charged again and you keep your plan until the end of the month you paid for. Payments already made aren't refunded.</div>
+            <div class="answer">Checkout runs through Lemon Squeezy, our payment provider. Subscriptions renew monthly on the date you subscribed. You can cancel from your account page at any time: you won't be charged again and you keep your plan until the end of the month you paid for. Top-ups are one-off payments with a small processing fee shown before you pay. Payments already made aren't refunded.</div>
           </details>
           <details>
             <summary>Does it work without internet?</summary>
@@ -300,9 +359,9 @@
   <footer data-site-footer></footer>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js"></script>
+  <script src="assets/js/plans.js?v=20261121"></script>
+  <script src="assets/js/api.js?v=20261121"></script>
   <script src="assets/js/ui.js"></script>
-  <script src="assets/js/home.js"></script>
+  <script src="assets/js/home.js?v=20261121"></script>
 </body>
 </html>

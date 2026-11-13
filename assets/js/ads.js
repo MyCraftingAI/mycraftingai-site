@@ -74,8 +74,35 @@
       ins.setAttribute("data-ad-format", box.getAttribute("data-ad-format") || "auto");
       ins.setAttribute("data-full-width-responsive", "true");
       box.appendChild(ins);
+      watchFill(box, ins);
       try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { /* blocked by the browser */ }
     });
+  }
+
+  /**
+   * Google sets data-ad-status="unfilled" when it has no ad for a place (new
+   * site, new ad unit, ad blockers...). Instead of an empty "Advertisement"
+   * box, that place then shows the MyCraftingAI notice - Google's recommended
+   * way to handle unfilled ad units.
+   */
+  function watchFill(box, ins) {
+    function check() {
+      if (ins.getAttribute("data-ad-status") !== "unfilled") return false;
+      box.classList.remove("ad-live");
+      house(box);
+      return true;
+    }
+    if (typeof MutationObserver === "function") {
+      var seen = new MutationObserver(function () { if (check()) seen.disconnect(); });
+      seen.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
+    }
+    // No answer at all (script blocked): show the notice after a while.
+    setTimeout(function () {
+      if (!ins.getAttribute("data-ad-status") && !ins.querySelector("iframe")) {
+        box.classList.remove("ad-live");
+        house(box);
+      }
+    }, 8000);
   }
 
   /**

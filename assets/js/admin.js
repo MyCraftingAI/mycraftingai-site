@@ -143,6 +143,8 @@
     if (view === "ads") loadAds();
     if (view === "revenue") loadRevenue();
     if (view === "settings") loadSettings();
+    if (view === "server") loadServer();
+    if (view === "pricing") loadPricing();
     if (view === "gifts") loadGifts();
     if (view === "users") loadUsers();
     if (view === "messages") loadMessages();
@@ -942,30 +944,58 @@
           '<label class="ad-check"><input type="checkbox" data-ai-notify checked> Email the user from support@</label>' +
           '<div><button class="btn btn-warn" data-ai-pause>Pause AI</button></div></div>'
       : '<div class="ad-form"><label class="ad-check"><input type="checkbox" data-ai-notify checked> Email the user that AI is back</label><div><button class="btn btn-ok" data-ai-resume>Resume AI now</button></div></div>';
+    var monthly = u.period === "month", span = monthly ? "this billing month" : "today", usage = u.usage || {};
+    var periodLine = monthly
+      ? "Billing month from " + when(u.cycleStartedAt) + " · renews " + when(u.periodEndsAt) + (u.firstMonth ? " · first month" : "")
+      : "Applies every day until removed. Refills at 00:00 UTC.";
     return '<div class="ad-card"><h3>AI access</h3><p class="ad-sub">Pause only the AI - the rest of MyCraftingAI keeps working for them.</p>' + status + aiForm + "</div>" +
-      '<div class="ad-card"><h3>Daily token limit</h3><p class="ad-sub">Applies every day until removed. Refills at 00:00 UTC.</p><div class="ad-rows">' +
-        '<div class="r"><span>Plan default (' + esc(u.planName) + ")</span><span>" + tokens(u.planDailyLimit) + "</span></div>" +
-        '<div class="r"><span>Custom limit</span><span>' + (u.dailyLimitOverride == null ? '<span class="ad-muted">none</span>' : "<b>" + num(u.dailyLimitOverride) + "</b>") + "</span></div>" +
-        '<div class="r"><span>Bonus today</span><span>' + (u.bonusToday ? "+" + num(u.bonusToday) : '<span class="ad-muted">none</span>') + "</span></div>" +
-        '<div class="r"><span>Effective today</span><b>' + tokens(u.dailyLimit) + "</b></div>" +
-        '<div class="r"><span>Used today</span><span>' + num(u.usedToday) + "</span></div></div>" +
-        '<div class="ad-inline" style="margin-top:12px"><input class="input" type="number" min="0" step="1000" data-limit placeholder="Custom tokens per day, e.g. 500000"><button class="btn" data-limit-save>Set limit</button>' +
+      '<div class="ad-card"><h3>' + (monthly ? "Monthly token allowance" : "Daily token limit") + '</h3><p class="ad-sub">' + esc(periodLine) + '</p><div class="ad-rows">' +
+        '<div class="r"><span>Plan default (' + esc(u.planName) + ")</span><span>" + tokens(u.planDailyLimit) + (monthly ? " / month" : " / day") + "</span></div>" +
+        '<div class="r"><span>Custom allowance</span><span>' + (u.dailyLimitOverride == null ? '<span class="ad-muted">none</span>' : "<b>" + num(u.dailyLimitOverride) + "</b>") + "</span></div>" +
+        '<div class="r"><span>Bonus ' + span + "</span><span>" + (u.bonusToday ? "+" + num(u.bonusToday) : '<span class="ad-muted">none</span>') + "</span></div>" +
+        '<div class="r"><span>Top-up tokens left</span><span>' + (usage.topupLeft ? num(usage.topupLeft) : '<span class="ad-muted">none</span>') + "</span></div>" +
+        '<div class="r"><span>Available ' + span + "</span><b>" + tokens(u.dailyLimit) + "</b></div>" +
+        '<div class="r"><span>Used ' + span + "</span><span>" + num(u.usedToday) + "</span></div></div>" +
+        '<div class="ad-inline" style="margin-top:12px"><input class="input" type="number" min="0" step="1000" data-limit placeholder="' + (monthly ? "Custom tokens per billing month, e.g. 5000000" : "Custom tokens per day, e.g. 500000") + '"><button class="btn" data-limit-save>Set allowance</button>' +
         (u.dailyLimitOverride != null ? '<button class="btn btn-ghost" data-limit-clear>Use plan default</button>' : "") + "</div></div>" +
       ((u.gifts || []).length ? '<div class="ad-card"><h3>Token gifts</h3><p class="ad-sub">Active gifts on this account (manage them in Token gifts).</p><div class="ad-rows">' + u.gifts.map(function (g) {
         return '<div class="r"><span><b style="color:var(--text);display:block">' + esc(g.name) + '</b><span style="font-size:12.5px">' + esc(giftWhat(g)) + (g.endsAt ? " · until " + when(g.endsAt) : " · no end") + "</span></span>" +
           "<span>" + fmt(g.used) + " used<br><span class=\"ad-muted\" style=\"font-size:12px\">" + fmt(g.left) + " left today</span></span></div>";
       }).join("") + "</div></div>" : "") +
-      '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Bonus tokens for today</h3><p class="ad-sub">One-off extra allowance; disappears at the next reset. Open apps update within seconds.</p></div>' +
-        '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Bonus today</div><b style="font:700 20px var(--display);color:' + (u.bonusToday ? "var(--mint)" : "var(--muted)") + '">' + (u.bonusToday ? "+" + num(u.bonusToday) : "0") + "</b></div></div>" +
+      topupCardHtml(u) +
+      '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Bonus tokens for ' + span + '</h3><p class="ad-sub">One-off extra allowance; disappears when the allowance ' + (monthly ? "renews" : "resets") + '. Open apps update within seconds.</p></div>' +
+        '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Bonus ' + span + '</div><b style="font:700 20px var(--display);color:' + (u.bonusToday ? "var(--mint)" : "var(--muted)") + '">' + (u.bonusToday ? "+" + num(u.bonusToday) : "0") + "</b></div></div>" +
         '<div class="ad-chips" style="margin-bottom:10px">' + [1000, 5000, 10000, 50000, 250000, 1000000].map(function (n) { return '<button class="ad-chip" data-bonus-pick="' + n + '">' + fmt(n) + "</button>"; }).join("") + "</div>" +
         '<div class="ad-inline" style="flex-wrap:wrap;gap:8px"><input class="input" type="number" min="1" step="1000" data-bonus placeholder="Tokens, e.g. 5000" style="flex:1;min-width:150px">' +
           '<button class="btn btn-primary" data-bonus-give>+ Add</button>' +
           '<button class="btn btn-warn" data-bonus-remove' + (u.bonusToday ? "" : " disabled title=\"No bonus to remove today\"") + '>&minus; Remove</button>' +
           (u.bonusToday ? '<button class="btn btn-ghost" data-bonus-clear>Remove all bonus</button>' : "") + "</div>" +
         '<label class="ad-check" style="margin-top:10px"><input type="checkbox" data-bonus-notify> Tell the user by email</label>' +
-        '<div class="ad-hint" style="margin-top:6px">Remove takes back bonus tokens given today (never more than the bonus). To lower their allowance further, set a custom daily limit above.</div></div>' +
-      '<div class="ad-card"><h3>Today\'s usage</h3><p class="ad-sub">Set today\'s counter back to zero (e.g. after a bug or a failed request).</p><button class="btn" data-reset-usage>Reset today\'s usage</button></div>';
+        '<div class="ad-hint" style="margin-top:6px">Remove takes back bonus tokens (never more than the bonus). To lower their allowance further, set a custom allowance above.</div></div>' +
+      '<div class="ad-card"><h3>' + (monthly ? "This month's usage" : "Today's usage") + '</h3><p class="ad-sub">Set the counter for ' + span + ' back to zero (e.g. after a bug or a failed request). Top-ups already used are not given back.</p><button class="btn" data-reset-usage>Reset usage for ' + span + "</button></div>";
   }
+
+  /** Top-up tokens on one account: what's left, history, add / remove by hand. */
+  function topupCardHtml(u) {
+    var list = u.topups || [], left = (u.usage || {}).topupLeft || 0;
+    var STATUS = { active: "active", refunded: "refunded", revoked: "removed", expired: "expired" };
+    return '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Top-up tokens</h3>' +
+      '<p class="ad-sub">Bought (or given by support) on top of the plan. Used after the allowance; they don\'t expire with the billing month.</p></div>' +
+      '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Left</div><b style="font:700 20px var(--display);color:' + (left ? "var(--mint)" : "var(--muted)") + '">' + num(left) + "</b></div></div>" +
+      (list.length ? '<div class="ad-rows">' + list.map(function (t) {
+        return '<div class="r"><span><b style="color:var(--text);display:block">' + num(t.tokens) + " tokens · " + (t.source === "admin" ? "added by support" : "bought") + "</b>" +
+          '<span style="font-size:12.5px">' + when(t.created) + (t.priceCents ? " · " + usd(t.priceCents) + " + " + usd(t.feeCents) + " fee" : "") +
+          (t.note ? " · " + esc(t.note) : "") + " · until " + when(t.expiresAt) + "</span></span>" +
+          "<span>" + num(t.left) + ' left<br><span class="ad-tag ' + (t.status === "active" ? "good" : "plan") + '">' + esc(STATUS[t.status] || t.status) + "</span>" +
+          (t.status === "active" && t.left ? ' <button class="btn btn-ghost btn-sm" data-topup-revoke="' + esc(t.id) + '" data-topup-left="' + t.left + '">Remove</button>' : "") +
+          "</span></div>";
+      }).join("") + "</div>" : '<div class="ad-empty" style="padding:10px 0">No top-ups on this account.</div>') +
+      '<div class="ad-inline" style="flex-wrap:wrap;gap:8px;margin-top:12px"><input class="input" type="number" min="1000" step="1000" data-topup-amount placeholder="Tokens, e.g. 1000000" style="flex:1;min-width:150px">' +
+      '<input class="input" data-topup-note maxlength="200" placeholder="Note (optional)" style="flex:1;min-width:150px">' +
+      '<button class="btn btn-primary" data-topup-give>+ Add top-up tokens</button></div>' +
+      '<label class="ad-check" style="margin-top:10px"><input type="checkbox" data-topup-notify> Tell the user by email</label></div>';
+  }
+  function usd(cents) { return "$" + (Number(cents || 0) / 100).toFixed(2); }
 
   function tabPlan(u) {
     var sub = u.subscription;
@@ -1118,6 +1148,18 @@
       return run(t, A.update(u.id, { dailyLimit: Math.round(Number(lim)) }), null, "Saving").then(function (d) { applied(d, "Daily limit set"); });
     }
     if (t.matches("[data-limit-clear]")) return run(t, A.update(u.id, { clearDailyLimit: true }), null, "Saving").then(function (d) { applied(d, "Back to the plan's limit"); });
+    if (t.matches("[data-topup-give]")) {
+      var amount = Math.round(Number($("[data-topup-amount]").value));
+      if (!(amount >= 1000)) return toast("Enter at least 1,000 tokens.", true);
+      return run(t, A.grantTopup(u.id, { tokens: amount, note: $("[data-topup-note]").value.trim(), notify: $("[data-topup-notify]").checked }), null, "Adding")
+        .then(function (d) { applied(d, "+" + fmt(amount) + " top-up tokens"); });
+    }
+    if (t.dataset.topupRevoke) {
+      var leftOver = Number(t.dataset.topupLeft || 0);
+      return ask({ title: "Remove " + num(leftOver) + " unused top-up tokens?", text: "The tokens already used stay used. This doesn't refund any payment - refunds are made in Lemon Squeezy (a refunded order removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
+        if (v) run(t, A.revokeTopup(t.dataset.topupRevoke), null, "Removing").then(function () { openUser(u.id, "ai"); toast(num(leftOver) + " top-up tokens removed"); });
+      });
+    }
     if (t.dataset.bonusPick) { $("[data-bonus]").value = t.dataset.bonusPick; return; }
     if (t.matches("[data-bonus-give]")) {
       var n = Math.round(Number($("[data-bonus]").value));
@@ -1143,7 +1185,8 @@
       });
     }
     if (t.matches("[data-reset-usage]")) {
-      return ask({ title: "Reset today's usage?", text: u.username + " has used " + num(u.usedToday) + " tokens today. This sets it back to 0.", ok: "Reset" }).then(function (v) {
+      var spanText = u.period === "month" ? "this billing month" : "today";
+      return ask({ title: "Reset usage for " + spanText + "?", text: u.username + " has used " + num(u.usedToday) + " tokens " + spanText + ". This gives them their whole allowance back.", ok: "Reset" }).then(function (v) {
         if (v) run(t, A.update(u.id, { resetUsageToday: true }), null, "Resetting").then(function (d) { applied(d, "Usage reset"); });
       });
     }
@@ -1322,24 +1365,664 @@
   }
 
   /* -------------------------------------------------------------- system */
+  /* When the website, the desktop app and the server were last updated. */
+  function loadUpdates(refresh) {
+    var box = $("[data-updates]");
+    if (!box) return Promise.resolve();
+    if (!box.innerHTML) box.innerHTML = '<div class="ad-card"><p class="ad-muted">Checking...</p></div>';
+    return A.updates(refresh).then(function (d) {
+      function ago(iso) { return iso ? since(iso) : "-"; }
+      function card(title, value, lines, err) {
+        return '<div class="ad-card ad-kpi' + (err ? " warn" : "") + '"><div class="k">' + esc(title) + '</div><div class="v">' + esc(value) + "</div>" +
+          lines.filter(Boolean).map(function (l) { return '<div class="s">' + l + "</div>"; }).join("") +
+          (err ? '<span class="ad-tag warn" style="margin-top:8px;display:inline-block">' + esc(err) + "</span>" : "") + "</div>";
+      }
+      var w = d.website || {}, a = d.app || {}, s = d.server || {};
+      var hours = Math.floor((s.uptimeSeconds || 0) / 3600), mins = Math.floor((s.uptimeSeconds || 0) % 3600 / 60);
+      box.innerHTML =
+        card("Website", ago(w.updatedAt), [
+          w.updatedAt ? esc(when(w.updatedAt)) : "",
+          w.commit ? 'Commit <span class="ad-mono">' + esc(w.commit) + "</span>" + (w.message ? " · " + esc(w.message) : "") : "",
+          '<a href="' + esc(w.url || "index.html") + '" target="_blank" rel="noopener">Open website ↗</a>'
+        ], w.error) +
+        card("Desktop app", a.version ? "v" + a.version : "-", [
+          a.publishedAt ? "Released " + esc(when(a.publishedAt)) + " (" + esc(ago(a.publishedAt)) + ")" : "",
+          a.downloads != null ? num(a.downloads) + " downloads of this version" : "",
+          a.size ? (a.size / 1048576).toFixed(0) + " MB installer" : "",
+          '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">Releases ↗</a>'
+        ], a.error) +
+        card("Server", ago(s.startedAt), [
+          s.startedAt ? "Last restart / deploy " + esc(when(s.startedAt)) : "",
+          "Up " + hours + "h " + ("0" + mins).slice(-2) + "m",
+          d.checkedAt ? "Checked " + esc(ago(d.checkedAt)) : ""
+        ], "");
+    }, function (e) { box.innerHTML = '<div class="ad-card"><p class="ad-muted">' + esc(errText(e)) + "</p></div>"; });
+  }
+
+  /* Live AI queue: calls running / waiting, the adaptive limit and push-backs. */
+  function renderQueue(q) {
+    var box = $("[data-ai-queue]");
+    if (!box) return;
+    if (!q || q.enabled === undefined) { box.innerHTML = '<div class="ad-card"><p class="ad-muted">Queue status unavailable.</p></div>'; return; }
+    var c = q.counters || {}, pushbacks = 0;
+    Object.keys(c).forEach(function (k) { if (k.indexOf("pushback.") === 0) pushbacks += c[k]; });
+    function kpi(k, v, s, warn) {
+      return '<div class="ad-card ad-kpi' + (warn ? " warn" : "") + '"><div class="k">' + esc(k) + '</div><div class="v">' + esc(String(v)) + '</div><div class="s">' + s + "</div></div>";
+    }
+    box.innerHTML = !q.enabled ? kpi("Queue", "Off", "AI_QUEUE_ENABLED=false - calls go straight to the provider", true) :
+      kpi("Running now", num(q.running) + " / " + num(q.limit), q.limit < q.maxLimit ? "Limit lowered after provider push-back (max " + num(q.maxLimit) + ")" : "Concurrent provider calls (adaptive limit)", q.limit < q.maxLimit) +
+      kpi("Waiting in line", num(q.waiting), q.pausedSeconds ? "New calls paused " + q.pausedSeconds + " s after a push-back" : "Ordered by plan head start", q.waiting > 0) +
+      kpi("Average call", (q.avgCallSeconds || 0) + " s", num(c.started || 0) + " started · " + num(c.queued || 0) + " waited in line", false) +
+      kpi("Push-backs", num(pushbacks), num(c.retries || 0) + " retries · " + num(c.timeouts || 0) + " timed out · " + num(c.rejected || 0) + " line full", (c.timeouts || 0) > 0);
+  }
+
+  /* A provider error in plain words, with what to do about it. */
+  function keyError(k) {
+    var e = String(k.lastError || "");
+    if (!e) return "-";
+    if (e === "HTTP 402") return k.status === "degraded"
+      ? "Out of balance - top up the provider account. It is re-tried every 2 minutes and comes back by itself."
+      : "Was out of balance";
+    if (e === "HTTP 401" || e === "HTTP 403") return "Key rejected (" + e + ") - replace it, then press Enable";
+    return e;
+  }
+
+  /* ------------------------------------------------------ AI provider keys */
+  var STATUS_TEXT = { active: "On", disabled: "Off", degraded: "Needs attention" };
+  function balanceLine(b) {
+    return (b || []).map(function (x) { return money2(x.total, x.currency); }).join(" + ");
+  }
+  /** One provider check in plain words: {cls, tag, text, good}. */
+  function checkInfo(c) {
+    var bal = balanceLine(c.balances);
+    if (c.ok && c.available === false) return { cls: "warn", tag: "no credit left", text: (bal ? bal + " · " : "") + "top up the provider account", good: false };
+    if (c.ok) return { cls: "good", tag: "works", text: bal ? bal + " left" : "", good: true };
+    return { cls: c.ok === false ? "bad" : "warn", tag: c.ok === false ? "rejected" : "not checked", text: c.error || "check failed", good: false };
+  }
+  function checkToast(name, c) {
+    var i = checkInfo(c);
+    toast(name + ": " + i.tag + (i.text ? " · " + i.text : ""), !i.good);
+  }
+  function renderKeys(s) {
+    state.sys = s;
+    var keys = s.keys || [], active = keys.filter(function (k) { return k.status === "active"; });
+    var checks = state.keyChecks || (state.keyChecks = {});
+    $("[data-provider]").innerHTML =
+      "<span>Provider address</span><code>" + esc((s.provider && s.provider.baseUrl) || "-") + "</code>" +
+      '<button class="btn btn-ghost btn-sm" data-goto-setting="deepseek_base_url">Change</button>' +
+      (keys.length && !active.length ? '<span class="ad-tag bad">No key is on - AI requests fail for everyone</span>'
+        : active.length ? '<span class="ad-tag good">' + active.length + " of " + keys.length + " key" + (keys.length === 1 ? "" : "s") + " on</span>" : "");
+    $("[data-keys]").innerHTML = keys.length ? keys.map(function (k) {
+      var on = k.status === "active", tag = on ? "good" : k.status === "degraded" ? "warn" : "plan";
+      var check = checks[k.id], last;
+      if (check) {
+        var ci = checkInfo(check);
+        last = '<span class="ad-tag ' + ci.cls + '">' + esc(ci.tag) + "</span> " + esc(ci.text) +
+          '<div class="ad-muted" style="font-size:12px">checked just now</div>';
+      } else {
+        last = '<span class="ad-muted" style="font-size:13px">' + esc(keyError(k)) + (k.lastErrorAt ? "<br>" + since(k.lastErrorAt) : "") + "</span>";
+      }
+      var others = keys.filter(function (o) { return o.id !== k.id && o.status !== "disabled"; }).length;
+      return '<tr data-key-row="' + esc(k.id) + '"><td><b>' + esc(k.label) + "</b>" +
+        '<div class="hint">' + esc(k.hint || "") + ' <span class="ad-muted" style="font:12px var(--font)">· added ' + since(k.added) + "</span></div></td>" +
+        '<td><span class="ad-tag ' + (k.pool === "priority" ? "paid" : "plan") + '">' + esc(k.pool) + "</span></td>" +
+        '<td><label class="ad-toggle" title="' + (on ? "Switch this key off" : "Switch this key on") + '"><input type="checkbox" data-key-toggle="' + esc(k.id) + '"' + (on ? " checked" : "") + "><i></i></label> " +
+          '<span class="ad-tag ' + tag + '">' + esc(STATUS_TEXT[k.status] || k.status) + "</span></td>" +
+        "<td>" + num(k.users) + (k.maxUsers ? " / " + num(k.maxUsers) : "") + "</td>" +
+        "<td>" + last + "</td>" +
+        '<td><div class="acts">' +
+          '<button class="btn btn-ghost btn-sm" data-key-act="test" data-id="' + esc(k.id) + '">Test</button>' +
+          '<button class="btn btn-ghost btn-sm" data-key-act="edit" data-id="' + esc(k.id) + '">Edit</button>' +
+          (others || !on ? '<button class="btn btn-sm" data-key-act="only" data-id="' + esc(k.id) + '">Use only this</button>' : "") +
+          '<button class="btn btn-ghost btn-sm" data-key-act="remove" data-id="' + esc(k.id) + '">Remove</button>' +
+        "</div></td></tr>";
+    }).join("") : '<tr><td colspan="6"><div class="ad-empty">No AI keys yet. Press “+ Add key” and paste the API key from your provider account.</div></td></tr>';
+  }
+  function keyById(id) { return ((state.sys && state.sys.keys) || []).filter(function (k) { return k.id === id; })[0] || {}; }
+
+  function addKeyDialog(btn) {
+    return ask({
+      title: "Add an AI provider key",
+      text: "Paste the API key from your provider account. It is sent once over HTTPS, stored encrypted and never shown again - the panel only shows its last four characters.",
+      ok: "Add key",
+      fields: [
+        { name: "label", label: "Name", placeholder: "e.g. Main account, Backup account" },
+        { name: "secret", label: "API key", type: "password", placeholder: "sk-…" },
+        { name: "pool", label: "Pool", type: "select", value: "standard", options: [["standard", "Standard - used for every plan"], ["priority", "Priority - plans with priority access use it first"]] },
+        { name: "maxUsers", label: "Most accounts on this key (0 = no limit)", type: "number", value: 0 },
+        { name: "verify", label: "Check the key with the provider before adding it", type: "checkbox", value: true },
+        { name: "exclusive", label: "Switch to this key now - turn every other key off", type: "checkbox", value: false }
+      ]
+    }).then(function (v) {
+      if (!v) return;
+      var secret = (v.secret || "").trim();
+      if (!secret) return toast("Paste the API key first.", true);
+      run(btn, A.addKey({ secret: secret, label: (v.label || "").trim(), pool: v.pool, maxUsers: Math.max(0, Math.round(Number(v.maxUsers) || 0)),
+        verify: !!v.verify, exclusive: !!v.exclusive }), null, "Adding").then(function (r) {
+        var check = r.added.check || {};
+        (state.keyChecks || (state.keyChecks = {}))[r.added.id] = check.ok === null && check.error === "not checked" ? undefined : check;
+        renderKeys(r);
+        var ai = check.error === "not checked" ? null : checkInfo(check);
+        toast("“" + r.added.label + "” added" + (ai ? " · " + ai.tag + (ai.text ? " · " + ai.text : "") : " (not checked)") +
+          (r.added.switchedOff ? " · " + r.added.switchedOff + " other key(s) switched off" : ""), !!ai && !ai.good);
+        loadBalance(true);
+      });
+    });
+  }
+
+  function keyAction(act, id, btn) {
+    var k = keyById(id), name = "“" + (k.label || "this key") + "”";
+    if (act === "test") {
+      return run(btn, A.testKey(id), null, "Testing").then(function (r) {
+        (state.keyChecks || (state.keyChecks = {}))[id] = r.test;
+        renderKeys(r);
+        if (r.test.recovered) toast(name + " works again and is back on");
+        else checkToast(name, r.test);
+      });
+    }
+    if (act === "edit") {
+      return ask({ title: "Edit " + name, ok: "Save", fields: [
+        { name: "label", label: "Name", value: k.label },
+        { name: "pool", label: "Pool", type: "select", value: k.pool, options: [["standard", "Standard - used for every plan"], ["priority", "Priority - plans with priority access use it first"]] },
+        { name: "maxUsers", label: "Most accounts on this key (0 = no limit)", type: "number", value: k.maxUsers || 0 }
+      ] }).then(function (v) {
+        if (!v) return;
+        run(btn, A.updateKey(id, { label: (v.label || "").trim(), pool: v.pool, maxUsers: Math.max(0, Math.round(Number(v.maxUsers) || 0)) }), "Key saved", "Saving").then(renderKeys);
+      });
+    }
+    if (act === "only") {
+      return ask({ title: "Use only " + name + "?", text: "This key is switched on and every other key is switched off. Accounts on the other keys move to this one with their next AI request - nothing is lost and nobody has to restart.", ok: "Use only this key" }).then(function (v) {
+        if (v) run(btn, A.updateKey(id, { exclusive: true }), name + " is now the only active key", "Switching").then(renderKeys);
+      });
+    }
+    if (act === "remove") {
+      var label = k.label || "";
+      return ask({ title: "Remove " + name + "?", danger: true, ok: "Remove key", confirmText: label,
+        text: "The encrypted key is deleted from the server. " + (k.users ? num(k.users) + " account(s) on it move to another active key with their next request. " : "") + "Type " + label + " to confirm.",
+        fields: [{ name: "confirm", label: "Key name" }] }).then(function (v) {
+        if (v) run(btn, A.removeKey(id), name + " removed", "Removing").then(renderKeys);
+      });
+    }
+  }
+
+  function toggleKey(input) {
+    var id = input.dataset.keyToggle, on = input.checked, k = keyById(id), name = "“" + (k.label || "this key") + "”";
+    var activeOthers = ((state.sys && state.sys.keys) || []).filter(function (o) { return o.id !== id && o.status === "active"; }).length;
+    input.checked = !on; // stays as it was until confirmed
+    ask({
+      title: (on ? "Switch on " : "Switch off ") + name + "?", danger: !on && !activeOthers, ok: on ? "Switch on" : "Switch off",
+      text: on ? "New AI requests can use it straight away." : activeOthers ? "Accounts on it move to another active key with their next request." : "It is the last key that is on - AI requests will fail for everyone until a key is switched on."
+    }).then(function (v) {
+      if (!v) return;
+      run(null, A.updateKey(id, { active: on }), name + (on ? " is on" : " is off"), "Saving").then(renderKeys);
+    });
+  }
+
+  /* ------------------------------------------------------- server settings */
+  var SRV = { data: null, section: "", filter: "", changed: false };
+  function srvSpec(name) { return ((SRV.data && SRV.data.settings) || []).filter(function (s) { return s.name === name; })[0]; }
+  function srvText(s, v) {
+    if (v === null || v === undefined) return s.kind === "optional_int" ? "plan default (" + num(s.planDefault) + ")" : "-";
+    if (s.kind === "bool") return v ? "On" : "Off";
+    if (s.kind === "model_map") return Object.keys(v).length + " model names";
+    if (s.kind === "plan_seconds") return (s.plans || []).map(function (p) { return cap(p) + " " + num(v[p] || 0) + " s"; }).join(" · ");
+    if (s.kind === "int" || s.kind === "float" || s.kind === "optional_int") return num(v / (s.scale || 1)) + (s.unit ? " " + s.unit : "");
+    return String(v);
+  }
+  function srvControl(s) {
+    var v = s.value, scale = s.scale || 1;
+    if (s.kind === "bool") {
+      return '<div class="row"><label class="ad-toggle' + (s.danger ? " danger" : "") + '"><input type="checkbox" data-srv-input' + (v ? " checked" : "") + '><i></i></label><span class="ad-muted" style="font-size:13px" data-srv-boolText>' + (v ? "On" : "Off") + "</span></div>";
+    }
+    if (s.kind === "plan_seconds") {
+      return '<div class="ad-plansec">' + (s.plans || []).map(function (p) {
+        return "<label>" + esc(cap(p)) + '<input class="input" type="number" min="0" max="' + (s.max || 3600) + '" step="1" data-srv-plan="' + esc(p) + '" value="' + esc((v || {})[p] || 0) + '"></label>';
+      }).join("") + "</div>";
+    }
+    if (s.kind === "model_map") {
+      return '<textarea data-srv-input spellcheck="false" wrap="off">' + esc(Object.keys(v || {}).map(function (k) { return k + " = " + v[k]; }).join("\n")) + "</textarea>";
+    }
+    if (s.kind === "int" || s.kind === "float" || s.kind === "optional_int") {
+      var shown = v === null || v === undefined ? "" : v / scale;
+      return '<span class="ad-unit"><input class="input" type="number" data-srv-input step="' + (s.kind === "float" ? "any" : "1") + '"' +
+        (s.min != null ? ' min="' + s.min / scale + '"' : "") + (s.max != null ? ' max="' + s.max / scale + '"' : "") +
+        ' value="' + esc(shown) + '"' + (s.kind === "optional_int" ? ' placeholder="' + esc("Plan default: " + num(s.planDefault)) + '"' : "") + "><i>" + esc(s.unit || "") + "</i></span>";
+    }
+    return '<input class="input" data-srv-input spellcheck="false" value="' + esc(v || "") + '">';
+  }
+  function readSrv(row, s) {
+    if (s.kind === "bool") return $("[data-srv-input]", row).checked;
+    if (s.kind === "plan_seconds") {
+      var o = {}; $$("[data-srv-plan]", row).forEach(function (i) { o[i.dataset.srvPlan] = Number(i.value || 0); }); return o;
+    }
+    if (s.kind === "model_map") {
+      var m = {}, lines = $("[data-srv-input]", row).value.split(/\n/);
+      lines.forEach(function (line, n) {
+        if (!line.trim()) return;
+        var parts = line.split(/\s*[=:]\s*/);
+        if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) throw new Error("Line " + (n + 1) + ": write it as  app-name = provider-model");
+        m[parts[0].trim().toLowerCase()] = parts[1].trim();
+      });
+      return m;
+    }
+    var raw = $("[data-srv-input]", row).value.trim();
+    if (s.kind === "optional_int") return raw === "" ? null : Number(raw);
+    if (s.kind === "int") return (s.scale || 1) > 1 ? Math.round(Number(raw) * s.scale) : Number(raw);
+    if (s.kind === "float") return Number(raw);
+    return raw;
+  }
+  function srvDirty(row) {
+    var s = srvSpec(row.dataset.srvRow), dirty;
+    try { dirty = JSON.stringify(readSrv(row, s)) !== JSON.stringify(s.value); } catch (e) { dirty = true; }
+    row.classList.toggle("dirty", dirty);
+    var save = $("[data-srv-save]", row); if (save) save.disabled = !dirty;
+  }
+  function loadServer() {
+    if (!SRV.data) $("[data-srv]").innerHTML = '<div class="ad-skel"></div>';
+    return A.serverSettings().then(renderServer, function (e) { $("[data-srv]").innerHTML = '<div class="ad-card"><p class="ad-muted">' + esc(errText(e)) + "</p></div>"; });
+  }
+  function renderServer(d) {
+    if (d) SRV.data = d;
+    d = SRV.data;
+    if (!d) return;
+    var changed = d.settings.filter(function (s) { return s.overridden; }).length, badge = $("[data-srv-badge]");
+    if (badge) { badge.hidden = !changed; badge.textContent = changed; badge.title = changed + " setting(s) differ from the server defaults"; }
+    $("[data-srv-sections]").innerHTML = [["", "All"]].concat(d.sections.map(function (s) { return [s.id, s.label]; })).map(function (s) {
+      return '<button type="button" class="ad-chip' + (SRV.section === s[0] ? " on" : "") + '" data-srv-section="' + esc(s[0]) + '">' + esc(s[1]) + "</button>";
+    }).join("");
+    var words = SRV.filter.toLowerCase().split(/\s+/).filter(Boolean);
+    var html = d.sections.map(function (sec) {
+      if (SRV.section && SRV.section !== sec.id) return "";
+      var rows = d.settings.filter(function (s) {
+        if (s.section !== sec.id || (SRV.changed && !s.overridden)) return false;
+        var hay = (s.label + " " + s.help + " " + s.name + " " + sec.label).toLowerCase();
+        return words.every(function (w) { return hay.indexOf(w) >= 0; });
+      });
+      if (!rows.length) return "";
+      return '<div class="ad-srv-section"><div class="ad-srv-head"><h2>' + esc(sec.label) + "</h2><p>" + esc(sec.help) + '</p></div><div class="ad-card">' +
+        rows.map(function (s) {
+          return '<div class="ad-set" data-srv-row="' + esc(s.name) + '"><div class="ad-set-l"><b>' + esc(s.label) + "</b>" + (s.help ? "<p>" + esc(s.help) + "</p>" : "") +
+            '<div class="meta">' + (s.overridden ? '<span class="ad-tag info">changed</span> server default: ' + esc(srvText(s, s.default)) : '<span class="ad-tag plan">default</span>') +
+            (s.danger ? ' <span class="ad-tag warn">affects everyone</span>' : "") + " <code>" + esc(s.name.toUpperCase()) + "</code></div></div>" +
+            '<div class="ad-set-r">' + srvControl(s) +
+            (s.kind === "bool" ? "" : '<div class="ad-set-acts">' + (s.overridden ? '<button class="btn btn-ghost btn-sm" data-srv-reset>Use default</button>' : "") +
+              '<button class="btn btn-primary btn-sm" data-srv-save disabled>Save</button></div>') +
+            (s.kind === "bool" && s.overridden ? '<div class="ad-set-acts"><button class="btn btn-ghost btn-sm" data-srv-reset>Use default</button></div>' : "") +
+            "</div></div>";
+        }).join("") + "</div></div>";
+    }).join("");
+    $("[data-srv]").innerHTML = html || '<div class="ad-card"><div class="ad-empty">No setting matches.</div></div>';
+  }
+  function saveServerSetting(row, value, btn) {
+    var s = srvSpec(row.dataset.srvRow), change = {};
+    change[s.name] = value;
+    var apply = function () {
+      return run(btn, A.setServerSettings(change), s.label + " saved - every server uses it within seconds", "Saving").then(function (d) {
+        renderServer(d);
+        if (s.name === "deepseek_base_url" && state.sys) loadSystem();
+      });
+    };
+    if (!s.danger) return apply();
+    return ask({ title: "Change “" + s.label + "”?", text: (s.help ? s.help + " " : "") + "New value: " + srvText(s, value) + ".", ok: "Apply change", danger: true }).then(function (v) {
+      if (v) return apply();
+      renderServer();
+    });
+  }
+
+  /* ------------------------------------------------------- plans & pricing */
+  var PR = { data: null, draft: null };
+  var THINK_LABEL = { none: "None only", low: "Up to Low", normal: "Up to Normal", high: "All, up to High" };
+  function prClone(o) { return JSON.parse(JSON.stringify(o)); }
+  function prGet(path) { return path.split(".").reduce(function (o, k) { return o == null ? o : o[k]; }, PR.draft); }
+  function prSet(path, value) {
+    var keys = path.split("."), last = keys.pop();
+    var target = keys.reduce(function (o, k) { return o[k]; }, PR.draft);
+    target[last] = value;
+  }
+  function prDirty() { return PR.data && JSON.stringify(PR.draft) !== JSON.stringify(PR.data.catalog); }
+  function prQuote(tokens) {
+    var t = PR.draft.topup, base = Math.round(tokens / 1e6 * Math.round(t.pricePerMillion * 100));
+    var pack = (t.packs || []).filter(function (p) { return Number(p.tokens) === tokens; })[0];
+    var price = pack ? Math.round(pack.price * 100) : base;
+    var fee = Math.round(price * t.feePercent / 100) + Math.round(t.feeFixed * 100);
+    return { base: base, price: price, fee: fee, total: price + fee, off: base && base > price ? Math.round((base - price) * 100 / base) : 0 };
+  }
+  function prNum(path, label, opts) {
+    opts = opts || {};
+    var v = prGet(path);
+    return "<label>" + esc(label) + '<span class="ad-unit"><input class="input" type="number" data-pr="' + path + '" data-pr-type="' + (opts.money ? "money" : "int") + '"' +
+      ' step="' + (opts.money ? "0.01" : (opts.step || 1)) + '" min="0" value="' + (v == null ? "" : esc(v)) + '"' + (opts.placeholder ? ' placeholder="' + esc(opts.placeholder) + '"' : "") +
+      "><i>" + esc(opts.unit || "") + "</i></span>" + (opts.hint ? '<small class="ad-hint">' + esc(opts.hint) + "</small>" : "") + "</label>";
+  }
+  function prPlanCard(id) {
+    var p = PR.draft.plans[id], base = "plans." + id, features = PR.data.features;
+    var allowance;
+    if (p.period === "day") allowance = prNum(base + ".dailyTokens", "Tokens per day", { unit: "tokens", step: 1000, hint: p.countsCached === false ? "Only new (uncached) tokens count on this plan." : "" });
+    else if (p.period === "month") allowance = '<div class="ad-pr-two">' + prNum(base + ".firstMonthTokens", "First month", { unit: "tokens", step: 100000, hint: "Once per account" }) +
+      prNum(base + ".monthlyTokens", "Every month after", { unit: "tokens", step: 100000 }) + "</div>";
+    else allowance = '<p class="ad-hint">No plan allowance - set a custom allowance per account (Users → AI &amp; tokens).</p>';
+    return '<div class="ad-card ad-pr-plan" data-pr-plan="' + id + '"><div class="ad-pr-top"><input class="input ad-pr-name" data-pr="' + base + '.name" data-pr-type="text" maxlength="40" value="' + esc(p.name) + '">' +
+      '<span class="ad-tag plan">' + esc(id) + "</span>" + (p.period === "month" ? '<span class="ad-tag info">monthly</span>' : p.period === "day" ? '<span class="ad-tag plan">daily</span>' : "") + "</div>" +
+      '<div class="ad-form">' +
+      (id === "free" ? "" : prNum(base + ".price", id === "enterprise" ? "Price (blank = Custom)" : "Price per month", { money: true, unit: "USD", placeholder: id === "enterprise" ? "Custom" : "" })) +
+      allowance +
+      '<label>Thinking modes<select data-pr="' + base + '.maxThinking" data-pr-type="text">' + PR.data.thinking.map(function (l) {
+        return '<option value="' + l + '"' + (p.maxThinking === l ? " selected" : "") + ">" + esc(THINK_LABEL[l] || l) + "</option>";
+      }).join("") + "</select></label>" +
+      '<fieldset class="ad-pr-feats"><legend>Included</legend>' + features.map(function (f) {
+        var on = (p.features || []).indexOf(f.id) >= 0;
+        return '<label class="ad-check"><input type="checkbox" data-pr-feature="' + id + '" value="' + f.id + '"' + (on ? " checked" : "") + (f.id === "assistant" ? " disabled" : "") + "> " + esc(f.label) + "</label>";
+      }).join("") + "</fieldset>" +
+      '<label>Tagline<input class="input" data-pr="' + base + '.tagline" data-pr-type="text" maxlength="120" value="' + esc(p.tagline || "") + '"></label>' +
+      '<label>Card highlights <small class="ad-hint">one per line, max 10 - a line with "not included" is shown greyed out</small><textarea data-pr="' + base + '.highlights" data-pr-type="lines" rows="5">' + esc((p.highlights || []).join("\n")) + "</textarea></label>" +
+      '<label class="ad-check"><input type="checkbox" data-pr="' + base + '.popular" data-pr-type="bool"' + (p.popular ? " checked" : "") + '> Show as "Most picked"</label>' +
+      "</div></div>";
+  }
+  function prTopupCard() {
+    var t = PR.draft.topup;
+    var packs = (t.packs || []).map(function (p, i) {
+      var q = prQuote(Number(p.tokens));
+      return '<div class="ad-pr-pack"><span class="ad-unit"><input class="input" type="number" min="1000" step="100000" data-pr-pack="' + i + '" data-pr-field="tokens" value="' + esc(p.tokens) + '"><i>tokens</i></span>' +
+        '<span class="ad-unit"><input class="input" type="number" min="0.01" step="0.01" data-pr-pack="' + i + '" data-pr-field="price" value="' + esc(p.price) + '"><i>USD</i></span>' +
+        '<span class="ad-pr-q">' + (q.off ? '<span class="ad-tag good">' + q.off + "% off</span> " : '<span class="ad-tag plan">base rate</span> ') + "+" + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span>" +
+        '<button class="btn btn-ghost btn-sm" type="button" data-pr-pack-remove="' + i + '" aria-label="Remove package">✕</button></div>';
+    }).join("");
+    var examples = [500000, 1000000, 3000000].map(function (n) {
+      var q = prQuote(n);
+      return '<div class="r"><span>' + num(n) + " tokens</span><span>" + usd(q.price) + " + " + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span></div>";
+    }).join("");
+    return '<div class="ad-card ad-pr-topup"><div class="ad-inline" style="justify-content:space-between"><div><h3>Token top-ups</h3><p class="ad-sub" style="margin:0">One-off token purchases on any plan. Used after the plan allowance; valid for the days set below.</p></div>' +
+      '<label class="ad-toggle"><input type="checkbox" data-pr="topup.enabled" data-pr-type="bool"' + (t.enabled ? " checked" : "") + "><i></i></label></div>" +
+      '<div class="ad-form ad-pr-grid">' +
+      prNum("topup.pricePerMillion", "Price per 1,000,000 tokens", { money: true, unit: "USD", hint: "Before the processing fee" }) +
+      prNum("topup.feePercent", "Processing fee", { money: true, unit: "%", hint: "Percent of the price" }) +
+      prNum("topup.feeFixed", "Fixed fee per payment", { money: true, unit: "USD" }) +
+      prNum("topup.validityDays", "Valid for", { unit: "days" }) +
+      prNum("topup.minTokens", "Smallest custom top-up", { unit: "tokens", step: 100000 }) +
+      prNum("topup.maxTokens", "Largest custom top-up", { unit: "tokens", step: 1000000 }) +
+      prNum("topup.stepTokens", "Custom amounts in steps of", { unit: "tokens", step: 100000 }) +
+      "</div>" +
+      '<h4 class="ad-pr-h4">Preset packages <small class="ad-hint">priced below the base rate = shown as a discount</small></h4>' +
+      '<div class="ad-pr-packs">' + (packs || '<p class="ad-hint">No packages - only custom amounts.</p>') + "</div>" +
+      '<button class="btn btn-sm" type="button" data-pr-pack-add' + ((t.packs || []).length >= 8 ? " disabled" : "") + ">+ Add package</button>" +
+      '<h4 class="ad-pr-h4">Custom amount examples</h4><div class="ad-rows">' + examples + "</div></div>";
+  }
+  function renderPricing() {
+    if (!PR.draft) return;
+    var focus = document.activeElement, keep = focus && (focus.dataset.pr || (focus.dataset.prPack ? "pack" + focus.dataset.prPack + focus.dataset.prField : ""));
+    var caret = focus && typeof focus.selectionStart === "number" ? focus.selectionStart : null;
+    $("[data-pr]").innerHTML = '<div class="ad-pr-plans">' + PR.data.planIds.map(prPlanCard).join("") + "</div>" + prTopupCard();
+    var dirty = prDirty();
+    $("[data-pr-save]").disabled = !dirty;
+    var badge = $("[data-pricing-badge]");
+    if (badge) { badge.hidden = !dirty; badge.textContent = "•"; badge.title = "Unsaved changes"; }
+    if (keep) {
+      var again = keep.indexOf("pack") === 0 ? $('[data-pr-pack="' + keep.charAt(4) + '"][data-pr-field="' + keep.slice(5) + '"]') : $('[data-pr="' + keep + '"]');
+      if (again) { again.focus(); try { if (caret != null) again.setSelectionRange(caret, caret); } catch (e) { /* number inputs */ } }
+    }
+  }
+  function loadPricing() {
+    if (!PR.data) $("[data-pr]").innerHTML = '<div class="ad-skel"></div>';
+    loadTopupSales();
+    return A.pricing().then(function (d) {
+      if (PR.data && prDirty()) { PR.data = d; return renderPricing(); }  // keep unsaved edits
+      PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
+    }, function (e) { $("[data-pr]").innerHTML = '<div class="ad-card"><p class="ad-muted">' + esc(errText(e)) + "</p></div>"; });
+  }
+  function loadTopupSales() {
+    var host = $("[data-pr-sales-body]");
+    A.topups().then(function (d) {
+      var t = d.totals || {};
+      host.innerHTML = '<div class="ad-grid ad-kpis" style="margin-bottom:14px">' + kpi("Orders", num(t.orders), "paid top-ups") + kpi("Tokens sold", fmt(t.tokens), fmt(t.used) + " used so far") +
+        kpi("Revenue", usd(t.revenueCents), "before the processing fee") + kpi("Processing fees", usd(t.feeCents), "passed on to buyers") + "</div>" +
+        ((d.topups || []).length ? '<div class="ad-tablewrap"><table class="ad-table ad-sales"><thead><tr><th>When</th><th>Account</th><th>Tokens</th><th>Left</th><th>Paid</th><th>Status</th><th></th></tr></thead><tbody>' +
+          d.topups.map(function (r) {
+            return "<tr><td>" + when(r.created) + '</td><td><a href="#users/' + esc(r.userId) + '">' + esc(r.username || r.email) + '</a><br><span class="ad-muted" style="font-size:12px">' + esc(r.email) + "</span></td>" +
+              "<td>" + num(r.tokens) + (r.source === "admin" ? ' <span class="ad-tag plan">support</span>' : "") + "</td><td>" + num(r.left) + "</td>" +
+              "<td>" + (r.priceCents ? usd(r.priceCents) + ' <span class="ad-muted">+ ' + usd(r.feeCents) + "</span>" : '<span class="ad-muted">-</span>') + "</td>" +
+              '<td><span class="ad-tag ' + (r.status === "active" ? "good" : "plan") + '">' + esc(r.status) + "</span></td>" +
+              "<td>" + (r.status === "active" && r.left ? '<button class="btn btn-ghost btn-sm" data-sale-revoke="' + esc(r.id) + '" data-sale-left="' + r.left + '">Remove</button>' : "") + "</td></tr>";
+          }).join("") + "</tbody></table></div>"
+          : '<div class="ad-empty">No top-ups yet. They appear here as soon as Lemon Squeezy confirms a payment.</div>');
+    }, function (e) { host.innerHTML = '<p class="ad-muted">' + esc(errText(e)) + "</p>"; });
+  }
+  function prRead(input) {
+    var type = input.dataset.prType;
+    if (type === "bool") return input.checked;
+    if (type === "lines") return input.value.split(/\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    if (type === "text") return input.value;
+    var raw = input.value.trim();
+    if (raw === "") return null;
+    return type === "money" ? Math.round(Number(raw) * 100) / 100 : Math.round(Number(raw));
+  }
+  function wirePricing() {
+    var view = $('[data-view="pricing"]');
+    if (!view) return;
+    view.addEventListener("input", function (e) {
+      var t = e.target;
+      if (!PR.draft) return;
+      if (t.dataset.pr) { prSet(t.dataset.pr, prRead(t)); }
+      else if (t.dataset.prPack) {
+        var pack = PR.draft.topup.packs[Number(t.dataset.prPack)];
+        pack[t.dataset.prField] = t.dataset.prField === "price" ? Math.round(Number(t.value) * 100) / 100 : Math.round(Number(t.value));
+      } else if (t.dataset.prFeature) {
+        var plan = PR.draft.plans[t.dataset.prFeature], list = plan.features.slice();
+        if (t.checked && list.indexOf(t.value) < 0) list.push(t.value);
+        if (!t.checked) list = list.filter(function (f) { return f !== t.value; });
+        plan.features = PR.data.features.map(function (f) { return f.id; }).filter(function (f) { return list.indexOf(f) >= 0; });
+      } else return;
+      // Text fields re-render on blur only (keeps typing smooth); numbers and toggles update previews now.
+      if (t.tagName === "TEXTAREA" || (t.type === "text" || t.classList.contains("ad-pr-name"))) {
+        $("[data-pr-save]").disabled = !prDirty();
+        return;
+      }
+      renderPricing();
+    });
+    view.addEventListener("change", function (e) { if (e.target.dataset.pr && /text|lines/.test(e.target.dataset.prType || "")) renderPricing(); });
+    view.addEventListener("click", function (e) {
+      var t = e.target.closest("button");
+      if (!t || !PR.draft) return;
+      if (t.matches("[data-pr-pack-add]")) {
+        var packs = PR.draft.topup.packs, last = packs[packs.length - 1];
+        packs.push({ tokens: last ? last.tokens * 2 : 1000000, price: last ? Math.round(last.price * 1.8 * 100) / 100 : PR.draft.topup.pricePerMillion });
+        return renderPricing();
+      }
+      if (t.dataset.prPackRemove != null) { PR.draft.topup.packs.splice(Number(t.dataset.prPackRemove), 1); return renderPricing(); }
+      if (t.matches("[data-pr-save]")) {
+        return ask({ title: "Save plans & pricing?", text: "The website, the server and every open app use the new values within seconds. If you changed a monthly price, also change it in Lemon Squeezy.", ok: "Save changes" }).then(function (v) {
+          if (!v) return;
+          run(t, A.savePricing(PR.draft), null, "Saving").then(function (d) {
+            PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
+            toast(d.changed && d.changed.length ? "Saved: " + d.changed.slice(0, 3).join("; ") + (d.changed.length > 3 ? " (+" + (d.changed.length - 3) + " more)" : "") : "Nothing changed");
+          });
+        });
+      }
+      if (t.matches("[data-pr-reset]")) {
+        return ask({ title: "Reset plans & pricing?", text: "Every plan, allowance and top-up price goes back to the built-in values. The website and apps update within seconds.", ok: "Reset everything", danger: true, confirmText: "RESET", fields: [{ name: "confirm", label: "Type RESET to confirm" }] }).then(function (v) {
+          if (!v) return;
+          run(t, A.resetPricing(), "Plans & pricing are back to the built-in values", "Resetting").then(function (d) { PR.data = d; PR.draft = prClone(d.catalog); renderPricing(); });
+        });
+      }
+      if (t.dataset.saleRevoke) {
+        var left = Number(t.dataset.saleLeft || 0);
+        return ask({ title: "Remove " + num(left) + " unused top-up tokens?", text: "This doesn't refund the payment - refunds are made in Lemon Squeezy (a refunded order removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
+          if (v) run(t, A.revokeTopup(t.dataset.saleRevoke), num(left) + " top-up tokens removed", "Removing").then(loadTopupSales);
+        });
+      }
+    });
+  }
+
+  /* ------------------------------------------------------- search (Ctrl K) */
+  var FIND = { items: [], sel: 0, users: [], userQuery: "", timer: null };
+  var VIEW_WORDS = {
+    dashboard: "overview kpi tokens today plans sign-ups attention", insights: "downloads active app versions thinking top users charts export csv",
+    ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr lemon squeezy billing", gifts: "token gifts bonus free tokens",
+    users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
+    server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
+    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio thinking high top-up topup packages fee lemon squeezy sales",
+    activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek"
+  };
+  function findActions() {
+    return [
+      { group: "Actions", icon: "+", title: "Add an AI provider key", sub: "System · paste a new API key", words: "new second backup api key provider deepseek", run: function () { go("system"); setTimeout(function () { addKeyDialog($("[data-key-add]")); }, 60); } },
+      { group: "Actions", icon: "⇄", title: "Switch AI provider key", sub: "System · turn keys on or off", words: "change main key primary turn off on", run: function () { go("system"); flashWhenReady("#ai-keys"); } },
+      { group: "Actions", icon: "§", title: "Publish new Terms & Privacy version", sub: "Live settings · everyone agrees again", words: "legal terms privacy policy consent", run: function () { go("settings"); flashWhenReady("[data-cfg-legal]", true); } },
+      { group: "Actions", icon: "!", title: "Pause AI for everyone (maintenance)", sub: "Live settings · service switches", words: "maintenance emergency stop", run: function () { go("settings"); flashWhenReady("[data-cfg-switches]", true); } },
+      { group: "Actions", icon: "$", title: "Check AI provider balance", sub: "System · remaining credit", words: "balance credit top up money", run: function () { go("system"); flashWhenReady("[data-balance-keys]", true); loadBalance(true); } },
+      { group: "Actions", icon: "★", title: "Give tokens", sub: "Token gifts · new gift", words: "gift bonus free tokens", run: function () { go("gifts"); } },
+      { group: "Actions", icon: "$", title: "Change plan prices & allowances", sub: "Plans & pricing · prices, monthly tokens, features", words: "price plan builder pro studio monthly tokens features 3d thinking", run: function () { go("pricing"); } },
+      { group: "Actions", icon: "+", title: "Edit token top-up prices", sub: "Plans & pricing · price per million, fee, packages", words: "top-up topup packs fee processing buy tokens", run: function () { go("pricing"); flashWhenReady(".ad-pr-topup"); } },
+      { group: "Actions", icon: "✉", title: "Email users", sub: "Messages · direct or broadcast", words: "email send message broadcast", run: function () { go("messages"); } },
+      { group: "Actions", icon: "↓", title: "Export users as CSV", sub: "Users · current filter", words: "export download csv", run: function () { go("users"); setTimeout(function () { exportCsv($("[data-export]")); }, 80); } }
+    ];
+  }
+  function findIndex() {
+    var items = findActions();
+    $$("[data-nav]").forEach(function (b) {
+      var view = b.dataset.nav, title = b.textContent.replace(/[\d–!-]+$/, "").trim();
+      items.push({ group: "Pages", icon: title.charAt(0), title: title, sub: "Go to " + title, words: VIEW_WORDS[view] || "", run: function () { go(view); } });
+      $$('[data-view="' + view + '"] .ad-card > h3, [data-view="' + view + '"] .ad-card > .ad-inline h3, [data-view="' + view + '"] .ad-section-title').forEach(function (h) {
+        var text = h.textContent.trim(), card = h.closest(".ad-card") || h;
+        if (!text || text === "-" || h.hasAttribute("data-balance-total")) return;
+        var sub = card.querySelector(".ad-sub");
+        items.push({ group: "Sections", icon: "#", title: text, sub: title + (sub ? " · " + sub.textContent.trim() : ""), words: "",
+          run: function () { go(view); flash(card); } });
+      });
+    });
+    REWARD_FIELDS.forEach(function (r) {
+      items.push({ group: "Settings", icon: "⚙", title: r[1], sub: "Live settings · Ad unlocks", words: r[0] + " unlock reward", run: function () { go("settings"); flashWhenReady('[data-cfg-num="' + r[0] + '"]'); } });
+    });
+    ((SRV.data && SRV.data.settings) || []).forEach(function (s) {
+      var sec = SRV.data.sections.filter(function (x) { return x.id === s.section; })[0] || {};
+      items.push({ group: "Settings", icon: "⚙", title: s.label, sub: "Server settings · " + (sec.label || "") + " · " + srvText(s, s.value), words: s.help + " " + s.name,
+        run: function () { openSetting(s.name); } });
+    });
+    ((state.sys && state.sys.keys) || []).forEach(function (k) {
+      items.push({ group: "AI keys", icon: "⚿", title: k.label + " " + (k.hint || ""), sub: "AI key · " + (STATUS_TEXT[k.status] || k.status) + " · " + num(k.users) + " accounts · " + k.pool, words: "key provider api " + k.status,
+        run: function () { go("system"); flashWhenReady('[data-key-row="' + k.id + '"]'); } });
+    });
+    return items;
+  }
+  function openSetting(name) {
+    SRV.section = ""; SRV.filter = ""; SRV.changed = false;
+    var f = $("[data-srv-filter]"); if (f) f.value = "";
+    var c = $("[data-srv-changed]"); if (c) c.checked = false;
+    go("server");
+    flashWhenReady('[data-srv-row="' + name + '"]');
+  }
+  function flash(el) {
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.classList.remove("ad-flash"); void el.offsetWidth; el.classList.add("ad-flash");
+    setTimeout(function () { el.classList.remove("ad-flash"); }, 2000);
+    var input = el.matches("input, textarea, select") ? el : null;
+    if (input) setTimeout(function () { input.focus(); }, 400);
+  }
+  function flashWhenReady(selector, card) {
+    var tries = 0;
+    (function look() {
+      var el = $(selector);
+      if (el && el.offsetParent !== null) return flash(card ? el.closest(".ad-card") || el : el);
+      if (++tries < 40) setTimeout(look, 100);
+    })();
+  }
+  function highlight(text, words) {
+    var out = esc(text);
+    words.forEach(function (w) {
+      if (w.length < 2) return;
+      out = out.replace(new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig"), "<mark>$1</mark>");
+    });
+    return out;
+  }
+  function findRender() {
+    var input = $("[data-find-input]"), q = input.value.trim().toLowerCase(), words = q.split(/\s+/).filter(Boolean);
+    var all = findIndex(), results = [];
+    if (!words.length) {
+      results = all.filter(function (i) { return i.group === "Actions" || i.group === "Pages"; });
+    } else {
+      all.forEach(function (i) {
+        var title = i.title.toLowerCase(), hay = (i.title + " " + i.sub + " " + i.words + " " + i.group).toLowerCase();
+        if (!words.every(function (w) { return hay.indexOf(w) >= 0; })) return;
+        i.score = (title.indexOf(q) === 0 ? 0 : title.indexOf(q) >= 0 ? 1 : words.every(function (w) { return title.indexOf(w) >= 0; }) ? 2 : 3);
+        results.push(i);
+      });
+      results.sort(function (a, b) { return a.score - b.score; });
+      FIND.users.forEach(function (u) {
+        results.push({ group: "Users", icon: (u.username || u.email || "?").charAt(0).toUpperCase(), title: u.username || u.email, sub: u.email + " · " + cap(u.plan || "free"), run: function () { openUser(u.id); } });
+      });
+    }
+    var order = ["Actions", "Pages", "Settings", "AI keys", "Sections", "Users"], groups = {}, best = {};
+    results.forEach(function (r) {
+      (groups[r.group] = groups[r.group] || []).push(r);
+      best[r.group] = Math.min(best[r.group] == null ? 9 : best[r.group], r.score == null ? 4 : r.score);
+    });
+    if (words.length) {
+      // The group holding the closest match comes first; ties keep the usual order.
+      order.sort(function (a, b) { return ((best[a] == null ? 9 : best[a]) - (best[b] == null ? 9 : best[b])) || 0; });
+    }
+    FIND.items = [];
+    var html = order.map(function (g) {
+      var list = (groups[g] || []).slice(0, g === "Pages" && !words.length ? 12 : 7);
+      if (!list.length) return "";
+      return '<div class="ad-find-group">' + g + "</div>" + list.map(function (r) {
+        var i = FIND.items.push(r) - 1;
+        return '<button type="button" class="ad-find-item' + (i === FIND.sel ? " on" : "") + '" role="option" data-find-pick="' + i + '"><span class="ic">' + esc(r.icon || "•") + '</span><span class="tx"><b>' +
+          highlight(r.title, words) + "</b><small>" + highlight(r.sub || "", words) + '</small></span><span class="go">↵</span></button>';
+      }).join("");
+    }).join("");
+    var pending = words.length && q.length >= 2 && FIND.userQuery !== q;
+    $("[data-find-results]").innerHTML = html || (pending ? '<div class="ad-find-empty">Searching…</div>' : '<div class="ad-find-empty">Nothing found for “' + esc(input.value.trim()) + "”.</div>");
+    if (FIND.sel >= FIND.items.length) FIND.sel = Math.max(0, FIND.items.length - 1);
+  }
+  function findUsers() {
+    var q = $("[data-find-input]").value.trim();
+    clearTimeout(FIND.timer);
+    if (q.length < 2) { FIND.users = []; FIND.userQuery = q.toLowerCase(); return; }
+    FIND.timer = setTimeout(function () {
+      A.users({ query: q, page: 1 }).then(function (r) {
+        if ($("[data-find-input]").value.trim() !== q) return;
+        FIND.users = (r.users || []).slice(0, 6); FIND.userQuery = q.toLowerCase(); findRender();
+      }, function () { FIND.users = []; FIND.userQuery = q.toLowerCase(); findRender(); });
+    }, 220);
+  }
+  function findOpen() {
+    var pop = $("[data-find]");
+    if (!pop.hidden) return;
+    pop.hidden = false; FIND.sel = 0; FIND.users = [];
+    var input = $("[data-find-input]"); input.value = "";
+    findRender();
+    input.focus(); // right away, so fast typing after Ctrl+K isn't lost
+    if (!SRV.data) A.serverSettings().then(function (d) { SRV.data = d; if (!pop.hidden) findRender(); }, function () {});
+    if (!state.sys) A.system().then(function (s) { state.sys = s; if (!pop.hidden) findRender(); }, function () {});
+  }
+  function findClose() { $("[data-find]").hidden = true; }
+  function findPick(i) {
+    var item = FIND.items[i];
+    if (!item) return;
+    findClose();
+    item.run();
+  }
+  function findMove(step) {
+    if (!FIND.items.length) return;
+    FIND.sel = (FIND.sel + step + FIND.items.length) % FIND.items.length;
+    $$("[data-find-pick]").forEach(function (b) { b.classList.toggle("on", Number(b.dataset.findPick) === FIND.sel); });
+    var on = $('[data-find-pick="' + FIND.sel + '"]'); if (on) on.scrollIntoView({ block: "nearest" });
+  }
+
   function loadSystem() {
+    loadUpdates(false);
     loadHealth();
     loadBalance(false);
     loadSenders().then(function (s) {
-      $("[data-keys]").innerHTML = s.keys.length ? s.keys.map(function (k) {
-        var tag = k.status === "active" ? "good" : k.status === "degraded" ? "warn" : "bad";
-        return "<tr><td><b>" + esc(k.label) + '</b><div class="ad-muted" style="font-size:12px">added ' + since(k.added) + "</div></td><td>" + esc(k.pool) +
-          '</td><td><span class="ad-tag ' + tag + '">' + esc(k.status) + "</span></td><td>" + num(k.users) + (k.maxUsers ? " / " + num(k.maxUsers) : "") +
-          '</td><td class="ad-muted" style="font-size:13px">' + esc(k.lastError || "-") + (k.lastErrorAt ? "<br>" + since(k.lastErrorAt) : "") + "</td>" +
-          '<td><button class="btn btn-sm ' + (k.status === "active" ? "" : "btn-ok") + '" data-key="' + esc(k.id) + '" data-key-on="' + (k.status === "active" ? "0" : "1") + '">' +
-          (k.status === "active" ? "Disable" : "Enable") + "</button></td></tr>";
-      }).join("") : '<tr><td colspan="6"><div class="ad-empty">No keys. Add one on the server: docker compose exec -T api python -m app.cli add-key</div></td></tr>';
+      renderQueue(s.aiQueue);
+      renderKeys(s);
       $("[data-mailboxes]").innerHTML = s.senders.map(function (m) {
         return '<div class="r"><span><b style="color:var(--text);display:block">' + esc(m.address) + '</b><span style="font-size:12.5px">' + esc(m.purpose) + "</span></span>" +
           '<span data-mb="' + esc(m.address) + '">' + (m.ready ? '<span class="ad-tag good">configured</span>' : '<span class="ad-tag bad">no password</span>') + "</span></div>";
       }).join("");
       $("[data-plans-table]").innerHTML = s.plans.map(function (p) {
-        return '<div class="r"><span><span class="ad-dot" style="display:inline-block;margin-right:8px;background:' + (PLAN_COLOR[p.id] || "#888") + '"></span>' + esc(p.name) + "</span><span class=\"ad-mono\">" + tokens(p.dailyTokens) + " / day</span></div>";
+        var allowance = p.period === "month" ? fmt(p.firstMonthTokens) + " first month · " + fmt(p.monthlyTokens) + " / month" : p.period === "day" ? tokens(p.dailyTokens) + " / day" : "Custom";
+        return '<div class="r"><span><span class="ad-dot" style="display:inline-block;margin-right:8px;background:' + (PLAN_COLOR[p.id] || "#888") + '"></span>' + esc(p.name) + "</span><span class=\"ad-mono\">" + allowance + "</span></div>";
       }).join("");
     }, function (e) { toast(errText(e), true); });
   }
@@ -1356,7 +2039,7 @@
     var h = location.hash.replace(/^#/, "");
     var m = h.match(/^users\/([0-9a-f-]{36})$/i);
     if (m) { if (state.view !== "users") go("users", false); openUser(m[1]); return; }
-    var view = ["dashboard", "insights", "ads", "revenue", "gifts", "settings", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
+    var view = ["dashboard", "insights", "ads", "revenue", "pricing", "gifts", "settings", "server", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
     if (view !== state.view || !state.booted) go(view, false);
     state.booted = true;
   }
@@ -1383,6 +2066,26 @@
   }
 
   /* -------------------------------------------------------------- events */
+  document.addEventListener("keydown", function (e) {
+    var pop = $("[data-find]"), open = pop && !pop.hidden;
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "") || (e.target && e.target.isContentEditable);
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+      if ($("[data-shell]").hidden) return;
+      e.preventDefault();
+      return open ? findClose() : findOpen();
+    }
+    if (!open && e.key === "/" && !typing && !$("[data-shell]").hidden && $("[data-modal]").hidden) { e.preventDefault(); return findOpen(); }
+    if (!open) return;
+    if (e.key === "Escape") { e.preventDefault(); return findClose(); }
+    if (e.key === "ArrowDown") { e.preventDefault(); return findMove(1); }
+    if (e.key === "ArrowUp") { e.preventDefault(); return findMove(-1); }
+    if (e.key === "Enter") { e.preventDefault(); return findPick(FIND.sel); }
+  });
+  // A search button next to the menu button on phones (the sidebar is hidden there).
+  $$("[data-menu]").forEach(function (m) {
+    m.insertAdjacentHTML("afterend", '<button class="ad-find-mobile" type="button" data-find-open aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>');
+  });
+
   var searchTimer;
   document.addEventListener("input", function (e) {
     var t = e.target;
@@ -1390,6 +2093,9 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(function () { state.users.query = t.value.trim(); state.users.page = 1; loadUsers(); }, 250);
     }
+    if (t.matches("[data-find-input]")) { FIND.sel = 0; findRender(); findUsers(); }
+    if (t.matches("[data-srv-filter]")) { SRV.filter = t.value.trim(); renderServer(); }
+    if (t.closest("[data-srv-row]") && t.matches("[data-srv-input], [data-srv-plan]") && t.type !== "checkbox") srvDirty(t.closest("[data-srv-row]"));
     if (t.matches("[data-msg-subject], [data-msg-body]")) renderPreview();
   });
   document.addEventListener("change", function (e) {
@@ -1397,6 +2103,13 @@
     if (t.matches("[data-plan-filter]")) { state.users.plan = t.value; state.users.page = 1; loadUsers(); }
     if (t.matches("[data-sort]")) { state.users.sort = t.value; state.users.page = 1; loadUsers(); }
     if (t.matches("[data-ev-filter]")) { state.ev.action = t.value; state.ev.page = 1; loadEvents(); }
+    if (t.matches("[data-key-toggle]")) return toggleKey(t);
+    if (t.matches("[data-srv-changed]")) { SRV.changed = t.checked; return renderServer(); }
+    if (t.matches("[data-srv-input]") && t.type === "checkbox") {
+      var brow = t.closest("[data-srv-row]"), want = t.checked;
+      t.checked = !want; // stays until saved
+      return saveServerSetting(brow, want, null);
+    }
     if (t.matches("[data-msg-from]")) renderPreview();
     if (t.matches("[data-msg-template]")) {
       var tp = TEMPLATES[t.value]; if (tp) { $("[data-msg-subject]").value = tp[0]; $("[data-msg-body]").value = tp[1]; renderPreview(); }
@@ -1436,11 +2149,36 @@
     if (t.closest("[data-msg-send]")) return send(t.closest("[data-msg-send]"));
     if (t.matches("[data-ev-prev]") && state.ev.page > 1) { state.ev.page--; return loadEvents(); }
     if (t.matches("[data-ev-next]") && state.ev.page < state.ev.pages) { state.ev.page++; return loadEvents(); }
-    var key = t.closest("[data-key]");
-    if (key) {
-      var on = key.dataset.keyOn === "1";
-      return ask({ title: (on ? "Enable" : "Disable") + " this AI key?", text: on ? "It will be used for requests again." : "Users on it move to another active key.", ok: on ? "Enable" : "Disable", danger: !on }).then(function (v) {
-        if (v) run(key, A.keyStatus(key.dataset.key, on), on ? "Key enabled" : "Key disabled", "Saving").then(loadSystem);
+    // Search
+    if (t.closest("[data-find-open]")) { e.preventDefault(); return findOpen(); }
+    var fp = t.closest("[data-find-pick]"); if (fp) return findPick(Number(fp.dataset.findPick));
+    if (t.matches("[data-find]")) return findClose();
+
+    // AI provider keys
+    if (t.closest("[data-key-add]")) return addKeyDialog(t.closest("[data-key-add]"));
+    var ka = t.closest("[data-key-act]"); if (ka) return keyAction(ka.dataset.keyAct, ka.dataset.id, ka);
+    if (t.closest("[data-keys-help]")) {
+      return ask({ title: "How AI keys work", ok: "Got it",
+        text: "Every account is pinned to one key that is on. Switch a key off, remove it or press “Use only this”, and the accounts on it move to another key that is on with their next AI request - nobody restarts and nothing is lost. " +
+          "Add a second key as a backup: if one runs out of credit, the server moves requests to the other and re-tries the empty one every 2 minutes, switching it back on by itself after a top-up. " +
+          "Priority keys are used first by plans with priority access. Keys are stored encrypted and never shown again." });
+    }
+    var gs2 = t.closest("[data-goto-setting]"); if (gs2) return openSetting(gs2.dataset.gotoSetting);
+
+    // Server settings
+    var sc = t.closest("[data-srv-section]"); if (sc) { SRV.section = sc.dataset.srvSection; return renderServer(); }
+    if (t.closest("[data-srv-reload]")) return run(t.closest("[data-srv-reload]"), A.serverSettings(), "Reloaded", "Loading").then(renderServer);
+    var ss = t.closest("[data-srv-save]");
+    if (ss) {
+      var srow = ss.closest("[data-srv-row]"), value;
+      try { value = readSrv(srow, srvSpec(srow.dataset.srvRow)); } catch (err) { return toast(err.message, true); }
+      return saveServerSetting(srow, value, ss);
+    }
+    var sr = t.closest("[data-srv-reset]");
+    if (sr) {
+      var rrow = sr.closest("[data-srv-row]"), rs2 = srvSpec(rrow.dataset.srvRow);
+      return ask({ title: "Use the server default for “" + rs2.label + "”?", text: "Back to " + srvText(rs2, rs2.default) + " (from the server's .env).", ok: "Use default", danger: rs2.danger }).then(function (v) {
+        if (v) run(sr, A.resetServerSetting(rs2.name), rs2.label + " is back to the default", "Resetting").then(renderServer);
       });
     }
     if (t.closest("[data-check-mail]")) {
@@ -1609,6 +2347,12 @@
     }
   });
   document.addEventListener("click", function (e) {
+    var btn = e.target.closest && e.target.closest("[data-updates-refresh]");
+    if (!btn) return;
+    busy(btn, true, "Checking");
+    loadUpdates(true).then(function () { busy(btn, false); toast("Up to date"); });
+  });
+  document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest("[data-legal-publish]");
     if (!btn) return;
     var summary = ($("[data-legal-summary]").value || "").trim();
@@ -1663,6 +2407,10 @@
   document.addEventListener("change", function (e) { if (e.target.closest("[data-panel]")) panelChange(e); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("[data-modal]").hidden) closePanel(); });
   window.addEventListener("hashchange", function () { if (!/^#users\//.test(location.hash) && state.user) closePanel(); route(); });
+  window.addEventListener("beforeunload", function (e) {
+    if (PR.draft && prDirty()) { e.preventDefault(); e.returnValue = ""; }  // unsaved plans & pricing
+  });
 
+  wirePricing();
   start();
 })();

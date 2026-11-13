@@ -601,52 +601,94 @@
     tabs.slice(1).forEach(function (t) { var pre = new Image(); pre.src = t.dataset.shot; });
   }
 
+  /* ================================================= live catalogue */
+  /* plans.js is the built-in copy; the live catalogue (admin panel "Plans &
+     pricing") replaces it as soon as /v1/public/pricing answers. */
+  function normalise(data) {
+    var features = data.features || {};
+    if (!Array.isArray(features)) {
+      features = Object.keys(features).map(function (id) { return { id: id, label: features[id] }; });
+    }
+    return { plans: data.plans || [], features: features, topup: data.topup || {} };
+  }
+  DATA = normalise(DATA);
+  function planById(id) { return DATA.plans.filter(function (p) { return p.id === id; })[0]; }
+  function money(cents) { return "$" + (Math.round(cents) / 100).toFixed(2); }
+  function esc(text) { return window.MCA.escapeHtml(String(text == null ? "" : text)); }
+  function monthlyOf(plan) { return plan.period === "month" ? plan.monthlyTokens : null; }
+
+  /** Same formula as the server (app/core/plans.py quote): pack price if it matches, else the base rate. */
+  function quote(tokens) {
+    var t = DATA.topup;
+    var baseCents = Math.round(tokens / 1e6 * Math.round(t.pricePerMillion * 100));
+    var pack = (t.packs || []).filter(function (p) { return Number(p.tokens) === tokens; })[0];
+    var priceCents = pack ? (pack.priceCents != null ? pack.priceCents : Math.round(pack.price * 100)) : baseCents;
+    var feeCents = Math.round(priceCents * t.feePercent / 100) + Math.round(t.feeFixed * 100);
+    var saved = Math.max(0, baseCents - priceCents);
+    return { tokens: tokens, baseCents: baseCents, priceCents: priceCents, feeCents: feeCents,
+             totalCents: priceCents + feeCents, discount: baseCents && saved ? Math.round(saved * 100 / baseCents) : 0 };
+  }
+
   /* ====================================================== calculator */
+  var calcUpdate = null;
   function calculator() {
     var req = $("#c-requests");
     if (!req) return;
-    var tex = $("#c-textures"), size = $("#c-size");
+    var tex = $("#c-textures"), size = $("#c-size"), days = $("#c-days");
     var PER_REQUEST = { 1: 9000, 2: 16000, 3: 28000 };
     var SIZE_NAMES = { 1: "Small", 2: "Medium", 3: "Large" };
     var PER_TEXTURE = 7000;
     var UNCACHED = 0.35; // share of a request that is new (not cached) in our test runs
-    var plans = DATA.plans.filter(function (p) { return p.dailyTokens; });
-    /** What a day of work costs against this plan's allowance. */
-    function counted(plan, total) { return plan.countsCached === false ? Math.round(total * UNCACHED / 1000) * 1000 : total; }
 
     function update() {
       req.nextElementSibling.textContent = req.value;
       tex.nextElementSibling.textContent = tex.value;
       size.nextElementSibling.textContent = SIZE_NAMES[size.value];
-      var total = Number(req.value) * PER_REQUEST[size.value] + Number(tex.value) * PER_TEXTURE;
-      total = Math.round(total * 1.15 / 1000) * 1000; // + room for automatic build fixes
-      $("#c-total").textContent = total.toLocaleString("en-US");
+      if (days) days.nextElementSibling.textContent = days.value;
+      var perDay = Number(req.value) * PER_REQUEST[size.value] + Number(tex.value) * PER_TEXTURE;
+      perDay = Math.round(perDay * 1.15 / 1000) * 1000; // + room for automatic build fixes
+      var month = perDay * Number(days ? days.value : 10);
+      $("#c-total").textContent = month.toLocaleString("en-US");
       var needsTextures = Number(tex.value) > 0;
-      var fit = plans.filter(function (p) {
-        return p.dailyTokens >= counted(p, total) && (!needsTextures || p.features.indexOf("textures") !== -1);
-      })[0];
-      var meter = $("#c-meter");
+      var free = planById("free");
+      var paid = DATA.plans.filter(function (p) { return p.period === "month" && p.price; })
+        .sort(function (a, b) { return a.price - b.price; });
+      var meter = $("#c-meter"), fit = null, share = 0, label = "";
+      var freeDaily = free && free.dailyTokens ? Math.round(perDay * UNCACHED / 1000) * 1000 : Infinity;
+      if (free && free.dailyTokens && !needsTextures && freeDaily <= free.dailyTokens) {
+        fit = free;
+        share = freeDaily / free.dailyTokens * 100;
+        label = "~" + freeDaily.toLocaleString("en-US") + " new tokens a modding day - " + Math.round(share) +
+          "% of Free's " + fmt(free.dailyTokens) + " (cached context is free)";
+      } else {
+        fit = paid.filter(function (p) {
+          return monthlyOf(p) >= month && (!needsTextures || p.features.indexOf("textures") !== -1);
+        })[0] || null;
+        if (fit) {
+          share = month / monthlyOf(fit) * 100;
+          label = Math.round(share) + "% of " + fit.name + "'s " + fmt(monthlyOf(fit)) + " monthly tokens" +
+            (fit.firstMonthTokens ? " (" + fmt(fit.firstMonthTokens) + " in your first month)" : "");
+        }
+      }
       if (fit) {
-        var used = counted(fit, total);
-        var share = Math.max(2, Math.min(100, used / fit.dailyTokens * 100));
+        share = Math.max(2, Math.min(100, share));
         meter.style.width = share + "%";
         meter.style.background = share > 85 ? "var(--amber)" : "var(--accent)";
-        $("#c-meter-label").textContent = fit.countsCached === false
-          ? "~" + used.toLocaleString("en-US") + " new tokens counted - " + Math.round(share) + "% of Free's " + fmt(fit.dailyTokens) + " (cached context is free)"
-          : Math.round(share) + "% of " + fit.name + "'s " + fmt(fit.dailyTokens) + " daily tokens";
+        $("#c-meter-label").textContent = label;
         $("#c-plan").textContent = fit.name + (fit.price ? " · $" + fit.price.toFixed(2) : "");
         $("#c-cta").textContent = fit.price ? "See " + fit.name : "Start free";
         $("#c-cta").href = fit.price ? "#plan-" + fit.id : "signup.html";
       } else {
         meter.style.width = "100%";
         meter.style.background = "var(--ruby)";
-        $("#c-meter-label").textContent = "More than our biggest standard plan";
+        $("#c-meter-label").textContent = "More than our biggest standard plan - add a top-up, or talk to us";
         $("#c-plan").textContent = "Enterprise";
         $("#c-cta").textContent = "Talk to us";
         $("#c-cta").href = "#plan-enterprise";
       }
     }
-    [req, tex, size].forEach(function (input) { input.addEventListener("input", update); });
+    [req, tex, size, days].forEach(function (input) { if (input) input.addEventListener("input", update); });
+    calcUpdate = update;
     update();
   }
 
@@ -684,42 +726,117 @@
       card.appendChild(badge);
       note = document.createElement("p");
       note.className = "promo-note";
-      note.innerHTML = window.MCA.escapeHtml(promo.label) + " &middot; code <code>" + window.MCA.escapeHtml(promo.code) +
-        "</code> added at checkout" + (promo.terms ? " &middot; " + window.MCA.escapeHtml(promo.terms) : "");
+      note.innerHTML = esc(promo.label) + " &middot; code <code>" + esc(promo.code) +
+        "</code> added at checkout" + (promo.terms ? " &middot; " + esc(promo.terms) : "");
       card.querySelector(".tokens").insertAdjacentElement("afterend", note);
     });
-    var cells = document.querySelectorAll("[data-compare-price]");
-    Array.prototype.forEach.call(cells, function (td) {
-      var plan = DATA.plans.filter(function (p) { return p.id === td.dataset.comparePrice; })[0];
+    $$("[data-compare-price]").forEach(function (td) {
+      var plan = planById(td.dataset.comparePrice);
       if (!plan || !plan.price) return;
       var promo = activePromo(plan.id);
-      td.innerHTML = promo ? "<s>$" + plan.price.toFixed(2) + "</s>$" + salePrice(plan.price, promo).toFixed(2) : "$" + plan.price.toFixed(2);
+      td.innerHTML = promo ? "<s>$" + plan.price.toFixed(2) + "</s> $" + salePrice(plan.price, promo).toFixed(2)
+        : "$" + plan.price.toFixed(2);
     });
   }
   document.addEventListener("mca:look", applyPromo);
 
   /* ========================================================= pricing */
-  function pricing() {
+  function tokenLine(plan) {
+    if (plan.period === "month") {
+      return "<b>" + fmt(plan.firstMonthTokens) + "</b> tokens first month<br><b>" + fmt(plan.monthlyTokens) +
+        "</b> / month after";
+    }
+    if (plan.period === "day" && plan.dailyTokens) return "<b>" + fmt(plan.dailyTokens) + "</b> new tokens / day";
+    return "Allowances set with you";
+  }
+
+  function renderPlans() {
     var host = $("#pricing-cards");
     if (!host) return;
     host.innerHTML = DATA.plans.map(function (plan) {
-      var price = plan.price === null ? '<b>Custom</b>' : '<b>$' + (plan.price ? plan.price.toFixed(2) : "0") + "</b><span>/ month</span>";
-      var tokens = plan.dailyTokens ? fmt(plan.dailyTokens) + " tokens / day" : "Limits set with you";
+      var price = plan.price === null || plan.price === undefined ? "<b>Custom</b>"
+        : "<b>$" + (plan.price ? plan.price.toFixed(2) : "0") + "</b><span>/ month</span>";
       var cta;
       if (plan.id === "free") cta = '<a class="btn btn-block" href="signup.html">Start free</a>';
-      else if (plan.id === "enterprise") cta = '<a class="btn btn-block" href="#" data-contact>Contact sales</a>';
-      else cta = '<button class="btn btn-block ' + (plan.popular ? "btn-primary" : "") + '" type="button" data-checkout="' + plan.id + '">Choose ' + plan.name + "</button>";
-      var items = plan.highlights.map(function (h) {
-        var locked = /\blocked\b/i.test(h);
-        return "<li" + (locked ? ' class="no"' : "") + ">" + window.MCA.escapeHtml(h) + "</li>";
+      else if (plan.contact || plan.price === null) cta = '<a class="btn btn-block" href="#" data-contact>Contact sales</a>';
+      else cta = '<button class="btn btn-block ' + (plan.popular ? "btn-primary" : "") + '" type="button" data-checkout="' +
+        esc(plan.id) + '">Choose ' + esc(plan.name) + "</button>";
+      var items = (plan.highlights || []).map(function (h) {
+        var no = /\b(locked|not included)\b/i.test(h);
+        return "<li" + (no ? ' class="no"' : "") + ">" + esc(h) + "</li>";
       }).join("");
-      return '<article class="plan reveal' + (plan.popular ? " popular" : "") + '" id="plan-' + plan.id + '">' +
+      return '<article class="plan reveal' + (plan.popular ? " popular" : "") + '" id="plan-' + esc(plan.id) + '">' +
         (plan.popular ? '<span class="tag">MOST PICKED</span>' : "") +
-        "<h3>" + plan.name + '</h3><p class="tagline">' + window.MCA.escapeHtml(plan.tagline) + "</p>" +
-        '<div class="price">' + price + '</div><div class="tokens">' + tokens + "</div>" +
+        "<h3>" + esc(plan.name) + '</h3><p class="tagline">' + esc(plan.tagline) + "</p>" +
+        '<div class="price">' + price + '</div><div class="tokens">' + tokenLine(plan) + "</div>" +
         "<ul>" + items + "</ul>" + cta + "</article>";
     }).join("");
+    $$(".plan.reveal", host).forEach(function (el, i) { setTimeout(function () { el.classList.add("in"); }, 80 * i); });
+  }
 
+  var YES = '<td class="yes"><span aria-hidden="true">&#10003;</span><span class="sr">Included</span></td>';
+  var NO = '<td class="nope"><span aria-hidden="true">&mdash;</span><span class="sr">Not included</span></td>';
+
+  function renderCompare() {
+    var compare = $("#compare");
+    if (!compare) return;
+    var plans = DATA.plans;
+    var THINK = { none: "None", low: "Low", normal: "Normal", high: "High" };
+    function row(label, cells, hint) {
+      return "<tr><th scope=\"row\">" + esc(label) + (hint ? '<small>' + esc(hint) + "</small>" : "") + "</th>" +
+        cells.join("") + "</tr>";
+    }
+    function group(title) { return '<tr class="grp"><th colspan="' + (plans.length + 1) + '" scope="colgroup">' + esc(title) + "</th></tr>"; }
+    var head = "<thead><tr><th scope=\"col\"><span class=\"sr\">Feature</span></th>" + plans.map(function (p) {
+      var price = p.price === null || p.price === undefined ? "Custom" : (p.price ? "$" + p.price.toFixed(2) + "/mo" : "Free");
+      return '<th scope="col"' + (p.popular ? ' class="pop"' : "") + "><b>" + esc(p.name) + "</b><span" +
+        (p.price ? ' data-compare-price="' + esc(p.id) + '"' : "") + ">" + price + "</span></th>";
+    }).join("") + "</tr></thead>";
+
+    var body = group("Tokens");
+    body += row("Tokens in your first month", plans.map(function (p) {
+      if (p.period === "month") return '<td class="mono">' + fmt(p.firstMonthTokens) + "</td>";
+      if (p.period === "day") return '<td class="mono">' + fmt(p.dailyTokens) + " / day</td>";
+      return "<td>Custom</td>";
+    }), "Once per account");
+    body += row("Tokens every month after", plans.map(function (p) {
+      if (p.period === "month") return '<td class="mono">' + fmt(p.monthlyTokens) + "</td>";
+      if (p.period === "day") return '<td class="mono">' + fmt(p.dailyTokens) + " / day</td>";
+      return "<td>Custom</td>";
+    }));
+    body += row("Allowance renews", plans.map(function (p) {
+      return "<td>" + (p.period === "month" ? "Monthly, on your billing date" : p.period === "day" ? "Daily, 00:00 UTC" : "As agreed") + "</td>";
+    }));
+    body += row("Input & output share one pool", plans.map(function () { return YES; }));
+    body += row("Cached project context counts", plans.map(function (p) { return p.countsCached === false ? "<td>Free (not counted)</td>" : YES; }));
+    body += row("Unused tokens roll over", plans.map(function () { return NO; }));
+    body += row("Token top-ups", plans.map(function () { return DATA.topup.enabled === false ? NO : YES; }), "Never expire with the month");
+
+    body += group("AI");
+    body += row("Thinking modes", plans.map(function (p) {
+      var levels = p.thinking || ["none", "low", "normal", "high"];
+      return "<td>" + (levels.length === 4 ? "All four" : levels.map(function (l) { return THINK[l]; }).join(", ")) + "</td>";
+    }));
+    body += row("High thinking", plans.map(function (p) { return (p.thinking || []).indexOf("high") !== -1 ? YES : NO; }),
+      "For big systems and stubborn bugs");
+
+    body += group("Tools");
+    DATA.features.forEach(function (f) {
+      body += row(f.label, plans.map(function (p) {
+        if (p.features.indexOf(f.id) !== -1) return YES;
+        if ((p.rewarded || []).indexOf(f.id) !== -1) return '<td title="Unlock with a short ad on our website">With a short ad</td>';
+        return NO;
+      }));
+    });
+    body += row("Ads", plans.map(function (p) { return "<td>" + ((p.rewarded || []).length ? "Optional, for unlocks" : "None") + "</td>"; }));
+    compare.innerHTML = "<table>" + head + "<tbody>" + body + "</tbody></table>";
+  }
+
+  function pricing() {
+    var host = $("#pricing-cards");
+    if (!host) return;
+    renderPlans();
+    renderCompare();
     // Lemon Squeezy checkout (inactive until the URLs are set in config.js).
     host.addEventListener("click", function (e) {
       var button = e.target.closest("[data-checkout]");
@@ -744,43 +861,109 @@
         location.href = "signup.html?plan=" + encodeURIComponent(id);
       });
     });
-
-    // Comparison table.
-    var compare = $("#compare");
-    var head = "<thead><tr><th></th>" + DATA.plans.map(function (p) { return "<th>" + p.name + "</th>"; }).join("") + "</tr></thead>";
-    var rows = "<tr><td>Daily tokens</td>" + DATA.plans.map(function (p) {
-      return "<td class=\"mono\">" + (p.dailyTokens ? fmt(p.dailyTokens) : "Custom") + "</td>";
-    }).join("") + "</tr>";
-    var THINK = { none: "None", low: "Low", normal: "Normal", high: "High" };
-    rows += "<tr><td>AI thinking modes</td>" + DATA.plans.map(function (p) {
-      var levels = p.thinking || ["none", "low", "normal", "high"];
-      return "<td>" + (levels.length === 4 ? "All four" : levels.map(function (l) { return THINK[l]; }).join(", ")) + "</td>";
-    }).join("") + "</tr>";
-    Object.keys(DATA.features).forEach(function (key) {
-      rows += "<tr><td>" + window.MCA.escapeHtml(DATA.features[key]) + "</td>" + DATA.plans.map(function (p) {
-        if (p.features.indexOf(key) !== -1) return '<td class="yes" aria-label="included">&#10003;</td>';
-        if ((p.rewarded || []).indexOf(key) !== -1) return '<td title="Unlock with a short ad on our website">With a short ad</td>';
-        return '<td class="nope" aria-label="not included">&mdash;</td>';
-      }).join("") + "</tr>";
-    });
-    rows += "<tr><td>Ads</td>" + DATA.plans.map(function (p) {
-      return "<td>" + ((p.rewarded || []).length ? "Optional, for unlocks" : "None") + "</td>";
-    }).join("") + "</tr>";
-    rows += "<tr><td>Price / month</td>" + DATA.plans.map(function (p) {
-      return "<td" + (p.price ? ' data-compare-price="' + p.id + '"' : "") + ">" + (p.price === null ? "Custom" : "$" + (p.price ? p.price.toFixed(2) : "0")) + "</td>";
-    }).join("") + "</tr>";
-    compare.innerHTML = "<table>" + head + "<tbody>" + rows + "</tbody></table>";
-    var toggle = $("#compare-toggle");
-    toggle.addEventListener("click", function () {
-      var open = !compare.classList.contains("open");
-      compare.classList.toggle("open", open);
-      toggle.setAttribute("aria-expanded", String(open));
-      toggle.textContent = open ? "Hide the comparison" : "Compare every feature";
-    });
-
-    // The cards were added after ui.js set up scroll reveal.
-    $$(".plan.reveal", host).forEach(function (el, i) { setTimeout(function () { el.classList.add("in"); }, 80 * i); });
     applyPromo();  // a promotion that was already known before the cards existed
+  }
+
+  /* ======================================================== top-ups */
+  var topupRender = null;
+  function topups() {
+    var packsHost = $("#topup-packs");
+    if (!packsHost) return;
+    var amount = $("#topup-amount"), range = $("#topup-range"), buyButton = $("#topup-buy");
+
+    function limits() {
+      var t = DATA.topup;
+      return { min: (t.minTokens || 500000) / 1e6, max: (t.maxTokens || 1e8) / 1e6, step: (t.stepTokens || 100000) / 1e6 };
+    }
+    function tokensFromInput() {
+      var l = limits();
+      var millions = Number(String(amount.value).replace(",", "."));
+      if (!isFinite(millions) || millions <= 0) millions = l.min;
+      millions = Math.min(l.max, Math.max(l.min, Math.round(millions / l.step) * l.step));
+      return Math.round(millions * 1e6);
+    }
+    function renderBill() {
+      var tokens = tokensFromInput();
+      var q = quote(tokens);
+      var t = DATA.topup;
+      $("#topup-tokens").textContent = tokens.toLocaleString("en-US");
+      $("#topup-rate").textContent = q.discount ? "Package price (" + q.discount + "% off)" : "Price (" + money(t.pricePerMillion * 100) + " per million)";
+      $("#topup-price").textContent = money(q.priceCents);
+      $("#topup-fee").textContent = money(q.feeCents);
+      $("#topup-total").textContent = money(q.totalCents);
+      buyButton.textContent = "Buy " + tokens.toLocaleString("en-US") + " tokens";
+      buyButton.dataset.tokens = String(tokens);
+      $("#topup-note").textContent = "Valid for " + (t.validityDays % 365 === 0 ? (t.validityDays / 365 === 1 ? "12 months" : t.validityDays / 365 + " years") : t.validityDays + " days") +
+        ". Added to your account as soon as the payment goes through.";
+    }
+    function render() {
+      var t = DATA.topup;
+      var section = $("#topup");
+      if (section) section.hidden = t.enabled === false;
+      var l = limits();
+      amount.min = range.min = l.min; amount.max = range.max = l.max; amount.step = range.step = l.step;
+      $("#topup-hint").textContent = "Any amount from " + Math.round(t.minTokens).toLocaleString("en-US") + " to " +
+        Math.round(t.maxTokens).toLocaleString("en-US") + " tokens.";
+      packsHost.innerHTML = (t.packs || []).map(function (p) {
+        var q = quote(Number(p.tokens));
+        return '<article class="pack reveal in">' + (q.discount ? '<span class="save">Save ' + q.discount + "%</span>" : "") +
+          '<div class="pack-tokens">' + fmt(q.tokens) + "<span>tokens</span></div>" +
+          '<div class="pack-price">' + (q.discount ? "<s>" + money(q.baseCents) + "</s>" : "") + money(q.priceCents) + "</div>" +
+          '<div class="pack-fee">+ ' + money(q.feeCents) + " processing fee &middot; <b>" + money(q.totalCents) + " total</b></div>" +
+          '<button class="btn btn-block" type="button" data-topup="' + q.tokens + '">Buy</button></article>';
+      }).join("");
+      renderBill();
+    }
+
+    amount.addEventListener("input", function () { range.value = amount.value; renderBill(); });
+    amount.addEventListener("change", function () { amount.value = (tokensFromInput() / 1e6).toString(); range.value = amount.value; renderBill(); });
+    range.addEventListener("input", function () { amount.value = range.value; renderBill(); });
+
+    function buy(tokens) {
+      var api = window.MCA.api;
+      var back = location.origin + location.pathname.replace(/[^/]*$/, "") + "account.html?topup=thanks";
+      api.me().then(function (me) {
+        if (!me || !me.user) throw new api.ApiError("unauthorized", "", 401);
+        return api.billing.topup(tokens, back);
+      }).then(function (result) {
+        location.href = result.url;
+      }, function (err) {
+        if (err && (err.status === 401 || err.code === "unauthorized" || err.code === "not_live")) {
+          window.MCA.modal("Sign in to buy tokens",
+            "Top-up tokens are added to your MyCraftingAI account, so sign in (or create a free account) first. You'll come straight back here.",
+            [{ label: "Not now" }, { label: "Create account", href: "signup.html?next=" + encodeURIComponent("index.html#topup") },
+             { label: "Sign in", primary: true, href: "login.html?next=" + encodeURIComponent("index.html#topup") }]);
+          return;
+        }
+        if (err && err.code === "topups_unavailable") {
+          window.MCA.modal("Top-ups open soon", err.message || "Token top-ups aren't switched on yet.", [{ label: "OK", primary: true }]);
+          return;
+        }
+        window.MCA.modal("Couldn't start the payment", (err && err.message) || "Please try again in a minute.", [{ label: "OK", primary: true }]);
+      });
+    }
+    buyButton.addEventListener("click", function () { buy(Number(buyButton.dataset.tokens)); });
+    packsHost.addEventListener("click", function (e) {
+      var button = e.target.closest("[data-topup]");
+      if (button) buy(Number(button.dataset.topup));
+    });
+    topupRender = render;
+    render();
+  }
+
+  /** Swap the built-in plans.js for the live catalogue the admin manages. */
+  function loadLivePricing() {
+    var api = window.MCA && window.MCA.api;
+    if (!api || !api.pricing) return;
+    api.pricing().then(function (data) {
+      if (!data || !data.plans || !data.plans.length) return;
+      DATA = normalise(data);
+      renderPlans();
+      renderCompare();
+      applyPromo();
+      if (topupRender) topupRender();
+      if (calcUpdate) calcUpdate();
+    }, function () { /* offline or preview: keep the built-in table */ });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -789,5 +972,7 @@
     tour();
     calculator();
     pricing();
+    topups();
+    loadLivePricing();
   });
 })();

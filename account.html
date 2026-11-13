@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261121">
 </head>
 <body data-page="account">
   <header data-site-header></header>
@@ -22,14 +22,16 @@
       <div class="account-grid" data-account hidden>
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-            <h3>Today's tokens</h3>
+            <h3 data-usage-title>Today's tokens</h3>
             <span class="chip" data-plan-chip>Free</span>
           </div>
           <div class="usage-big"><span data-used>0</span> <small>of <span data-limit>10K</span></small></div>
           <div class="meter"><i data-meter></i></div>
-          <p class="dim" style="font-size:14px">Refills in <b data-reset style="color:var(--text)">-</b> (00:00 UTC). The app stops before a request that would go over.</p>
+          <p class="dim" style="font-size:14px" data-reset-line>Refills in <b data-reset style="color:var(--text)">-</b> (00:00 UTC). The app stops before a request that would go over.</p>
+          <div class="usage-split" data-usage-split hidden></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
             <a class="btn btn-primary" href="index.html#pricing" data-upgrade>Upgrade plan</a>
+            <a class="btn" href="index.html#topup">Buy tokens</a>
             <a class="btn" href="#" data-download>Download for Windows</a>
           </div>
         </div>
@@ -42,6 +44,18 @@
           <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
             <a class="btn" href="forgot.html">Change password</a>
             <button class="btn btn-ghost" type="button" data-signout>Sign out</button>
+          </div>
+        </div>
+        <div class="card" id="topups">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <h3>Token top-ups</h3>
+            <span class="chip" data-topup-chip>0 left</span>
+          </div>
+          <p class="dim" style="font-size:14px;margin-top:8px">Used after your plan's allowance runs out. They don't expire when your month renews.</p>
+          <div style="margin-top:8px" data-topup-rows></div>
+          <div class="notice" data-notice role="status" style="margin-top:14px"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+            <a class="btn btn-primary" href="index.html#topup">Buy tokens</a>
           </div>
         </div>
         <div class="card" id="subscription">
@@ -164,9 +178,9 @@
   </main>
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js"></script>
+  <script src="assets/js/plans.js?v=20261121"></script>
+  <script src="assets/js/api.js?v=20261121"></script>
   <script src="assets/js/ui.js"></script>
-  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/auth.js?v=20261121"></script>
 </body>
 </html>

@@ -340,7 +340,15 @@
     billing: {
       get: function () { return request("GET", "/v1/billing"); },
       cancel: function () { return request("POST", "/v1/billing/cancel", {}); },
-      resume: function () { return request("POST", "/v1/billing/resume", {}); }
+      resume: function () { return request("POST", "/v1/billing/resume", {}); },
+      /** Token top-up: the server prices it and returns the checkout URL. */
+      topup: function (tokens, returnUrl) { return request("POST", "/v1/billing/topup", { tokens: tokens, returnUrl: returnUrl || "" }); },
+      topups: function () { return request("GET", "/v1/billing/topups"); }
+    },
+    /** Plans, feature matrix and top-up pricing exactly as set in the admin panel. */
+    pricing: function () {
+      if (mode !== "live") return Promise.reject(new ApiError("not_live", "Pricing loads from the live server.", 503));
+      return live("GET", "/v1/public/pricing");
     },
     /** Free plan ad unlocks: the unlock page holds a single-use ticket, no session. */
     rewards: {
@@ -391,8 +399,24 @@
         stats: function (days) { return request("GET", "/v1/admin/stats?days=" + (days || 30)); },
         events: function (page, action) { return request("GET", "/v1/admin/events?page=" + (page || 1) + (action ? "&action=" + encodeURIComponent(action) : "")); },
         system: function () { return request("GET", "/v1/admin/system"); },
+        updates: function (refresh) { return request("GET", "/v1/admin/system/updates" + (refresh ? "?refresh=true" : "")); },
         checkEmail: function () { return request("POST", "/v1/admin/system/check-email", {}); },
         keyStatus: function (id, active) { return request("POST", "/v1/admin/keys/" + encodeURIComponent(id), { active: !!active }); },
+        /** AI provider keys: the secret is sent once and never comes back. */
+        addKey: function (d) { return request("POST", "/v1/admin/keys", d); },
+        updateKey: function (id, d) { return request("PATCH", "/v1/admin/keys/" + encodeURIComponent(id), d); },
+        testKey: function (id) { return request("POST", "/v1/admin/keys/" + encodeURIComponent(id) + "/test", {}); },
+        removeKey: function (id) { return request("DELETE", "/v1/admin/keys/" + encodeURIComponent(id)); },
+        /** Server settings (limits, AI routing, queue, security) - live, no redeploy. */
+        serverSettings: function () { return request("GET", "/v1/admin/server-settings"); },
+        setServerSettings: function (changes) { return request("PATCH", "/v1/admin/server-settings", { changes: changes }); },
+        resetServerSetting: function (name) { return request("DELETE", "/v1/admin/server-settings/" + encodeURIComponent(name)); },
+        pricing: function () { return request("GET", "/v1/admin/pricing"); },
+        savePricing: function (catalog) { return request("PUT", "/v1/admin/pricing", { catalog: catalog }); },
+        resetPricing: function () { return request("DELETE", "/v1/admin/pricing"); },
+        topups: function () { return request("GET", "/v1/admin/topups"); },
+        grantTopup: function (id, d) { return request("POST", "/v1/admin/users/" + id + "/topup", d); },
+        revokeTopup: function (id) { return request("POST", "/v1/admin/topups/" + id + "/revoke", {}); },
         users: function (q) { return request("GET", "/v1/admin/users" + qs(q)); },
         /** CSV of the current filter, downloaded with the session cookie. */
         exportCsv: function (q) {

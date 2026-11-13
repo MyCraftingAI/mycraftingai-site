@@ -407,18 +407,35 @@
   function accountPage() {
     var root = document.body;
     if (api.mode === "offline") { notice(root, "info", api.messages.not_live); return; }
-    var resetsAt = null;
+    var resetsAt = null, monthly = false;
     api.me().then(function (me) {
-      var used = me.usage.usedToday || 0, limit = me.usage.dailyLimit;
+      var usage = me.usage || {};
+      var used = usage.usedToday || 0, limit = usage.dailyLimit;
+      monthly = usage.period === "month";
       $("[data-account]").hidden = false;
       $("[data-greeting]").textContent = "Hi, " + (me.user.name || me.user.email.split("@")[0]);
+      $("[data-usage-title]").textContent = monthly ? "This month's tokens" : "Today's tokens";
       $("[data-used]").textContent = used.toLocaleString("en-US");
       $("[data-limit]").textContent = limit ? limit.toLocaleString("en-US") : "custom";
       var share = limit ? Math.min(100, used / limit * 100) : 0;
       $("[data-meter]").style.width = Math.max(1, share) + "%";
       $("[data-meter]").style.background = share >= 100 ? "var(--ruby)" : (share > 80 ? "var(--amber)" : "var(--accent)");
       $("[data-plan-chip]").textContent = me.plan.name;
-      $("[data-plan]").textContent = me.plan.name + (limit ? " · " + window.MCA.formatTokens(limit) + " / day" : "");
+      var allowance = usage.allowance;
+      $("[data-plan]").textContent = me.plan.name + (allowance ? " · " + window.MCA.formatTokens(allowance) +
+        (monthly ? " / month" + (usage.firstMonth ? " (first month)" : "") : " / day") : "");
+      var split = $("[data-usage-split]");
+      if (split && allowance != null) {
+        var parts = [["Plan allowance", (usage.allowanceLeft || 0).toLocaleString("en-US") + " of " + allowance.toLocaleString("en-US") + " left"]];
+        if (usage.topupLeft) parts.push(["Top-up tokens", usage.topupLeft.toLocaleString("en-US") + " left"]);
+        if (usage.giftLeft) parts.push(["Gift tokens", usage.giftLeft.toLocaleString("en-US") + " left"]);
+        split.innerHTML = parts.map(function (p) { return '<div class="row"><span>' + p[0] + "</span><span>" + p[1] + "</span></div>"; }).join("");
+        split.hidden = false;
+      }
+      topupCard();
+      if (/[?&]topup=thanks\b/.test(location.search)) {
+        notice(root, "ok", "Thanks for your purchase! Your tokens are added as soon as the payment is confirmed - usually within a minute. This page updates when you reload it.");
+      }
       $("[data-name]").textContent = me.user.name || "-";
       $("[data-email]").textContent = me.user.email;
       $("[data-provider]").textContent = me.user.provider === "google" ? "Google" : "Email and password";
@@ -647,8 +664,39 @@
     function tick() {
       if (!resetsAt) return;
       var ms = Math.max(0, resetsAt - Date.now());
+      if (monthly) {
+        var line = $("[data-reset-line]");
+        var days = Math.floor(ms / 86400000);
+        line.innerHTML = "Your allowance renews on <b style=\"color:var(--text)\">" +
+          resetsAt.toLocaleString(undefined, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) +
+          "</b> (" + (days >= 1 ? "in " + days + (days === 1 ? " day" : " days") : "today") +
+          "). Unused plan tokens don't carry over; top-ups do.";
+        return;
+      }
       var h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
       $("[data-reset]").textContent = h + "h " + ("0" + m).slice(-2) + "m " + ("0" + s).slice(-2) + "s";
+    }
+
+    /** Top-ups card: what's left and the recent purchases. */
+    function topupCard() {
+      var card = $("#topups");
+      if (!card || !api.billing.topups) return;
+      api.billing.topups().then(function (data) {
+        var left = data.balance || 0;
+        $("[data-topup-chip]", card).textContent = left.toLocaleString("en-US") + " left";
+        var rows = (data.topups || []).slice(0, 6).map(function (t) {
+          var when = t.created ? new Date(t.created).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
+          var status = t.status === "active" ? (t.left ? t.left.toLocaleString("en-US") + " left · until " +
+            new Date(t.expiresAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "Used up")
+            : (t.status === "refunded" ? "Refunded" : t.status === "expired" ? "Expired" : "Removed");
+          return '<div class="row"><span>' + t.tokens.toLocaleString("en-US") + " tokens · " + when +
+            (t.source === "admin" ? " · from support" : "") + "</span><span>" + status + "</span></div>";
+        });
+        $("[data-topup-rows]", card).innerHTML = rows.length ? rows.join("") :
+          '<div class="row"><span>No top-ups yet</span><span>-</span></div>';
+      }, function (err) {
+        if (err && err.status !== 404) notice(card, "error", err.message);
+      });
     }
 
     // Download button: the download page prepares the installer, then starts it.

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261116">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261121">
 </head>
 <body data-page="admin">
   <div class="ad-gate" data-gate>
@@ -26,14 +26,20 @@
         <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4F63F5"/><g fill="#fff"><rect x="14" y="6" width="4" height="4"/><rect x="14" y="10" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="10" y="14" width="4" height="4"/><rect x="18" y="14" width="4" height="4"/><rect x="22" y="14" width="4" height="4"/><rect x="14" y="18" width="4" height="4"/><rect x="14" y="22" width="4" height="4"/></g></svg>
         MyCraftingAI <small>ADMIN</small>
       </a>
+      <button class="ad-find" type="button" data-find-open aria-label="Search the admin panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span>Search…</span><kbd>Ctrl K</kbd>
+      </button>
       <button class="ad-nav on" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
       <button class="ad-nav" data-nav="insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18"/><path d="M6 16v-5"/><path d="M11 16V7"/><path d="M16 16v-8"/><path d="M21 16V4"/></svg>Insights</button>
       <button class="ad-nav" data-nav="ads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9 5 3-5 3z"/></svg>Ads &amp; unlocks</button>
       <button class="ad-nav" data-nav="revenue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 6.5c-.8-1.5-2.7-2.5-5-2.5-2.8 0-5 1.5-5 3.6 0 4.9 10 2.5 10 7.4 0 2.1-2.2 3.6-5 3.6-2.4 0-4.5-1.1-5.2-2.8"/></svg>Revenue</button>
+      <button class="ad-nav" data-nav="pricing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Plans &amp; pricing<span class="ad-count" data-pricing-badge hidden></span></button>
       <button class="ad-nav" data-nav="gifts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v7h14v-7M12 8v12"/><path d="M12 8c-1.5-3-5-3.5-5-1.2C7 8.5 10 8 12 8c2 0 5 .5 5-1.2C17 4.5 13.5 5 12 8z"/></svg>Token gifts</button>
       <button class="ad-nav" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.4.2 4 1.8 4.6 4.5"/></svg>Users<span class="ad-count" data-count-users>–</span></button>
       <button class="ad-nav" data-nav="messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Messages</button>
       <button class="ad-nav" data-nav="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h2"/><path d="M10 12h10"/><circle cx="8" cy="12" r="2"/><path d="M4 18h12"/><path d="M20 18h0"/><circle cx="18" cy="18" r="2"/></svg>Live settings<span class="ad-count warn" data-switch-badge hidden>!</span></button>
+      <button class="ad-nav" data-nav="server"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h6M11 16.5h6"/></svg>Server settings<span class="ad-count" data-srv-badge hidden></span></button>
       <button class="ad-nav" data-nav="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Activity log</button>
       <button class="ad-nav" data-nav="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>System</button>
       <div class="ad-grow"></div>
@@ -233,6 +239,46 @@
         </div>
       </section>
 
+      <!-- Server settings -->
+      <section class="ad-view" data-view="server" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Server settings</h1><p>Limits, AI routing, the AI queue and sign-in security. Every server picks a change up within seconds - no redeploy. The server's .env values are the defaults.</p></div>
+          <div class="ad-grow"></div>
+          <button class="btn btn-ghost btn-sm" data-srv-reload>Reload</button>
+        </div>
+        <div class="ad-toolbar">
+          <div class="ad-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="input" type="search" placeholder="Filter settings…" data-srv-filter autocomplete="off">
+          </div>
+          <label class="ad-check" style="white-space:nowrap"><input type="checkbox" data-srv-changed> Changed only</label>
+        </div>
+        <div class="ad-chips" data-srv-sections></div>
+        <div data-srv><div class="ad-skel"></div></div>
+      </section>
+
+      <!-- Plans & pricing -->
+      <section class="ad-view" data-view="pricing" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Plans &amp; pricing</h1><p>Prices, token allowances, features, thinking limits and token top-ups. Saved changes reach the website, the server and every open app within seconds.</p></div>
+          <div class="ad-grow"></div>
+          <button class="btn btn-ghost btn-sm" data-pr-reset>Reset to built-in</button>
+          <button class="btn btn-primary btn-sm" data-pr-save disabled>Save changes</button>
+        </div>
+        <div class="ad-note">
+          <b>Subscription charges come from Lemon Squeezy.</b> When you change a plan's monthly price here, change the price of the matching
+          product variant in Lemon Squeezy too - this page changes what the website and app show, Lemon Squeezy changes what is charged.
+          Top-up prices are charged exactly as set here.
+        </div>
+        <div data-pr><div class="ad-skel"></div></div>
+        <div class="ad-card" data-pr-sales>
+          <h3>Top-up sales</h3><p class="ad-sub">Token top-ups bought on the website (refunded orders excluded).</p>
+          <div data-pr-sales-body><div class="ad-skel"></div></div>
+        </div>
+      </section>
+
       <!-- Users -->
       <section class="ad-view" data-view="users" hidden>
         <div class="ad-head">
@@ -362,7 +408,10 @@
             <option value="daily_limit">Daily limits</option>
             <option value="set_active">Account enable/disable</option>
             <option value="delete_user">Deletions</option>
-            <option value="settings">Live settings</option>
+            <option value="settings">Settings changes</option>
+            <option value="key_add">AI keys added</option>
+            <option value="key_status">AI keys changed</option>
+            <option value="key_remove">AI keys removed</option>
             <option value="reward_grant">Unlocks given</option>
             <option value="reward_reset">Unlock limits reset</option>
             <option value="reward_end">Unlocks ended</option>
@@ -382,7 +431,12 @@
           <button class="ad-menu" data-menu aria-label="Menu">☰</button>
           <div><h1>System</h1><p>AI provider keys, mailboxes and plans. Secrets never leave the server.</p></div>
         </div>
-        <div class="ad-section-title" style="margin-top:0">Server health</div>
+        <div class="ad-inline" style="justify-content:space-between;align-items:center;margin-top:0">
+          <div class="ad-section-title" style="margin:0">Last updates</div>
+          <button class="btn btn-ghost btn-sm" data-updates-refresh>Check now</button>
+        </div>
+        <div class="ad-grid" data-updates style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
+        <div class="ad-section-title">Server health</div>
         <div class="ad-grid ad-kpis" data-health></div>
         <div class="ad-card" style="margin-bottom:14px"><h3>Integrations</h3><div class="ad-rows" data-integrations></div></div>
         <div class="ad-section-title">AI provider balance</div>
@@ -390,8 +444,14 @@
           <div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3 data-balance-total>-</h3><p class="ad-sub" style="margin:0" data-balance-sub>Remaining credit on your AI provider account</p></div><button class="btn btn-ghost btn-sm" data-balance-refresh>Refresh</button></div>
           <div class="ad-rows" data-balance-keys style="margin-top:8px"></div>
         </div>
-        <div class="ad-section-title">AI provider keys</div>
-        <div class="ad-tablewrap"><table class="ad-table" style="min-width:700px"><thead><tr><th>Key</th><th>Pool</th><th>Status</th><th>Users</th><th>Last error</th><th></th></tr></thead><tbody data-keys></tbody></table></div>
+        <div class="ad-section-title">AI queue</div>
+        <div class="ad-grid ad-kpis" data-ai-queue style="margin-bottom:14px"></div>
+        <div class="ad-inline" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px" id="ai-keys">
+          <div class="ad-section-title" style="margin:26px 0 0">AI provider keys</div>
+          <div class="ad-inline" style="gap:8px;margin-top:22px"><button class="btn btn-ghost btn-sm" data-keys-help>How switching works</button><button class="btn btn-primary btn-sm" data-key-add>+ Add key</button></div>
+        </div>
+        <div class="ad-provider" data-provider></div>
+        <div class="ad-tablewrap"><table class="ad-table ad-keys" style="min-width:860px"><thead><tr><th>Key</th><th>Pool</th><th>Status</th><th>Users</th><th>Last check</th><th class="ad-right">Actions</th></tr></thead><tbody data-keys></tbody></table></div>
         <div class="ad-section-title">Mailboxes</div>
         <div class="ad-card">
           <div class="ad-rows" data-mailboxes></div>
@@ -416,10 +476,22 @@
   </div>
   <div class="ad-toast" data-toast></div>
 
+  <div class="ad-find-pop" data-find hidden>
+    <div class="ad-find-card" role="dialog" aria-modal="true" aria-label="Search the admin panel">
+      <div class="ad-find-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" data-find-input placeholder="Search pages, settings, keys, users and actions…" autocomplete="off" spellcheck="false" aria-controls="ad-find-results">
+        <kbd>Esc</kbd>
+      </div>
+      <div class="ad-find-results" id="ad-find-results" role="listbox" data-find-results></div>
+      <div class="ad-find-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span>Users are searched by email, username or ID</span></div>
+    </div>
+  </div>
+
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261116"></script>
-  <script src="assets/js/ui.js?v=20261116"></script>
-  <script src="assets/js/admin.js?v=20261116"></script>
+  <script src="assets/js/api.js?v=20261121"></script>
+  <script src="assets/js/ui.js?v=20261117"></script>
+  <script src="assets/js/admin.js?v=20261121"></script>
 </body>
 </html>
