@@ -772,7 +772,28 @@
         "<ul>" + items + "</ul>" + cta + "</article>";
     }).join("");
     $$(".plan.reveal", host).forEach(function (el, i) { setTimeout(function () { el.classList.add("in"); }, 80 * i); });
+    markCurrentPlan();
   }
+
+  /** Signed in: the visitor's own plan says so, and Free never offers "Start free" again. */
+  function markCurrentPlan() {
+    var me = window.MCA && window.MCA.session;
+    var host = $("#pricing-cards");
+    if (!me || !host) return;
+    var current = me.plan && me.plan.id;
+    $$(".plan", host).forEach(function (card) {
+      var id = card.id.replace(/^plan-/, "");
+      var cta = card.querySelector(".btn");
+      if (!cta) return;
+      if (id === current) {
+        card.classList.add("current");
+        cta.outerHTML = '<a class="btn btn-block" href="account.html">Your current plan</a>';
+      } else if (id === "free") {
+        cta.outerHTML = '<a class="btn btn-block" href="account.html">Go to your account</a>';
+      }
+    });
+  }
+  document.addEventListener("mca:session", markCurrentPlan);
 
   var YES = '<td class="yes"><span aria-hidden="true">&#10003;</span><span class="sr">Included</span></td>';
   var NO = '<td class="nope"><span aria-hidden="true">&mdash;</span><span class="sr">Not included</span></td>';
@@ -844,6 +865,14 @@
       var id = button.dataset.checkout;
       var url = (cfg.checkout || {})[id];
       if (!url) {
+        if (window.MCA.session) {
+          window.MCA.modal(
+            "Paid plans open soon",
+            "Checkout isn't switched on yet. You're signed in, so you can upgrade from your account page the moment it opens.",
+            [{ label: "Not now" }, { label: "Go to your account", primary: true, href: "account.html" }]
+          );
+          return;
+        }
         window.MCA.modal(
           "Paid plans open soon",
           "Checkout isn't switched on yet. Create a free account now and we'll keep your spot - you can upgrade from your account page the moment it opens.",

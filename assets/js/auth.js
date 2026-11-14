@@ -898,6 +898,12 @@
     wireRevealButtons();
     keepNextLinks();
     var page = document.body.dataset.page;
+    if ((page === "login" || page === "signup") && api.mode !== "offline" && !params.get("verify")
+        && !params.get("error") && !/2fa=/.test(location.hash)) {
+      // Already signed in: no sign-up or sign-in form - straight to the account
+      // (or wherever the link was going, e.g. the desktop sign-in page).
+      api.me().then(function () { location.replace(next); }, function () { /* signed out: show the form */ });
+    }
     ({ login: loginPage, signup: signupPage, forgot: forgotPage, account: accountPage, desktop: desktopPage,
        welcome: welcomePage }[page] || function () {})();
   });

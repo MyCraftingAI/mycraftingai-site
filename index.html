@@ -22,7 +22,7 @@
     "description": "Windows desktop app and AI assistant for Minecraft modders: writes Java for Forge, NeoForge and Fabric, paints textures, builds GeckoLib 3D models, converts mods between loaders and versions and runs the mod with Gradle.",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Windows 10, Windows 11 (64-bit)",
-    "softwareVersion": "1.0.9",
+    "softwareVersion": "1.1.0",
     "url": "https://mycraftingai.com/",
     "downloadUrl": "https://mycraftingai.com/download.html",
     "screenshot": "https://mycraftingai.com/assets/img/assistant.png",
@@ -135,34 +135,34 @@
         </div>
         <div class="tour reveal">
           <div class="tour-tabs" role="tablist" aria-label="App workspaces">
-            <button class="tour-tab" role="tab" aria-selected="true" data-shot="assets/img/assistant.png" data-alt="Mod Assistant with a finished request and the list of changed files">
+            <button class="tour-tab" role="tab" aria-selected="true" data-shot="assets/img/assistant.png?v=20261124" data-alt="Mod Assistant with a finished request and the list of changed files">
               <h3>Mod Assistant <span class="k">Ctrl 1</span></h3>
               <p>Chat with the assistant. Every answer ends with the files it changed, so you can review, undo, or build right away.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/files.png" data-alt="Files and Code view with the project tree and Java editor">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/files.png?v=20261124" data-alt="Files and Code view with the project tree and Java editor">
               <h3>Files &amp; Code <span class="k">Ctrl 2</span></h3>
               <p>A real editor with tabs, syntax colours and a project tree. Rename, copy, paste, or send files to the Recycle Bin.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/3d-studio.png" data-alt="3D Studio showing a GeckoLib fire dragon model playing its fly animation">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/3d-studio.png?v=20261124" data-alt="3D Studio showing a GeckoLib fire dragon model playing its fly animation">
               <h3>3D Studio <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 5</span></h3>
               <p>Describe a mob and how it moves. The AI builds a GeckoLib model with bones and animations, and you watch them play before connecting it to your code.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/texture-studio.png" data-alt="Texture Studio with a 16 by 16 ruby gem on the pixel canvas">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/texture-studio.png?v=20261124" data-alt="Texture Studio with a 16 by 16 ruby gem on the pixel canvas">
               <h3>Texture Studio <span class="lock" title="Included in Builder and up. On Free, unlock 5 minutes with a short ad.">Builder+</span> <span class="k">Ctrl 3</span></h3>
               <p>Paint 16x16 sprites by hand or describe them to the pixel-art AI. Turn the item in 3D to check it from every side.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png" data-alt="Build and Run page with the compile pipeline and game log">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png?v=20261124" data-alt="Build and Run page with the compile pipeline and game log">
               <h3>Build &amp; Run <span class="k">Ctrl 4</span></h3>
-              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant.</p>
+              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png?v=20261124" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
               <h3>Version Converter <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 6</span></h3>
-              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to the latest - and hands you a ready-to-build ZIP for each, with the token cost shown first.</p>
+              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to the latest - and hands you a ready-to-build ZIP for each, with the token cost shown first. Then pick each version next to Run Mod to build and test it, one by one.</p>
             </button>
           </div>
           <figure class="shot" style="margin:0">
             <div class="shot-bar"><i></i><i></i><i></i></div>
-            <img id="tour-img" src="assets/img/assistant.png" width="1920" height="1080" alt="Mod Assistant with a finished request and the list of changed files" loading="lazy">
+            <img id="tour-img" src="assets/img/assistant.png?v=20261124" width="1920" height="1080" alt="Mod Assistant with a finished request and the list of changed files" loading="lazy">
           </figure>
         </div>
       </div>
@@ -340,7 +340,11 @@
           </details>
           <details>
             <summary>Can it move my mod to another loader or Minecraft version?</summary>
-            <div class="answer">Yes - with the Version Converter, part of the Studio plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.1 or newer and Fabric 1.14 or newer, up to the latest releases (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated tokens for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
+            <div class="answer">Yes - with the Version Converter, part of the Studio plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.1 or newer and Fabric 1.14 or newer, up to the latest releases (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated tokens for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you - up to the number of repair rounds you choose, or until it compiles. Every converted version is also kept as a project: pick it in the Version list next to Run Mod to build and test it in the app, and use Export to save its .jar or project ZIP. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
+          </details>
+          <details>
+            <summary>How do I get my mod file (.jar) to play or share?</summary>
+            <div class="answer">Press <b>Export</b> next to Run Mod (or on the Build &amp; Run page). Choose <b>Mod file (.jar)</b> - the app builds it with Gradle - or <b>Project files (.zip)</b> with the code, textures and build files. If your mod has converted versions, tick the ones you want or <b>All versions</b>; several versions are saved together in one ZIP. Then pick the folder to save to. Everything is built on your PC; nothing is uploaded.</div>
           </details>
           <details>
             <summary>Which plan includes 3D Studio and the Version Converter?</summary>
@@ -392,8 +396,8 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js?v=20261123"></script>
-  <script src="assets/js/api.js?v=20261123"></script>
-  <script src="assets/js/ui.js?v=20261123"></script>
-  <script src="assets/js/home.js?v=20261123"></script>
+  <script src="assets/js/api.js?v=20261124"></script>
+  <script src="assets/js/ui.js?v=20261124"></script>
+  <script src="assets/js/home.js?v=20261124"></script>
 </body>
 </html>

@@ -116,8 +116,8 @@ window.MCA_PLANS = {
       "price": 26.75,
       "period": "month",
       "dailyTokens": null,
-      "firstMonthTokens": 10000000,
-      "monthlyTokens": 6000000,
+      "firstMonthTokens": 14000000,
+      "monthlyTokens": 7000000,
       "contact": false,
       "maxThinking": "high",
       "features": [
@@ -133,8 +133,8 @@ window.MCA_PLANS = {
       ],
       "tagline": "The whole studio: code, textures and 3D.",
       "highlights": [
-        "10,000,000 tokens in your first month",
-        "6,000,000 tokens every month after",
+        "14,000,000 tokens in your first month",
+        "7,000,000 tokens every month after",
         "Everything in Pro",
         "3D Studio: GeckoLib models and animations",
         "Version Converter: any loader, any Minecraft version",

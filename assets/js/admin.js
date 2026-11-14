@@ -1293,13 +1293,16 @@
   }
 
   function renderPreview() {
-    var box = state.senders.filter(function (s) { return s.id === $("[data-msg-from]").value; })[0] || { display: "MyCraftingAI", address: "support@mycraftingai.com" };
+    var box = state.senders.filter(function (s) { return s.id === $("[data-msg-from]").value; })[0] || { id: "support", display: "MyCraftingAI", address: "support@mycraftingai.com" };
+    var TEAMS = { support: "Support", noreply: "News & updates", billing: "Billing", security: "Security", contact: "Team" };
     var sample = { name: "Steve", email: "steve@example.com", plan: "Free" };
     function fill(t) { return t.replace(/\{name\}/g, sample.name).replace(/\{email\}/g, sample.email).replace(/\{plan\}/g, sample.plan); }
     var subject = fill($("[data-msg-subject]").value || "Subject");
     var paras = fill($("[data-msg-body]").value || "Your message appears here.").split(/\n\s*\n/).filter(Boolean);
     $("[data-mail-preview]").innerHTML = '<div class="bar"><b>' + esc(box.display) + "</b> &lt;" + esc(box.address) + "&gt;<br>Subject: " + esc(subject) + "</div>" +
-      '<div class="body"><div class="brandline">MyCraftingAI</div><h4>' + esc(subject) + "</h4>" + paras.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") +
+      '<div class="body"><div class="brandline" style="display:flex;align-items:center;gap:10px">' +
+      '<img src="assets/img/mail/' + esc(box.id || "support") + '.png" alt="" width="36" height="36" style="border-radius:50%">' +
+      '<span>MyCraftingAI<span style="display:block;font-weight:400;font-size:12px;color:#777">' + esc(TEAMS[box.id] || "Team") + "</span></span></div><h4>" + esc(subject) + "</h4>" + paras.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") +
       '<p style="color:#888;font-size:12px;margin-top:16px">https://mycraftingai.com</p></div>';
   }
 
@@ -2031,7 +2034,8 @@
       renderQueue(s.aiQueue);
       renderKeys(s);
       $("[data-mailboxes]").innerHTML = s.senders.map(function (m) {
-        return '<div class="r"><span><b style="color:var(--text);display:block">' + esc(m.address) + '</b><span style="font-size:12.5px">' + esc(m.purpose) + "</span></span>" +
+        return '<div class="r"><span style="display:flex;align-items:center;gap:12px"><img src="assets/img/mail/' + esc(m.id) + '.png" alt="" width="34" height="34" style="border-radius:50%;flex:none">' +
+          '<span><b style="color:var(--text);display:block">' + esc(m.address) + '</b><span style="font-size:12.5px">' + esc(m.purpose) + "</span></span></span>" +
           '<span data-mb="' + esc(m.address) + '">' + (m.ready ? '<span class="ad-tag good">configured</span>' : '<span class="ad-tag bad">no password</span>') + "</span></div>";
       }).join("");
       $("[data-plans-table]").innerHTML = s.plans.map(function (p) {

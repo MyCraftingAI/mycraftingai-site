@@ -101,7 +101,45 @@
       slot.innerHTML =
         '<a class="account-chip" href="account.html"><span class="avatar">' +
         escapeHtml(name.charAt(0).toUpperCase()) + "</span>" + escapeHtml(me.plan ? me.plan.name : "Account") + "</a>";
+      applySession(me);
     }, function () { /* signed out: keep the buttons */ });
+  }
+
+  /* ---------------------------------------------------- signed in
+   * A signed-in visitor is never sent to "Create your account": sign-up and
+   * sign-in buttons become "Your account", the footer drops them, and pages
+   * that draw buttons later (pricing) hear about the session ("mca:session"). */
+  function applySession(me) {
+    window.MCA.session = me;
+    document.documentElement.classList.add("signed-in");
+    var page = currentPage();
+    if (page === "signup.html" || page === "login.html") return;
+    var plan = me && me.plan ? me.plan.name : "";
+    document.querySelectorAll('a[href^="signup.html"], a[href^="login.html"]').forEach(function (a) {
+      if (a.dataset.sessionSwapped || a.closest("[data-keep-auth]")) return;
+      a.dataset.sessionSwapped = "1";
+      if (a.closest(".site-footer")) { a.remove(); return; }
+      var kbd = a.querySelector(".kbd");
+      a.href = "account.html";
+      if (kbd) {
+        a.innerHTML = 'Your account <span class="kbd">' + escapeHtml(plan ? plan + " plan" : "Signed in") + "</span>";
+      } else {
+        a.textContent = "Go to your account";
+      }
+    });
+    try { document.dispatchEvent(new CustomEvent("mca:session", { detail: me })); } catch (e) { /* old browser */ }
+  }
+
+  /** Links drawn after sign-in was known (calculator, download fallback...) still never open sign-up. */
+  function sessionLinks() {
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="signup.html"]');
+      if (!a || !window.MCA.session || a.closest("[data-keep-auth]")) return;
+      var page = currentPage();
+      if (page === "signup.html" || page === "login.html") return;
+      e.preventDefault();
+      location.href = "account.html";
+    });
   }
 
   function escapeHtml(text) {
@@ -637,6 +675,7 @@
     reveal();
     previewBanner();
     accountChip();
+    sessionLinks();
     contactLinks();
     cookieSettingsLinks();
     legalToc();
