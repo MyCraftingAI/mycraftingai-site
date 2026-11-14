@@ -794,3 +794,52 @@ html[data-theme]:not([data-theme="classic"]) body::before {
 .legal-modal .actions { align-items: center; }
 .legal-modal .actions .btn-ghost { margin-right: auto; }
 body.legal-locked { overflow: hidden; }
+
+/* ---------------------------------------------------------------- About & Contact pages */
+.page-hero { padding: 96px 0 40px; }
+.page-hero h1 { margin-top: 18px; font: 700 clamp(34px, 5.4vw, 56px)/1.05 var(--display); letter-spacing: -.025em; max-width: 18ch; }
+.page-hero .lede { margin-top: 20px; color: var(--muted); font-size: 19px; max-width: 62ch; }
+.page-hero .hero-meta { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px; }
+.prose-block { max-width: 760px; }
+.prose-block p { color: var(--muted); font-size: 17px; line-height: 1.7; margin-top: 16px; }
+.prose-block p b, .prose-block li b { color: var(--text); }
+.prose-block ul { margin-top: 14px; padding-left: 20px; color: var(--muted); font-size: 16.5px; line-height: 1.7; }
+.prose-block h2 { margin-top: 14px; }
+.ws-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+.ws-card { border: 1px solid var(--rim); border-radius: 16px; background: var(--surface); padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.ws-card .ws-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ws-card h3 { font-size: 18px; }
+.ws-card p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+.ws-card ul { color: var(--muted); font-size: 14.5px; line-height: 1.65; padding-left: 18px; }
+.ws-card .tag { font: 500 12px var(--mono); color: var(--dim); border: 1px solid var(--rim); border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+.ws-card .tag.studio { color: #c9b8ff; border-color: rgba(183,156,255,.4); }
+.ws-card img { width: 100%; border-radius: 10px; border: 1px solid var(--line); margin-top: 6px; aspect-ratio: 16 / 9; object-fit: cover; object-position: top left; }
+.stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.stack-item { border: 1px solid var(--rim); border-radius: 14px; padding: 18px; background: rgba(255,255,255,.015); }
+.stack-item b { display: block; font-size: 15.5px; }
+.stack-item span { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.facts-list { display: grid; grid-template-columns: 220px 1fr; border: 1px solid var(--rim); border-radius: 16px; overflow: hidden; }
+.facts-list dt, .facts-list dd { padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.facts-list dt { color: var(--muted); background: rgba(255,255,255,.02); }
+.facts-list dd { color: var(--text); }
+.facts-list dt:nth-last-of-type(1), .facts-list dd:last-of-type { border-bottom: 0; }
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px; align-items: start; }
+.contact-card { border: 1px solid var(--rim); border-radius: 18px; background: var(--surface); padding: 30px; scroll-margin-top: 110px; }
+.contact-card:target { border-color: rgba(79,99,245,.6); box-shadow: 0 0 0 3px rgba(79,99,245,.18); }
+.contact-card h2 { font-size: 26px; margin-top: 14px; }
+.contact-card .sub { margin-top: 8px; color: var(--muted); font-size: 15.5px; }
+.contact-card .mailto { margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; font: 500 14px var(--mono); }
+.contact-card .form { margin-top: 22px; }
+.contact-card .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.contact-card .hint { margin-top: 6px; color: var(--dim); font-size: 12.5px; }
+textarea.input { height: auto; min-height: 150px; padding: 12px 14px; line-height: 1.55; resize: vertical; }
+select.input { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) 21px, calc(100% - 15px) 21px; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+.hp-field { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+.contact-side { margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+@media (max-width: 640px) {
+  .facts-list { grid-template-columns: 1fr; }
+  .facts-list dt { border-bottom: 0; padding-bottom: 4px; }
+  .contact-card { padding: 22px; }
+  .contact-card .row2 { grid-template-columns: 1fr; }
+  .page-hero { padding: 64px 0 28px; }
+}

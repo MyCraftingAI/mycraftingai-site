@@ -270,7 +270,9 @@
       }));
       $("[data-ins-features]").innerHTML =
         '<div class="r"><span>Mod Assistant requests</span><b>' + num(d.features.code) + "</b></div>" +
-        '<div class="r"><span>Texture Studio requests</span><b>' + num(d.features.textures) + "</b></div>";
+        '<div class="r"><span>Texture Studio requests</span><b>' + num(d.features.textures) + "</b></div>" +
+        '<div class="r"><span>3D Studio requests</span><b>' + num(d.features.models || 0) + "</b></div>" +
+        '<div class="r"><span>Version Converter requests</span><b>' + num(d.features.convert || 0) + "</b></div>";
       $("[data-ins-top]").innerHTML = d.topUsers.length ? d.topUsers.map(function (u) {
         return '<div class="r link" data-open-user="' + esc(u.id) + '">' + userCell(u) + '<span><b>' + fmt(u.tokens) + '</b><br><span class="ad-muted" style="font-size:12px">' + num(u.requests) + " req · " + esc(u.plan) + "</span></span></div>";
       }).join("") : '<div class="ad-empty">No AI use in the last 7 days.</div>';
@@ -1722,9 +1724,11 @@
     var t = PR.draft.topup;
     var packs = (t.packs || []).map(function (p, i) {
       var q = prQuote(Number(p.tokens));
+      var exactOff = q.base ? Math.round((q.base - q.price) * 1000 / q.base) / 10 : 0;
       return '<div class="ad-pr-pack"><span class="ad-unit"><input class="input" type="number" min="1000" step="100000" data-pr-pack="' + i + '" data-pr-field="tokens" value="' + esc(p.tokens) + '"><i>tokens</i></span>' +
+        '<span class="ad-unit" title="Discount off the base rate - sets the price"><input class="input" type="number" min="0" max="95" step="0.5" data-pr-pack="' + i + '" data-pr-field="discount" value="' + esc(Math.max(0, exactOff)) + '"><i>% off</i></span>' +
         '<span class="ad-unit"><input class="input" type="number" min="0.01" step="0.01" data-pr-pack="' + i + '" data-pr-field="price" value="' + esc(p.price) + '"><i>USD</i></span>' +
-        '<span class="ad-pr-q">' + (q.off ? '<span class="ad-tag good">' + q.off + "% off</span> " : '<span class="ad-tag plan">base rate</span> ') + "+" + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span>" +
+        '<span class="ad-pr-q">' + (q.off ? '<span class="ad-tag good">shown as ' + q.off + "% off</span> " : '<span class="ad-tag plan">base rate</span> ') + "+" + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span>" +
         '<button class="btn btn-ghost btn-sm" type="button" data-pr-pack-remove="' + i + '" aria-label="Remove package">✕</button></div>';
     }).join("");
     var examples = [500000, 1000000, 3000000].map(function (n) {
@@ -1804,21 +1808,31 @@
       if (t.dataset.pr) { prSet(t.dataset.pr, prRead(t)); }
       else if (t.dataset.prPack) {
         var pack = PR.draft.topup.packs[Number(t.dataset.prPack)];
-        pack[t.dataset.prField] = t.dataset.prField === "price" ? Math.round(Number(t.value) * 100) / 100 : Math.round(Number(t.value));
+        if (t.dataset.prField === "discount") {
+          // "% off" sets the price from the base rate (price per million x tokens).
+          var pct = Math.max(0, Math.min(95, Number(t.value) || 0));
+          var base = pack.tokens / 1e6 * PR.draft.topup.pricePerMillion;
+          pack.price = Math.max(0.01, Math.round(base * (100 - pct)) / 100);
+        } else {
+          pack[t.dataset.prField] = t.dataset.prField === "price" ? Math.round(Number(t.value) * 100) / 100 : Math.round(Number(t.value));
+        }
       } else if (t.dataset.prFeature) {
         var plan = PR.draft.plans[t.dataset.prFeature], list = plan.features.slice();
         if (t.checked && list.indexOf(t.value) < 0) list.push(t.value);
         if (!t.checked) list = list.filter(function (f) { return f !== t.value; });
         plan.features = PR.data.features.map(function (f) { return f.id; }).filter(function (f) { return list.indexOf(f) >= 0; });
       } else return;
-      // Text fields re-render on blur only (keeps typing smooth); numbers and toggles update previews now.
-      if (t.tagName === "TEXTAREA" || (t.type === "text" || t.classList.contains("ad-pr-name"))) {
+      // Text fields (and "% off", whose rounded value would jump while typing) re-render on
+      // blur only; other numbers and toggles update the previews now.
+      if (t.tagName === "TEXTAREA" || t.type === "text" || t.classList.contains("ad-pr-name") || t.dataset.prField === "discount") {
         $("[data-pr-save]").disabled = !prDirty();
         return;
       }
       renderPricing();
     });
-    view.addEventListener("change", function (e) { if (e.target.dataset.pr && /text|lines/.test(e.target.dataset.prType || "")) renderPricing(); });
+    view.addEventListener("change", function (e) {
+      if ((e.target.dataset.pr && /text|lines/.test(e.target.dataset.prType || "")) || e.target.dataset.prField === "discount") renderPricing();
+    });
     view.addEventListener("click", function (e) {
       var t = e.target.closest("button");
       if (!t || !PR.draft) return;
@@ -1859,7 +1873,7 @@
     ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr lemon squeezy billing", gifts: "token gifts bonus free tokens",
     users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
     server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
-    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio thinking high top-up topup packages fee lemon squeezy sales",
+    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter thinking high top-up topup packages discount percent fee lemon squeezy sales",
     activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek"
   };
   function findActions() {

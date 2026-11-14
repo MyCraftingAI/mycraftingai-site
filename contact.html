@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact MyCraftingAI - Sales and Support</title>
+  <meta name="description" content="Contact the MyCraftingAI team. Enterprise and team plans: contact@mycraftingai.com. Help with the app or your account: support@mycraftingai.com.">
+  <link rel="canonical" href="https://mycraftingai.com/contact.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Contact MyCraftingAI - Sales and Support">
+  <meta property="og:description" content="Talk to sales about Enterprise and team plans, or get help with the MyCraftingAI app.">
+  <meta property="og:url" content="https://mycraftingai.com/contact.html">
+  <meta property="og:image" content="https://mycraftingai.com/assets/img/texture-studio.png">
+  <meta name="theme-color" content="#0a0a0e">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact MyCraftingAI",
+    "url": "https://mycraftingai.com/contact.html",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "MyCraftingAI",
+      "url": "https://mycraftingai.com/",
+      "contactPoint": [
+        { "@type": "ContactPoint", "contactType": "sales", "email": "contact@mycraftingai.com", "availableLanguage": ["English"] },
+        { "@type": "ContactPoint", "contactType": "customer support", "email": "support@mycraftingai.com", "availableLanguage": ["English"] },
+        { "@type": "ContactPoint", "contactType": "billing support", "email": "billing@mycraftingai.com", "availableLanguage": ["English"] }
+      ]
+    }
+  }
+  </script>
+</head>
+<body data-page="contact">
+  <header data-site-header></header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="eyebrow">Contact</span>
+        <h1>Talk to the MyCraftingAI team.</h1>
+        <p class="lede">Planning MyCraftingAI for a team, a school or a server network? Talk to sales. Stuck on a build, a sign-in or a payment? Support will help. A person reads every message and replies by email.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:20px">
+      <div class="wrap">
+        <div class="contact-grid">
+          <!-- Sales -->
+          <article class="contact-card" id="sales">
+            <span class="chip"><span class="dot"></span>Sales &middot; Enterprise</span>
+            <h2>Contact sales</h2>
+            <p class="sub">Custom token allowances, team seats, invoicing and a direct support line. Tell us about your team and we'll put together a plan.</p>
+            <a class="mailto" href="mailto:contact@mycraftingai.com?subject=MyCraftingAI%20Enterprise">contact@mycraftingai.com</a>
+            <form class="form" data-contact-form="sales" novalidate>
+              <div class="notice" data-notice role="status"></div>
+              <div class="row2">
+                <div class="field">
+                  <label for="sales-name">Name <span style="color:var(--dim)">optional</span></label>
+                  <input class="input" id="sales-name" name="name" autocomplete="name" maxlength="80">
+                </div>
+                <div class="field">
+                  <label for="sales-company">Company <span style="color:var(--dim)">optional</span></label>
+                  <input class="input" id="sales-company" name="company" autocomplete="organization" maxlength="120">
+                </div>
+              </div>
+              <div class="field">
+                <label for="sales-email">Work email</label>
+                <input class="input" id="sales-email" name="email" type="email" autocomplete="email" required maxlength="254">
+                <div class="err" data-err="email"></div>
+              </div>
+              <div class="field">
+                <label for="sales-message">How can we help?</label>
+                <textarea class="input" id="sales-message" name="message" required minlength="10" maxlength="5000"
+                  placeholder="Team size, how you'd use MyCraftingAI, the token volume you expect..."></textarea>
+                <div class="err" data-err="message"></div>
+              </div>
+              <div class="hp-field" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+              <button class="btn btn-primary btn-block btn-lg" type="submit">Send to sales</button>
+              <p class="hint">We reply from contact@mycraftingai.com, usually within one business day.</p>
+            </form>
+          </article>
+
+          <!-- Support -->
+          <article class="contact-card" id="support">
+            <span class="chip"><span class="dot" style="background:var(--amber)"></span>Support</span>
+            <h2>Report a problem</h2>
+            <p class="sub">Something not working - a build, the app, your account or a payment? Describe what happened and we'll help you fix it.</p>
+            <a class="mailto" href="mailto:support@mycraftingai.com?subject=MyCraftingAI%20support">support@mycraftingai.com</a>
+            <form class="form" data-contact-form="support" novalidate>
+              <div class="notice" data-notice role="status"></div>
+              <div class="field">
+                <label for="support-email">Your email</label>
+                <input class="input" id="support-email" name="email" type="email" autocomplete="email" required maxlength="254">
+                <div class="err" data-err="email"></div>
+              </div>
+              <div class="field">
+                <label for="support-subject">Topic</label>
+                <select class="input" id="support-subject" name="subject">
+                  <option>The app or a build</option>
+                  <option>Version Converter</option>
+                  <option>3D Studio or Texture Studio</option>
+                  <option>Sign-in or my account</option>
+                  <option>Billing or my plan</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="support-message">What happened?</label>
+                <textarea class="input" id="support-message" name="message" required minlength="10" maxlength="5000"
+                  placeholder="What you did, what you expected and what happened instead. Include the app version (Settings > About) and any error text."></textarea>
+                <div class="err" data-err="message"></div>
+              </div>
+              <div class="hp-field" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+              <button class="btn btn-primary btn-block btn-lg" type="submit">Send to support</button>
+              <p class="hint">Never include passwords or payment card numbers. We reply from support@mycraftingai.com.</p>
+            </form>
+          </article>
+        </div>
+
+        <div class="contact-side">
+          <div class="stack-item"><b>Billing and subscriptions</b><span><a href="mailto:billing@mycraftingai.com">billing@mycraftingai.com</a> - invoices, refunds and plan changes.</span></div>
+          <div class="stack-item"><b>Account security</b><span><a href="mailto:security@mycraftingai.com">security@mycraftingai.com</a> - if you think someone else used your account.</span></div>
+          <div class="stack-item"><b>Privacy and legal</b><span><a href="mailto:contact@mycraftingai.com">contact@mycraftingai.com</a> - data requests and questions about our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer data-site-footer></footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/plans.js"></script>
+  <script src="assets/js/api.js?v=20261123"></script>
+  <script src="assets/js/ui.js?v=20261123"></script>
+  <script>
+    (function () {
+      "use strict";
+      var EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+      function setErr(form, name, text) {
+        var box = form.querySelector('[data-err="' + name + '"]');
+        var input = form.querySelector('[name="' + name + '"]');
+        if (box) { box.textContent = text || ""; box.classList.toggle("show", !!text); }
+        if (input) input.setAttribute("aria-invalid", text ? "true" : "false");
+      }
+      function say(form, kind, text) {
+        var note = form.querySelector("[data-notice]");
+        note.className = "notice " + kind + (text ? " show" : "");
+        note.textContent = text || "";
+      }
+      document.querySelectorAll("[data-contact-form]").forEach(function (form) {
+        var topic = form.getAttribute("data-contact-form");
+        var button = form.querySelector('button[type="submit"]');
+        var label = button.textContent;
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var data = {};
+          new FormData(form).forEach(function (value, key) { data[key] = String(value).trim(); });
+          var bad = false;
+          setErr(form, "email", ""); setErr(form, "message", ""); say(form, "", "");
+          if (!EMAIL.test(data.email || "")) { setErr(form, "email", "Enter a valid email address."); bad = true; }
+          if ((data.message || "").length < 10) { setErr(form, "message", "Please describe it in a few more words (at least 10 characters)."); bad = true; }
+          if (bad) return;
+          data.topic = topic;
+          if (topic === "sales" && !data.subject) data.subject = "Enterprise enquiry";
+          button.disabled = true;
+          button.innerHTML = '<span class="spinner" aria-hidden="true"></span>Sending';
+          window.MCA.api.contact(data).then(function () {
+            form.reset();
+            say(form, "ok", topic === "sales"
+              ? "Thanks - your message is with our sales team. We'll reply to " + data.email + " from contact@mycraftingai.com."
+              : "Thanks - your message is with support. We'll reply to " + data.email + " from support@mycraftingai.com.");
+          }, function (err) {
+            var address = topic === "sales" ? "contact@mycraftingai.com" : "support@mycraftingai.com";
+            var text = err && err.code === "rate_limited"
+              ? "You've sent several messages in a short time. Please wait a little, or email " + address + " directly."
+              : (err && err.code === "not_live"
+                ? "The form isn't available right now. Please email " + address + " directly."
+                : ((err && err.message) || "Your message couldn't be sent.") + " You can also email " + address + ".");
+            say(form, "error", text);
+          }).then(function () {
+            button.disabled = false;
+            button.textContent = label;
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

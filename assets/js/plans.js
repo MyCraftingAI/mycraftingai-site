@@ -60,7 +60,7 @@ window.MCA_PLANS = {
       "highlights": [
         "2,000,000 tokens in your first month",
         "1,500,000 tokens every month after",
-        "Every tool except 3D Studio, no ads",
+        "Every tool except 3D Studio and Version Converter, no ads",
         "Thinking modes: None, Low and Normal",
         "Texture Studio and Build & Run"
       ],
@@ -98,7 +98,7 @@ window.MCA_PLANS = {
         "3,000,000 tokens every month after",
         "Everything in Builder",
         "All thinking modes, including High",
-        "3D Studio is not included"
+        "3D Studio and Version Converter are not included"
       ],
       "popular": true,
       "countsCached": true,
@@ -126,6 +126,7 @@ window.MCA_PLANS = {
         "overview",
         "textures",
         "models",
+        "convert",
         "build",
         "attachments",
         "priority"
@@ -136,6 +137,7 @@ window.MCA_PLANS = {
         "6,000,000 tokens every month after",
         "Everything in Pro",
         "3D Studio: GeckoLib models and animations",
+        "Version Converter: any loader, any Minecraft version",
         "Room for large multi-mod projects"
       ],
       "popular": false,
@@ -164,6 +166,7 @@ window.MCA_PLANS = {
         "overview",
         "textures",
         "models",
+        "convert",
         "build",
         "attachments",
         "priority"
@@ -192,6 +195,7 @@ window.MCA_PLANS = {
     "overview": "Project overview & MDK setup",
     "textures": "Texture Studio & pixel-art AI",
     "models": "3D Studio (GeckoLib models & animations)",
+    "convert": "Version Converter (port mods to other loaders & versions)",
     "build": "Build & Run (compile, launch, auto-fix)",
     "attachments": "Image & file attachments",
     "priority": "Priority queue at busy times"

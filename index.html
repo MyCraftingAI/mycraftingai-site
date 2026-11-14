@@ -5,17 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MyCraftingAI - Describe a Minecraft mod, play it tonight</title>
   <meta name="google-adsense-account" content="ca-pub-7730731521219274">
-  <meta name="description" content="MyCraftingAI is a Windows app that writes the Java, paints the pixel-art textures and launches Minecraft with your mod loaded. NeoForge, Forge and Fabric.">
+  <meta name="description" content="MyCraftingAI is a Windows app that writes the Java, paints the pixel-art textures, builds GeckoLib 3D models, converts mods between versions and launches Minecraft with your mod loaded. NeoForge, Forge and Fabric.">
   <meta property="og:title" content="MyCraftingAI - Describe a Minecraft mod, play it tonight">
   <meta property="og:description" content="Write the idea in plain English. MyCraftingAI writes the code, paints the textures and boots the game with your mod.">
   <meta property="og:image" content="https://mycraftingai.com/assets/img/texture-studio.png">
   <meta property="og:url" content="https://mycraftingai.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MyCraftingAI">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://mycraftingai.com/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MyCraftingAI",
+    "description": "Windows desktop app and AI assistant for Minecraft modders: writes Java for Forge, NeoForge and Fabric, paints textures, builds GeckoLib 3D models, converts mods between loaders and versions and runs the mod with Gradle.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows 10, Windows 11 (64-bit)",
+    "softwareVersion": "1.0.9",
+    "url": "https://mycraftingai.com/",
+    "downloadUrl": "https://mycraftingai.com/download.html",
+    "screenshot": "https://mycraftingai.com/assets/img/assistant.png",
+    "offers": { "@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": "0", "highPrice": "26.75", "offerCount": "4" },
+    "publisher": { "@type": "Organization", "name": "MyCraftingAI", "url": "https://mycraftingai.com/", "email": "contact@mycraftingai.com" }
+  }
+  </script>
   <meta name="theme-color" content="#0a0a0e">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261121">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
 </head>
 <body>
   <header data-site-header></header>
@@ -110,7 +130,7 @@
       <div class="wrap">
         <div class="section-head reveal">
           <span class="eyebrow">Inside the app</span>
-          <h2>Four workspaces, one project.</h2>
+          <h2>Six workspaces, one project.</h2>
           <p>Screens straight from the desktop app. Everything works on files in your own project folder, so you can open them in any editor too.</p>
         </div>
         <div class="tour reveal">
@@ -123,6 +143,10 @@
               <h3>Files &amp; Code <span class="k">Ctrl 2</span></h3>
               <p>A real editor with tabs, syntax colours and a project tree. Rename, copy, paste, or send files to the Recycle Bin.</p>
             </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/3d-studio.png" data-alt="3D Studio showing a GeckoLib fire dragon model playing its fly animation">
+              <h3>3D Studio <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 5</span></h3>
+              <p>Describe a mob and how it moves. The AI builds a GeckoLib model with bones and animations, and you watch them play before connecting it to your code.</p>
+            </button>
             <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/texture-studio.png" data-alt="Texture Studio with a 16 by 16 ruby gem on the pixel canvas">
               <h3>Texture Studio <span class="lock" title="Included in Builder and up. On Free, unlock 5 minutes with a short ad.">Builder+</span> <span class="k">Ctrl 3</span></h3>
               <p>Paint 16x16 sprites by hand or describe them to the pixel-art AI. Turn the item in 3D to check it from every side.</p>
@@ -130,6 +154,10 @@
             <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png" data-alt="Build and Run page with the compile pipeline and game log">
               <h3>Build &amp; Run <span class="k">Ctrl 4</span></h3>
               <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
+              <h3>Version Converter <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 6</span></h3>
+              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to the latest - and hands you a ready-to-build ZIP for each, with the token cost shown first.</p>
             </button>
           </div>
           <figure class="shot" style="margin:0">
@@ -311,8 +339,12 @@
             <div class="answer">They set how much the AI reasons before it answers. <b>None</b> answers straight away and uses the fewest tokens, great for questions and small edits. <b>Low</b> takes a quick think, <b>Normal</b> plans the change first, and <b>High</b> thinks it through and double-checks every file, for big systems and stubborn bugs. Free includes None, Builder adds Low and Normal, and Pro and Studio include all four, including High. Deeper modes use more tokens.</div>
           </details>
           <details>
-            <summary>Which plan includes 3D Studio?</summary>
-            <div class="answer">3D Studio - GeckoLib models and animations for your mobs - is part of the Studio plan. Builder and Pro include everything else: the Mod Assistant, Texture Studio, Build &amp; Run and attachments, with Pro adding the High thinking mode.</div>
+            <summary>Can it move my mod to another loader or Minecraft version?</summary>
+            <div class="answer">Yes - with the Version Converter, part of the Studio plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.1 or newer and Fabric 1.14 or newer, up to the latest releases (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated tokens for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
+          </details>
+          <details>
+            <summary>Which plan includes 3D Studio and the Version Converter?</summary>
+            <div class="answer">3D Studio (GeckoLib models and animations for your mobs) and the Version Converter are part of the Studio plan. Builder and Pro include everything else: the Mod Assistant, Texture Studio, Build &amp; Run and attachments, with Pro adding the High thinking mode.</div>
           </details>
           <details>
             <summary>What does "new tokens" mean on Free?</summary>
@@ -359,9 +391,9 @@
   <footer data-site-footer></footer>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js?v=20261121"></script>
-  <script src="assets/js/api.js?v=20261121"></script>
-  <script src="assets/js/ui.js"></script>
-  <script src="assets/js/home.js?v=20261121"></script>
+  <script src="assets/js/plans.js?v=20261123"></script>
+  <script src="assets/js/api.js?v=20261123"></script>
+  <script src="assets/js/ui.js?v=20261123"></script>
+  <script src="assets/js/home.js?v=20261123"></script>
 </body>
 </html>

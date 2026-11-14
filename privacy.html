@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
 </head>
 <body>
   <header data-site-header></header>
@@ -61,12 +61,12 @@
           <li><b>Account details:</b> your email address, username, a securely hashed password (never the password itself), and your Google account ID if you sign in with Google. We also keep your plan, whether your email is verified, your 2-step verification setting, your email preferences, and which version of the Terms of Service and this Privacy Policy you agreed to and when.</li>
           <li><b>Sign-in and security data:</b> for each active session, the type of device or app, the IP address and when it was last used. We also keep short-lived records of failed sign-ins and sign-in codes to stop abuse and lock out attackers.</li>
           <li><b>Usage counts:</b> how many tokens and requests your account uses each day and in each billing month, to apply your plan's allowance, track your top-up tokens and show your usage.</li>
-          <li><b>AI requests:</b> the instructions you type and the project context the app attaches, such as file names and the source files relevant to that request. In the 3D Studio and Texture Studio this includes your description of a mob or texture and the structure of its model (bone names, sizes and positions). These pass through our servers to our AI model provider to produce the answer. We don't store the content of requests or answers afterwards.</li>
+          <li><b>AI requests:</b> the instructions you type and the project context the app attaches, such as file names and the source files relevant to that request. In the 3D Studio and Texture Studio this includes your description of a mob or texture and the structure of its model (bone names, sizes and positions). When you use the Version Converter, the source code and data files of the mod you choose are sent in batches to be converted (its folder is read on your computer and never changed; assets such as textures are copied locally and not sent). These pass through our servers to our AI model provider to produce the answer. We don't store the content of requests or answers afterwards.</li>
           <li><b>AI queue records:</b> when many people use the AI at once, a request can wait in line before it starts. While it waits or runs, we keep a short-lived record of it: a random request ID, your account ID and plan, its place in line, how long it has waited and how often it was retried. The app uses this to show you your place in line. The record contains no request content and is deleted when the request finishes, within 15 minutes at most. We also keep overall counters (for example how many requests waited) that are not linked to anyone.</li>
           <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, the date and time your subscription started (which sets your billing cycle), renewal and end dates, and a link to your customer portal. We keep whether your account has already received its first-month allowance. We never receive your full card number.</li>
           <li><b>Token top-ups:</b> when you buy tokens, we keep the order number, the number of tokens, the price and processing fee, when you bought them, when they expire and how many you have used. Top-ups our support team adds for you are recorded the same way, with a short note.</li>
           <li><b>Ad unlocks (Free plan):</b> when you unlock a tool by watching an ad, we keep a short-lived record linked to your account: a random single-use ticket, its status and timing, how many seconds the unlock page was open in front (sent every two seconds while it is visible), how many unlocks you used today and when your unlock ends. These records delete themselves within 48 hours.</li>
-          <li><b>Messages you send us:</b> support requests and contact-form messages, with the email address you use.</li>
+          <li><b>Messages you send us:</b> support requests and the messages you send with the sales and support forms on our <a href="contact.html">contact page</a>: your email address, your message and, if you choose to give them, your name and company. They are delivered to our contact@ or support@ inbox, used only to answer you, and kept for as long as needed to handle your request (normally no longer than 24 months). The forms are protected against abuse by counting messages per IP address and email address for a short time.</li>
           <li><b>Technical data:</b> when your browser or the app connects to us, our servers briefly log standard request data (IP address, time, requested address, response code) for security and troubleshooting.</li>
         </ul>
 
@@ -107,7 +107,7 @@
           <li><b>Google</b>: if you choose "Continue with Google", to confirm your identity. The website loads fonts from Google Fonts, which shares your IP address with Google. Google AdSense and Google Ad Manager serve the ads on our download and unlock pages (see <a href="#advertising">Advertising</a>).</li>
           <li><b>Hosting and email providers</b>: run our servers, database backups and outgoing email.</li>
           <li><b>GitHub</b>: hosts the website and app downloads. Downloading the app or checking for updates connects to their servers.</li>
-          <li><b>Software library repositories</b>: when you build a mod, or when the 3D Studio looks up the right version of a library such as GeckoLib, your computer connects to public repositories (for example Maven Central, the NeoForge, Fabric and Forge repositories, and the GeckoLib repository hosted by Cloudsmith). Like any website, they see your IP address and which files are downloaded. We send them no account details.</li>
+          <li><b>Software library repositories</b>: when you build a mod, when the Version Converter downloads the official template for a loader and version, or when the 3D Studio looks up the right version of a library such as GeckoLib, your computer connects to public repositories (for example Maven Central, the NeoForge, Fabric and Forge repositories, and the GeckoLib repository hosted by Cloudsmith). Like any website, they see your IP address and which files are downloaded. We send them no account details.</li>
         </ul>
         <p>We may also disclose data if the law requires it, to protect people's safety or our rights, or as part of a merger or acquisition. If that happens, this policy continues to apply to your data.</p>
 
@@ -185,7 +185,7 @@
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js?v=20261123"></script>
+  <script src="assets/js/ui.js?v=20261123"></script>
 </body>
 </html>

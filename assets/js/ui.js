@@ -30,6 +30,7 @@
       '<a href="' + link("#pricing") + '">Pricing</a>' +
       '<a href="download.html">Download</a>' +
       '<a href="' + link("#faq") + '">FAQ</a>' +
+      '<a href="about.html">About</a>' +
       "</nav>" +
       '<div class="header-actions" data-account-slot>' +
       '<a class="btn btn-ghost" href="login.html">Sign in</a>' +
@@ -55,9 +56,8 @@
     var host = document.querySelector("[data-site-footer]");
     if (!host) return;
     host.className = "site-footer";
-    var contact = cfg.contactEmail
-      ? '<a href="mailto:' + cfg.contactEmail + '">' + cfg.contactEmail + "</a>"
-      : '<a href="' + link("#pricing") + '" data-contact>Contact sales</a>';
+    var contact = '<a href="about.html">About</a><a href="contact.html#sales">Contact sales</a>' +
+      '<a href="contact.html#support">Support</a>';
     host.innerHTML =
       '<div class="wrap"><div class="footer-grid">' +
       '<div><a class="brand" href="index.html">' + LOGO + "MyCraftingAI</a>" +
@@ -151,7 +151,7 @@
    * The pages that are part of signing in, and the policies themselves, are
    * never blocked. The server enforces the same rule for AI requests. */
   var LEGAL_OPEN_PAGES = ["welcome.html", "login.html", "signup.html", "forgot.html", "terms.html",
-                          "privacy.html", "desktop.html", "404.html", "unlock.html"];
+                          "privacy.html", "desktop.html", "404.html", "unlock.html", "contact.html", "about.html"];
 
   function currentPage() {
     return (location.pathname.split("/").pop() || "index.html").toLowerCase();
@@ -267,8 +267,7 @@
       var target = e.target.closest("[data-contact]");
       if (!target) return;
       e.preventDefault();
-      if (cfg.contactEmail) { location.href = "mailto:" + cfg.contactEmail + "?subject=MyCraftingAI%20Enterprise"; return; }
-      modal("Talk to us", "Our sales inbox is being set up. Leave this page open in a tab or check back in a few days - the address will appear right here.");
+      location.href = "contact.html#" + (target.getAttribute("data-contact") || "sales");
     });
   }
 

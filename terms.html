@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
 </head>
 <body>
   <header data-site-header></header>
@@ -53,6 +53,7 @@
             <li>AI can be wrong. You decide what to keep, ship and share.</li>
             <li>Paid plans renew monthly, on the date and time you subscribed, until you cancel. Cancel any time from your account page; your plan runs to the end of the month you paid for.</li>
             <li>Each paid plan gives a monthly token allowance (a larger one in your first month, once per account). Input and output tokens come from the same pool, and unused plan tokens expire when the month renews.</li>
+            <li>The Version Converter (Studio plan) ports mods to other loaders and Minecraft versions. Only convert mods you have the right to modify; you see the estimated tokens before it starts.</li>
             <li>You can buy extra tokens (top-ups) at any time. The price, the payment processing fee and the total are shown before you pay; top-up tokens stay valid for 12 months.</li>
             <li><b>All payments are final and non-refundable</b>, except where the law says otherwise.</li>
             <li>Don't misuse the service, share accounts or try to get around limits.</li>
@@ -90,11 +91,17 @@
               <li>When your allowance (and any top-up tokens) runs out, AI requests pause until the allowance renews or you buy a top-up.</li>
             </ul>
           </li>
-          <li><b>Features per plan.</b> The features included in each plan are listed in the comparison table on our <a href="index.html#pricing">pricing page</a>. For example, the High thinking mode is included from the Pro plan, and the 3D Studio is included in the Studio plan only. We may add, change or remove features, models and allowances to keep the Service running well. If a change significantly reduces a paid plan you already have, we'll tell you in advance.</li>
+          <li><b>Features per plan.</b> The features included in each plan are listed in the comparison table on our <a href="index.html#pricing">pricing page</a>. For example, the High thinking mode is included from the Pro plan, and the 3D Studio and the Version Converter in the Studio plan only. We may add, change or remove features, models and allowances to keep the Service running well. If a change significantly reduces a paid plan you already have, we'll tell you in advance.</li>
           <li><b>Thinking modes.</b> The assistant offers thinking modes (None, Low, Normal and High) that set how much the AI reasons before it answers. The modes available depend on your plan. Deeper modes usually take longer and use more tokens from your allowance. No mode guarantees a correct or complete answer.</li>
           <li><b>AI output.</b> Answers, code and images are generated automatically and may be incomplete, wrong, insecure or similar to output given to other people. They aren't professional advice. You are responsible for reviewing, testing and deciding how to use anything the Service produces.</li>
           <li><b>Busy periods and priority.</b> When demand is high or our AI providers ask us to slow down, AI requests may wait in a queue and be retried automatically. The app shows your place in line and an estimated wait, which is only a guide. Plans with priority access are moved ahead in the queue; requests on other plans keep being served and are never pushed back indefinitely. A request that can't start within the maximum waiting time is cancelled and can be sent again. Waiting and retries don't use tokens from your allowance. To keep the Service stable for everyone, we may adjust rate limits, queue rules and how many requests run at once.</li>
           <li><b>3D Studio and Texture Studio.</b> The 3D Studio creates models, animations and starter textures for the mobs in your project. To make them work, the app may add a matching version of the third-party library GeckoLib to your project's build files and mod metadata, and shows you which files it changed. Generated models, animations and textures are AI output as described below.</li>
+          <li><b>Version Converter.</b> The Version Converter ports a mod you choose to other mod loaders and Minecraft versions. It reads the mod's folder (it never changes it), downloads the official template for each target, sends the mod's source code and data files to the AI to be converted, and saves each result as a ZIP on your computer with a report of anything to check. Conversion is automated and can't guarantee that every feature works the same, especially across large version gaps (for example 1.12.2 to 1.21.1) where Minecraft's own APIs changed: build and test each version before you use or share it. Templates for old Minecraft versions use the build tools of their time (such as Java 8 and older Gradle versions), which may need extra setup on your computer. The estimated token count is a forecast; the tokens actually used are counted against your allowance.
+            <ul>
+              <li><b>Your rights.</b> Only convert mods you made or that you have the right to modify and port, and follow the original mod's licence when you share a converted version. Don't use the converter to copy or redistribute other people's work without permission.</li>
+              <li><b>Token estimates.</b> Before a conversion starts, the app shows an estimated number of tokens, with a range, worked out from the size of your code. It is an estimate: the tokens actually used, which the app shows when it's done, are what count against your allowance. Optional compile checks and automatic repairs can use more tokens, up to the upper end shown.</li>
+            </ul>
+          </li>
           <li><b>Availability.</b> We work hard to keep the Service available, but it may be interrupted for maintenance, updates, provider outages or events outside our control. We don't guarantee any particular uptime.</li>
           <li><b>Third-party providers.</b> Some features rely on outside providers, such as AI model providers, our payment provider, Google sign-in and Google's advertising services. Their availability is outside our control.</li>
         </ul>
@@ -235,7 +242,7 @@
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js?v=20261123"></script>
+  <script src="assets/js/ui.js?v=20261123"></script>
 </body>
 </html>

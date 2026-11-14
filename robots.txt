@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /account.html
+Disallow: /welcome.html
+Disallow: /desktop.html
+Disallow: /unlock.html
+Disallow: /get.html
+
+Sitemap: https://mycraftingai.com/sitemap.xml

@@ -264,6 +264,9 @@
           status: t.status, minSeconds: minSeconds, watchedSeconds: Math.floor(t.w || 0),
           secondsLeft: Math.max(0, Math.ceil(minSeconds - (t.w || 0))), beatSeconds: 2
         });
+      case "POST /v1/contact":
+        if (!body || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email || "")) return delay().then(function () { return fail("validation", 422, "Enter a valid email address."); });
+        return delay({ status: "received" });
       case "POST /v1/preview/google":
         var gmail = "preview.user@gmail.com";
         users[gmail] = users[gmail] || { email: gmail, name: "Preview", hash: "-", verified: true, plan: "free", provider: "google", created: new Date().toISOString(), needsUsername: true, terms: null };
@@ -322,6 +325,8 @@
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
+    /** Website contact forms: topic "sales" goes to contact@, "support" to support@. */
+    contact: function (d) { return request("POST", "/v1/contact", d); },
     /** Terms of Service + Privacy Policy: agree to the current version. */
     legal: {
       accept: function (version) { return request("POST", "/v1/users/legal/accept", { version: version || null }); }

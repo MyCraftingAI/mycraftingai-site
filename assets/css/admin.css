@@ -378,7 +378,7 @@ body[data-page="admin"] { background: var(--ground); }
 .ad-pr-h4 { margin: 20px 0 10px; font: 600 14px var(--font); }
 .ad-pr-h4 small { margin-left: 6px; font-weight: 400; }
 .ad-pr-packs { display: grid; gap: 8px; margin-bottom: 10px; }
-.ad-pr-pack { display: grid; grid-template-columns: 1fr 140px minmax(220px, 1.2fr) auto; gap: 8px; align-items: center; }
+.ad-pr-pack { display: grid; grid-template-columns: 1fr 120px 130px minmax(220px, 1.2fr) auto; gap: 8px; align-items: center; }
 .ad-pr-q { font-size: 13px; color: var(--muted); }
 .ad-pr-q b { color: var(--text); }
 .ad-sales tbody tr { cursor: default; }
