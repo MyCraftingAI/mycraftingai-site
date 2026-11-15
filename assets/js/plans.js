@@ -52,6 +52,8 @@ window.MCA_PLANS = {
         "files",
         "overview",
         "textures",
+        "sounds",
+        "recipes",
         "build",
         "attachments",
         "priority"
@@ -60,9 +62,9 @@ window.MCA_PLANS = {
       "highlights": [
         "2,000,000 tokens in your first month",
         "1,500,000 tokens every month after",
-        "Every tool except 3D Studio and Version Converter, no ads",
+        "Every tool except 3D Studio, Particles and Version Converter, no ads",
         "Thinking modes: None, Low and Normal",
-        "Texture Studio and Build & Run"
+        "Texture Studio, Sounds, Recipes & Loot and Build & Run"
       ],
       "popular": false,
       "countsCached": true,
@@ -88,6 +90,8 @@ window.MCA_PLANS = {
         "files",
         "overview",
         "textures",
+        "sounds",
+        "recipes",
         "build",
         "attachments",
         "priority"
@@ -98,7 +102,7 @@ window.MCA_PLANS = {
         "3,000,000 tokens every month after",
         "Everything in Builder",
         "All thinking modes, including High",
-        "3D Studio and Version Converter are not included"
+        "3D Studio, Particles and Version Converter are not included"
       ],
       "popular": true,
       "countsCached": true,
@@ -127,6 +131,9 @@ window.MCA_PLANS = {
         "textures",
         "models",
         "convert",
+        "sounds",
+        "recipes",
+        "particles",
         "build",
         "attachments",
         "priority"
@@ -136,7 +143,8 @@ window.MCA_PLANS = {
         "14,000,000 tokens in your first month",
         "7,000,000 tokens every month after",
         "Everything in Pro",
-        "3D Studio: GeckoLib models and animations",
+        "3D Studio: mobs, animations, 3D weapons and armor",
+        "Particles: custom particles, trails and effects",
         "Version Converter: any loader, any Minecraft version",
         "Room for large multi-mod projects"
       ],
@@ -167,6 +175,9 @@ window.MCA_PLANS = {
         "textures",
         "models",
         "convert",
+        "sounds",
+        "recipes",
+        "particles",
         "build",
         "attachments",
         "priority"
@@ -194,8 +205,11 @@ window.MCA_PLANS = {
     "files": "Files & Code editor",
     "overview": "Project overview & MDK setup",
     "textures": "Texture Studio & pixel-art AI",
-    "models": "3D Studio (GeckoLib models & animations)",
+    "models": "3D Studio (GeckoLib mobs, 3D weapons & armor)",
     "convert": "Version Converter (port mods to other loaders & versions)",
+    "sounds": "Sounds (every Minecraft sound, your own .ogg files)",
+    "recipes": "Recipes & Loot tables (visual editor)",
+    "particles": "Particles & trails (visual editor)",
     "build": "Build & Run (compile, launch, auto-fix)",
     "attachments": "Image & file attachments",
     "priority": "Priority queue at busy times"

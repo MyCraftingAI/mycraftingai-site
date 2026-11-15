@@ -1876,7 +1876,7 @@
     ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr lemon squeezy billing", gifts: "token gifts bonus free tokens",
     users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
     server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
-    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter thinking high top-up topup packages discount percent fee lemon squeezy sales",
+    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee lemon squeezy sales",
     activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek"
   };
   function findActions() {
@@ -1887,7 +1887,7 @@
       { group: "Actions", icon: "!", title: "Pause AI for everyone (maintenance)", sub: "Live settings · service switches", words: "maintenance emergency stop", run: function () { go("settings"); flashWhenReady("[data-cfg-switches]", true); } },
       { group: "Actions", icon: "$", title: "Check AI provider balance", sub: "System · remaining credit", words: "balance credit top up money", run: function () { go("system"); flashWhenReady("[data-balance-keys]", true); loadBalance(true); } },
       { group: "Actions", icon: "★", title: "Give tokens", sub: "Token gifts · new gift", words: "gift bonus free tokens", run: function () { go("gifts"); } },
-      { group: "Actions", icon: "$", title: "Change plan prices & allowances", sub: "Plans & pricing · prices, monthly tokens, features", words: "price plan builder pro studio monthly tokens features 3d thinking", run: function () { go("pricing"); } },
+      { group: "Actions", icon: "$", title: "Change plan prices & allowances", sub: "Plans & pricing · prices, monthly tokens, features", words: "price plan builder pro studio monthly tokens features 3d sounds recipes particles thinking", run: function () { go("pricing"); } },
       { group: "Actions", icon: "+", title: "Edit token top-up prices", sub: "Plans & pricing · price per million, fee, packages", words: "top-up topup packs fee processing buy tokens", run: function () { go("pricing"); flashWhenReady(".ad-pr-topup"); } },
       { group: "Actions", icon: "✉", title: "Email users", sub: "Messages · direct or broadcast", words: "email send message broadcast", run: function () { go("messages"); } },
       { group: "Actions", icon: "↓", title: "Export users as CSV", sub: "Users · current filter", words: "export download csv", run: function () { go("users"); setTimeout(function () { exportCsv($("[data-export]")); }, 80); } }

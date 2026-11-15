@@ -22,7 +22,7 @@
     "description": "Windows desktop app and AI assistant for Minecraft modders: writes Java for Forge, NeoForge and Fabric, paints textures, builds GeckoLib 3D models, converts mods between loaders and versions and runs the mod with Gradle.",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Windows 10, Windows 11 (64-bit)",
-    "softwareVersion": "1.1.0",
+    "softwareVersion": "1.1.1",
     "url": "https://mycraftingai.com/",
     "downloadUrl": "https://mycraftingai.com/download.html",
     "screenshot": "https://mycraftingai.com/assets/img/assistant.png",
@@ -130,39 +130,55 @@
       <div class="wrap">
         <div class="section-head reveal">
           <span class="eyebrow">Inside the app</span>
-          <h2>Six workspaces, one project.</h2>
+          <h2>Nine workspaces, one project.</h2>
           <p>Screens straight from the desktop app. Everything works on files in your own project folder, so you can open them in any editor too.</p>
         </div>
         <div class="tour reveal">
           <div class="tour-tabs" role="tablist" aria-label="App workspaces">
-            <button class="tour-tab" role="tab" aria-selected="true" data-shot="assets/img/assistant.png?v=20261124" data-alt="Mod Assistant with a finished request and the list of changed files">
+            <button class="tour-tab" role="tab" aria-selected="true" data-shot="assets/img/assistant.png?v=20261126" data-alt="Mod Assistant with a finished request and the list of changed files">
               <h3>Mod Assistant <span class="k">Ctrl 1</span></h3>
               <p>Chat with the assistant. Every answer ends with the files it changed, so you can review, undo, or build right away.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/files.png?v=20261124" data-alt="Files and Code view with the project tree and Java editor">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/files.png?v=20261126" data-alt="Files and Code view with the project tree and Java editor">
               <h3>Files &amp; Code <span class="k">Ctrl 2</span></h3>
               <p>A real editor with tabs, syntax colours and a project tree. Rename, copy, paste, or send files to the Recycle Bin.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/3d-studio.png?v=20261124" data-alt="3D Studio showing a GeckoLib fire dragon model playing its fly animation">
-              <h3>3D Studio <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 5</span></h3>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/3d-studio.png?v=20261126" data-alt="3D Studio showing a GeckoLib fire dragon model playing its fly animation">
+              <h3>3D Studio <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 3</span></h3>
               <p>Describe a mob and how it moves. The AI builds a GeckoLib model with bones and animations, and you watch them play before connecting it to your code.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/texture-studio.png?v=20261124" data-alt="Texture Studio with a 16 by 16 ruby gem on the pixel canvas">
-              <h3>Texture Studio <span class="lock" title="Included in Builder and up. On Free, unlock 5 minutes with a short ad.">Builder+</span> <span class="k">Ctrl 3</span></h3>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/3d-weapons.png?v=20261126" data-alt="3D Studio showing a ruby longsword held by a player mannequin">
+              <h3>3D weapons &amp; armor <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 3</span></h3>
+              <p>Swords, tools, guns and armor sets in 3D. Every position - in the hand, first person, the inventory and on the ground - is set for you and shown on a player before you use it.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/texture-studio.png?v=20261126" data-alt="Texture Studio with a ruby sword on the pixel canvas">
+              <h3>Texture Studio <span class="lock" title="Included in Builder and up. On Free, unlock 5 minutes with a short ad.">Builder+</span> <span class="k">Ctrl 4</span></h3>
               <p>Paint 16x16 sprites by hand or describe them to the pixel-art AI. Turn the item in 3D to check it from every side.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png?v=20261124" data-alt="Build and Run page with the compile pipeline and game log">
-              <h3>Build &amp; Run <span class="k">Ctrl 4</span></h3>
-              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/sounds.png?v=20261126" data-alt="Sounds page with a golem's sounds, the sound shape sliders and the Minecraft sound library">
+              <h3>Sounds <span class="lock" title="Included in Builder and up.">Builder+</span> <span class="k">Ctrl 5</span></h3>
+              <p>Every sound your mobs and items need, filled in with fitting Minecraft sounds. Listen to all 1,968 of them, shape the tone, loudness and range, or import your own.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png?v=20261124" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
-              <h3>Version Converter <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 6</span></h3>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/recipes.png?v=20261126" data-alt="Recipes and Loot page with a ruby sword crafting recipe">
+              <h3>Recipes &amp; Loot <span class="lock" title="Included in Builder and up.">Builder+</span> <span class="k">Ctrl 6</span></h3>
+              <p>A visual crafting table and loot-table builder with your mod's items and every Minecraft item. Written in your Minecraft version's exact format - no code needed.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/particles.png?v=20261126" data-alt="Particles page with a glowing sword-swing trail in the live preview">
+              <h3>Particles <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 7</span></h3>
+              <p>Design sparks, swing trails, shockwaves, spirals, auras and explosions with a live preview, then attach them to an item, a mob or a projectile.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png?v=20261126" data-alt="Build and Run page with the compile pipeline and game log">
+              <h3>Build &amp; Run <span class="k">Ctrl 8</span></h3>
+              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant. Run a test server with its addresses, admins and offline players. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
+            </button>
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png?v=20261126" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
+              <h3>Version Converter <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 9</span></h3>
               <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to the latest - and hands you a ready-to-build ZIP for each, with the token cost shown first. Then pick each version next to Run Mod to build and test it, one by one.</p>
             </button>
           </div>
           <figure class="shot" style="margin:0">
             <div class="shot-bar"><i></i><i></i><i></i></div>
-            <img id="tour-img" src="assets/img/assistant.png?v=20261124" width="1920" height="1080" alt="Mod Assistant with a finished request and the list of changed files" loading="lazy">
+            <img id="tour-img" src="assets/img/assistant.png?v=20261126" width="1920" height="1080" alt="Mod Assistant with a finished request and the list of changed files" loading="lazy">
           </figure>
         </div>
       </div>
@@ -332,7 +348,7 @@
           </details>
           <details>
             <summary>What can I do on the Free plan?</summary>
-            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10,000 new tokens a day, in the fast None thinking mode. Build &amp; Run and Texture Studio are included from Builder up, and 3D Studio with Studio. On Free you can still use Build &amp; Run and Texture Studio: watch one short ad on our website for one Build &amp; Run, or for five minutes of Texture Studio. The app itself never shows ads.</div>
+            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10,000 new tokens a day, in the fast None thinking mode. Build &amp; Run, Texture Studio, Sounds and Recipes &amp; Loot are included from Builder up, and 3D Studio and Particles with Studio. On Free you can still use Build &amp; Run and Texture Studio: watch one short ad on our website for one Build &amp; Run, or for five minutes of Texture Studio. The app itself never shows ads.</div>
           </details>
           <details>
             <summary>What are thinking modes?</summary>
@@ -347,8 +363,16 @@
             <div class="answer">Press <b>Export</b> next to Run Mod (or on the Build &amp; Run page). Choose <b>Mod file (.jar)</b> - the app builds it with Gradle - or <b>Project files (.zip)</b> with the code, textures and build files. If your mod has converted versions, tick the ones you want or <b>All versions</b>; several versions are saved together in one ZIP. Then pick the folder to save to. Everything is built on your PC; nothing is uploaded.</div>
           </details>
           <details>
-            <summary>Which plan includes 3D Studio and the Version Converter?</summary>
-            <div class="answer">3D Studio (GeckoLib models and animations for your mobs) and the Version Converter are part of the Studio plan. Builder and Pro include everything else: the Mod Assistant, Texture Studio, Build &amp; Run and attachments, with Pro adding the High thinking mode.</div>
+            <summary>Which plan includes 3D Studio, Particles and the Version Converter?</summary>
+            <div class="answer">3D Studio (GeckoLib mobs and animations, 3D weapons, tools, guns and armor), Particles and the Version Converter are part of the Studio plan. Builder and Pro include everything else: the Mod Assistant, Texture Studio, Sounds, Recipes &amp; Loot, Build &amp; Run with the test server, and attachments, with Pro adding the High thinking mode.</div>
+          </details>
+          <details>
+            <summary>Where do my mod's sounds come from?</summary>
+            <div class="answer">When the Assistant adds a mob or a sound, the <b>Sounds</b> page fills it in with a fitting Minecraft sound - a golem gets golem sounds, a gun gets a shot - so nothing is silent. You can pick any of the 1,968 Minecraft sounds instead (listen first), import your own .ogg, and shape each one: tone and speed, loudness, how far it carries, how often each variant plays and how much it varies. Your mod refers to Minecraft's sounds by name; it never contains Mojang's sound files. Then <b>Connect sounds to the code</b> and the Assistant hooks them up.</div>
+          </details>
+          <details>
+            <summary>Can I run a server to test with friends?</summary>
+            <div class="answer">Yes. On <b>Build &amp; Run</b>, open <b>Server settings</b>: you see the address for this PC and for your local network, and you can set the port, allow offline players (needed for the development client), add admins, and choose game mode, difficulty, PvP and more. Minecraft's own EULA is asked once - you agree to it yourself - and then <b>Run server</b> starts it. To let friends join over the internet, forward the port on your router.</div>
           </details>
           <details>
             <summary>What does "new tokens" mean on Free?</summary>
