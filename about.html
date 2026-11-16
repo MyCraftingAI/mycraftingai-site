@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261127">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -112,7 +112,9 @@
           { "@type": "Question", "name": "What is MyCraftingAI?",
             "acceptedAnswer": { "@type": "Answer", "text": "MyCraftingAI is a Windows desktop app and AI assistant for Minecraft Java Edition modders. It writes Java for Forge, NeoForge and Fabric mods, paints textures, builds GeckoLib 3D models, converts mods between loaders and Minecraft versions and compiles and runs the mod with Gradle." } },
           { "@type": "Question", "name": "Which mod loaders and Minecraft versions does MyCraftingAI support?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Forge, NeoForge and Fabric projects on the Minecraft versions each loader publishes, plus datapacks. The Version Converter reads Forge, NeoForge, Fabric and Quilt mods of any version and converts them to Forge 1.7.10 or newer, NeoForge 1.20.1 or newer and Fabric 1.14 or newer, including the latest releases." } },
+            "acceptedAnswer": { "@type": "Answer", "text": "Forge (1.7.10 to 26.x), NeoForge (1.20.2 to 26.x) and Fabric (1.14.3 to 26.x) projects, plus datapacks. Every Minecraft version the app offers has its own verified, version-exact guides in the app's built-in reference library, so the AI writes code with the right names and APIs for that exact version. The Version Converter reads Forge, NeoForge, Fabric and Quilt mods of any version and converts them to any of those versions." } },
+          { "@type": "Question", "name": "What happens when my mod doesn't compile?",
+            "acceptedAnswer": { "@type": "Answer", "text": "MyCraftingAI's Auto-Healer checks the mod's JSON files and mod id before every build, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - by itself, without AI tokens. Only what is left goes to the AI, together with the exact error lines and the real class and method names of the project's Minecraft version." } },
           { "@type": "Question", "name": "Can MyCraftingAI convert a 1.12.2 or 1.16.5 mod to 1.21.1?",
             "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Version Converter detects the mod's loader and version, ports the code and resources (including the 1.13 Flattening and the 1.21 data changes) to each target you choose and saves every version as a ready-to-build ZIP with a report. The token estimate is shown before it starts." } },
           { "@type": "Question", "name": "Is MyCraftingAI free?",
@@ -152,7 +154,8 @@
           <span class="eyebrow">What is MyCraftingAI?</span>
           <h2>A complete mod studio, driven by plain English.</h2>
           <p><b>MyCraftingAI is an advanced desktop application for Minecraft modders.</b> You describe what you want - "a ruby ore between Y -16 and 32 that drops one or two rubies", "a dragon that flaps its wings while flying" - and the app turns it into working mod code and assets for <b>Forge, NeoForge or Fabric</b>, with <b>GeckoLib</b> added automatically when your mod uses animated 3D entities.</p>
-          <p>It is built around real Minecraft development: projects start from the <b>official MDK and example-mod templates</b> and are renamed to your mod (smart project scaffolding), code is compiled with <b>Gradle</b>, and the right <b>Java</b> version is picked or downloaded for you. When a build fails, the compiler errors go straight back to the AI, which fixes the code - and the app tells setup problems (wrong Java, no internet) apart from code problems, so tokens are never spent "fixing" code that is fine.</p>
+          <p>It is built around real Minecraft development: projects start from the <b>official MDK and example-mod templates</b> and are renamed to your mod (smart project scaffolding), code is compiled with <b>Gradle</b>, and the right <b>Java</b> version is picked or downloaded for you. When a build fails, the built-in <b>Auto-Healer</b> repairs the common errors first - missing imports, renamed classes, known API changes between versions - without spending tokens, and only what is left goes to the AI. The app also tells setup problems (wrong Java, no internet) apart from code problems, so tokens are never spent "fixing" code that is fine.</p>
+          <p>Every answer is grounded in a <b>version-exact reference library</b> that ships with the app: modding guides for each Forge, NeoForge, Fabric and Quilt release, checked against the real game and loader files of that version. The AI reads the guides for your project's exact version before it writes, and looks up any class it is unsure about in the middle of its answer.</p>
           <p>Beyond writing code, MyCraftingAI includes a <b>3D Studio</b> for GeckoLib models and animations, a <b>Texture Studio</b> with a pixel-art AI, and a <b>Version Converter</b> that ports existing mods across loaders and Minecraft versions - from classics such as <b>1.12.2 and 1.16.5 up to 1.21.1 and newer</b> - saving each result as a ready-to-build ZIP.</p>
         </div>
       </div>
@@ -170,7 +173,7 @@
           <article class="ws-card">
             <div class="ws-top"><h3>Mod Assistant (chat)</h3><span class="tag">All plans</span></div>
             <p>Chat with an AI that reads your project before it writes. Each answer lists the files it created or changed, so you can review, undo or build straight away.</p>
-            <ul><li>Items, blocks, ores, tools, armour, mobs, recipes, loot and world generation</li><li>Version-aware: uses the exact APIs of your loader and Minecraft version</li><li>Attach screenshots or reference images</li></ul>
+            <ul><li>Items, blocks, ores, tools, armour, mobs, recipes, loot and world generation</li><li>Version-exact: reads verified guides for your loader and Minecraft version, and looks up classes mid-answer</li><li>Attach screenshots or reference images</li></ul>
             <img src="assets/img/assistant.png?v=20261126" alt="MyCraftingAI Mod Assistant with a finished request and the list of changed files" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
@@ -188,7 +191,7 @@
           <article class="ws-card">
             <div class="ws-top"><h3>Version Converter</h3><span class="tag studio">Studio plan</span></div>
             <p>Point it at a mod folder: it detects the loader and Minecraft version, ports the mod to every loader and version you pick, and saves each one as a ready-to-build ZIP with a conversion report.</p>
-            <ul><li>From Forge, NeoForge, Fabric and Quilt mods of any version</li><li>To Forge 1.7.10+, NeoForge 1.20.1+ and Fabric 1.14+ - e.g. 1.12.2 or 1.16.5 to 1.21.1</li><li>Predictable token estimate before it starts; compile check with 1 to unlimited repair rounds</li><li>Every version kept as a project: pick it next to Run Mod and test it one by one</li></ul>
+            <ul><li>From Forge, NeoForge, Fabric and Quilt mods of any version</li><li>To Forge 1.7.10+, NeoForge 1.20.2+ and Fabric 1.14.3+ up to 26.x - every target with verified guides</li><li>Predictable token estimate before it starts; compile check with 1 to unlimited repair rounds</li><li>Every version kept as a project: pick it next to Run Mod and test it one by one</li></ul>
             <img src="assets/img/version-converter.png?v=20261126" alt="MyCraftingAI Version Converter converting a mod to several loaders and Minecraft versions with a token estimate" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
@@ -199,8 +202,8 @@
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Build &amp; Run</h3><span class="tag">All plans</span></div>
-            <p>Compile with Gradle and launch the Minecraft development client in one click. Failed builds go back to the assistant to fix, as many rounds as you allow, and a load check confirms the game really starts with your mod.</p>
-            <ul><li>Right Java (8, 17, 21 or 25) chosen or downloaded automatically</li><li>Setup problems explained instead of sent to the AI</li><li>Test server with its addresses, port, admins and offline players</li><li>Export: the ready-to-play .jar or the project as a ZIP - one version or all</li></ul>
+            <p>Compile with Gradle and launch the Minecraft development client in one click. The Auto-Healer fixes common errors first without tokens; what's left goes to the assistant, as many rounds as you allow, and a load check confirms the game really starts with your mod.</p>
+            <ul><li>Auto-Healer: JSON files, mod id, imports and version API changes repaired before the AI is asked</li><li>Right Java (8, 17, 21 or 25) chosen or downloaded automatically</li><li>Setup problems explained instead of sent to the AI</li><li>Test server with its addresses, port, admins and offline players</li><li>Export: the ready-to-play .jar or the project as a ZIP - one version or all</li></ul>
             <img src="assets/img/build-run.png?v=20261126" alt="MyCraftingAI Build and Run page with the compile pipeline and game log" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
@@ -233,13 +236,30 @@
           <h2>Built for the whole modding ecosystem.</h2>
         </div>
         <dl class="facts-list">
-          <dt>New projects</dt><dd>NeoForge, Forge and Fabric on every Minecraft version the loader publishes, plus datapacks</dd>
+          <dt>New projects</dt><dd>Forge 1.7.10 to 26.x, NeoForge 1.20.2 to 26.x and Fabric 1.14.3 to 26.x - every version with verified guides (<a href="#versions">full list below</a>) - plus datapacks</dd>
+          <dt>Reference library</dt><dd>Version-exact guides for every Forge, NeoForge, Fabric and Quilt version the app offers, checked against that version's real game and loader files - built into the app and available offline</dd>
           <dt>Version Converter - from</dt><dd>Forge, NeoForge, Fabric and Quilt mods of any version (old MCP, Yarn and Mojang names are all understood)</dd>
-          <dt>Version Converter - to</dt><dd>Forge 1.7.10 and newer, NeoForge 1.20.1 and newer, Fabric 1.14 and newer - up to the latest releases. Fabric builds also run on Quilt Loader.</dd>
+          <dt>Version Converter - to</dt><dd>Any version in the list below: Forge 1.7.10 and newer, NeoForge 1.20.2 and newer, Fabric 1.14.3 and newer - up to the latest 26.x releases. Fabric builds also run on Quilt Loader.</dd>
           <dt>3D models</dt><dd>GeckoLib, with the release made for your loader and Minecraft version added automatically</dd>
           <dt>Java</dt><dd>Java 8, 16, 17, 21 and 25 - picked per Minecraft version and build tools, downloaded once when missing</dd>
           <dt>Platform</dt><dd>Windows 10 and Windows 11, 64-bit</dd>
         </dl>
+      </div>
+    </section>
+
+    <!-- ============================================== SUPPORTED VERSIONS -->
+    <section class="section" id="versions" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Supported versions</span>
+          <h2>Every version, with its own verified guides.</h2>
+          <p>These are the Minecraft versions you can pick in the app - for a new project and as a Version Converter target. Each one has version-exact modding guides in the app's reference library, so the AI writes code with the right names and APIs for that exact version. The list comes from the same library the app ships with.</p>
+        </div>
+        <div class="kb-summary" data-kb-summary aria-live="polite"></div>
+        <div class="kb-grid" data-kb-grid>
+          <noscript><p class="kb-note">Turn on JavaScript to see the full list. In short: Forge 1.7.10 to 26.x, NeoForge 1.20.2 to 26.x, Fabric 1.14.3 to 26.x.</p></noscript>
+        </div>
+        <p class="kb-note" data-kb-note></p>
       </div>
     </section>
 
@@ -256,7 +276,8 @@
           <div class="stack-item"><b>Gradle</b><span>Builds use each project's own Gradle wrapper - exactly how the loader's official tools build the mod.</span></div>
           <div class="stack-item"><b>Java 21 / 25 integration</b><span>Detects installed JDKs and picks the one each build needs - Java 21 for current Minecraft, Java 25 for the newest build tools, 8 and 17 for older versions - downloading it when missing.</span></div>
           <div class="stack-item"><b>AI gateway</b><span>DeepSeek models behind an OpenAI-compatible gateway run by MyCraftingAI. Provider keys stay on our servers and are never shipped in the app.</span></div>
-          <div class="stack-item"><b>Version profiles</b><span>Loader- and version-specific rules (1.12 to 1.21+) keep the AI on the right APIs, mappings and data formats.</span></div>
+          <div class="stack-item"><b>Version-exact reference library</b><span>Modding guides for every supported loader version (1.7.10 to 26.x), verified against the real game and loader files and built into the app, keep the AI on the right APIs, mappings and data formats.</span></div>
+          <div class="stack-item"><b>Auto-Healer</b><span>Deterministic repairs for JSON files, mod ids, imports and known version API changes run before any AI call, with a backup of every file they touch.</span></div>
           <div class="stack-item"><b>Your files stay yours</b><span>Code, textures and models are written to your project folder. Backups of changed files are kept inside the project.</span></div>
         </div>
       </div>
@@ -286,5 +307,6 @@
   <script src="assets/js/plans.js"></script>
   <script src="assets/js/api.js?v=20261124"></script>
   <script src="assets/js/ui.js?v=20261124"></script>
+  <script src="assets/js/versions.js?v=20261127"></script>
 </body>
 </html>

@@ -464,6 +464,7 @@
       note: "item + texture",
       steps: [
         "Read 6 project files",
+        "Read the NeoForge 1.21.1 guides for items and tools",
         "Planned a sword tier repaired with rubies",
         "Wrote item/RubySword.java",
         "Registered it in ModItems.java",
@@ -483,7 +484,8 @@
         "Wrote block/CopperLampBlock.java",
         "Wrote blockstates/copper_lamp.json",
         "Painted lamp textures: off and lit",
-        "Compiled with Gradle - 1 error fixed automatically",
+        "Auto-Healer added a missing import - no tokens used",
+        "Compiled with Gradle",
         "Launched the game - mod loaded"
       ],
       files: [["J", "block/CopperLampBlock.java", "new", "+58"], ["J", "ModBlocks.java", "edited", "+6"], ["{}", "blockstates/copper_lamp.json", "new", "+18"], ["png", "block/copper_lamp_on.png", "new", "16 x 16"]],
@@ -494,6 +496,7 @@
       note: "entity + loot table",
       steps: [
         "Read 7 project files",
+        "Looked up the NeoForge 1.21.1 entity classes",
         "Planned a frog variant with its own loot table",
         "Wrote entity/SwampFrog.java",
         "Wrote loot_table/entities/swamp_frog.json",

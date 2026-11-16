@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css?v=20261123">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261123">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261127">
 </head>
 <body data-page="admin">
   <div class="ad-gate" data-gate>
@@ -43,6 +43,10 @@
       <button class="ad-nav" data-nav="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Activity log</button>
       <button class="ad-nav" data-nav="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>System</button>
       <div class="ad-grow"></div>
+      <div class="ad-muted" style="font-size:12px;padding:0 12px 10px;display:flex;align-items:center;gap:8px" title="Dashboard, insights, users and activity refresh by themselves every 15 seconds">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--mint,#3DD68C);box-shadow:0 0 8px var(--mint,#3DD68C)"></span>
+        <span>Live · <span data-live-stamp>updates every 15 s</span></span>
+      </div>
       <div class="ad-me">
         <span class="ad-avatar" data-me-avatar>A</span>
         <div style="min-width:0"><b data-me-name>Admin</b><span data-me-email></span></div>
@@ -304,7 +308,7 @@
         <div class="ad-chips" data-status-chips></div>
         <div class="ad-tablewrap">
           <table class="ad-table">
-            <thead><tr><th class="ck"><input type="checkbox" data-check-all aria-label="Select all on this page"></th><th>User</th><th>Plan</th><th>Today</th><th>AI</th><th>Status</th><th>Last active</th><th>Joined</th></tr></thead>
+            <thead><tr><th class="ck"><input type="checkbox" data-check-all aria-label="Select all on this page"></th><th>User</th><th>Plan</th><th>Usage</th><th>AI</th><th>Status</th><th>Last active</th><th>Joined</th></tr></thead>
             <tbody data-rows></tbody>
           </table>
         </div>
@@ -436,6 +440,20 @@
           <button class="btn btn-ghost btn-sm" data-updates-refresh>Check now</button>
         </div>
         <div class="ad-grid" data-updates style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
+        <div class="ad-section-title">Desktop app release &amp; reference library</div>
+        <div class="ad-grid ad-release" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+          <div class="ad-card">
+            <div class="ad-inline" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div style="min-width:0"><h3 data-release-title>What's new in the live app</h3><p class="ad-sub" style="margin:0" data-release-sub>Release notes users see in Settings &gt; Updates and on the download page</p></div><a class="btn btn-ghost btn-sm" href="get.html" target="_blank" rel="noopener">Download page ↗</a></div>
+            <div class="ad-notes" data-release-notes><p class="ad-muted">Loading...</p></div>
+          </div>
+          <div class="ad-card">
+            <div class="ad-inline" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div style="min-width:0"><h3>Reference library</h3><p class="ad-sub" style="margin:0" data-kb-sub>Minecraft versions with verified, version-exact guides in the app</p></div><a class="btn btn-ghost btn-sm" href="about.html#versions" target="_blank" rel="noopener">Public list ↗</a></div>
+            <div class="ad-kb-kpis" data-kb-kpis></div>
+            <div class="ad-rows" data-kb-rows></div>
+            <details class="ad-kb-partial" data-kb-partial hidden><summary></summary><div class="ad-rows" data-kb-partial-rows></div></details>
+            <p class="ad-hint" style="margin:10px 0 0">The app offers only these versions on its new-project screen and as Version Converter targets. Refreshed on every release by <code>tools/release.py</code>.</p>
+          </div>
+        </div>
         <div class="ad-section-title">Server health</div>
         <div class="ad-grid ad-kpis" data-health></div>
         <div class="ad-card" style="margin-bottom:14px"><h3>Integrations</h3><div class="ad-rows" data-integrations></div></div>
@@ -492,6 +510,6 @@
   <script src="assets/js/plans.js"></script>
   <script src="assets/js/api.js?v=20261124"></script>
   <script src="assets/js/ui.js?v=20261124"></script>
-  <script src="assets/js/admin.js?v=20261125"></script>
+  <script src="assets/js/admin.js?v=20261127"></script>
 </body>
 </html>

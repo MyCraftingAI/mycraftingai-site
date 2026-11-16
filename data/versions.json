@@ -1,0 +1,936 @@
+{
+ "appVersion": "1.1.2",
+ "generated": "2026-11-16T11:27:41Z",
+ "libraryBuilt": "2026-11-16",
+ "guidesPerVersion": 7,
+ "totals": {
+  "folders": 131,
+  "offered": 124,
+  "complete": 92,
+  "minecraftVersions": 57
+ },
+ "loaders": [
+  {
+   "id": "forge",
+   "label": "Forge",
+   "count": 52,
+   "newest": "26.3",
+   "oldest": "1.7.10",
+   "usedFor": [
+    "new projects",
+    "Version Converter targets",
+    "Assistant"
+   ],
+   "versions": [
+    {
+     "minecraft": "26.3",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.2",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1.2",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1.1",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "1.21.11",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.10",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.9",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.8",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.7",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.6",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.5",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.4",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.3",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.1",
+     "guides": 6,
+     "complete": false,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21",
+     "guides": 6,
+     "complete": false,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.6",
+     "guides": 6,
+     "complete": false,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.4",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.3",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.19.4",
+     "guides": 6,
+     "complete": false,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.19.3",
+     "guides": 6,
+     "complete": false,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.19.2",
+     "guides": 6,
+     "complete": false,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.19.1",
+     "guides": 6,
+     "complete": false,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.19",
+     "guides": 6,
+     "complete": false,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.18.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.18.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.18",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.17.1",
+     "guides": 6,
+     "complete": false,
+     "java": 16,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.16.5",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.16.4",
+     "guides": 6,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.16.3",
+     "guides": 6,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.16.2",
+     "guides": 6,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.16.1",
+     "guides": 6,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.15.2",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.15.1",
+     "guides": 5,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.15",
+     "guides": 5,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.14.4",
+     "guides": 4,
+     "complete": false,
+     "java": 8,
+     "names": "hybrid"
+    },
+    {
+     "minecraft": "1.12.2",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.12.1",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.12",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.11.2",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.11",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.10.2",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.9.4",
+     "guides": 6,
+     "complete": false,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.9",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.8.9",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.8.8",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.8",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    },
+    {
+     "minecraft": "1.7.10",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "mcp"
+    }
+   ]
+  },
+  {
+   "id": "neoforge",
+   "label": "NeoForge",
+   "count": 14,
+   "newest": "26.3",
+   "oldest": "1.20.2",
+   "usedFor": [
+    "new projects",
+    "Version Converter targets",
+    "Assistant"
+   ],
+   "versions": [
+    {
+     "minecraft": "26.3",
+     "guides": 7,
+     "complete": true,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.2",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1.2",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "1.21.11",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.10",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.8",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.5",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.4",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.3",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21.1",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.21",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.6",
+     "guides": 6,
+     "complete": false,
+     "java": 21,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.4",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    },
+    {
+     "minecraft": "1.20.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "mojang"
+    }
+   ]
+  },
+  {
+   "id": "fabric",
+   "label": "Fabric",
+   "count": 45,
+   "newest": "26.3",
+   "oldest": "1.14.3",
+   "usedFor": [
+    "new projects",
+    "Version Converter targets",
+    "Assistant"
+   ],
+   "versions": [
+    {
+     "minecraft": "26.3",
+     "guides": 7,
+     "complete": true,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.2",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1.2",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1.1",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "26.1",
+     "guides": 6,
+     "complete": false,
+     "java": 25,
+     "names": "official"
+    },
+    {
+     "minecraft": "1.21.11",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.10",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.9",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.8",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.7",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.6",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.5",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.4",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.3",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.2",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21.1",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.6",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.5",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.4",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.3",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.4",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.3",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.18.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.18.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.18",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.17.1",
+     "guides": 6,
+     "complete": false,
+     "java": 16,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.17",
+     "guides": 6,
+     "complete": false,
+     "java": 16,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.16.5",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.16.4",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.16.3",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.16.2",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.16.1",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.16",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.15.2",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.15.1",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.15",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.14.4",
+     "guides": 7,
+     "complete": true,
+     "java": 8,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.14.3",
+     "guides": 3,
+     "complete": false,
+     "java": 8,
+     "names": "yarn"
+    }
+   ]
+  },
+  {
+   "id": "quilt",
+   "label": "Quilt",
+   "count": 13,
+   "newest": "1.21.1",
+   "oldest": "1.18.2",
+   "usedFor": [
+    "Assistant (opened Quilt projects)"
+   ],
+   "versions": [
+    {
+     "minecraft": "1.21.1",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.21",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.6",
+     "guides": 7,
+     "complete": true,
+     "java": 21,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.4",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.20",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.4",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.3",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19.1",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.19",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    },
+    {
+     "minecraft": "1.18.2",
+     "guides": 7,
+     "complete": true,
+     "java": 17,
+     "names": "yarn"
+    }
+   ]
+  }
+ ]
+}

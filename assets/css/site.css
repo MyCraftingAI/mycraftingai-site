@@ -843,3 +843,27 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
   .contact-card .row2 { grid-template-columns: 1fr; }
   .page-hero { padding: 64px 0 28px; }
 }
+
+/* -------------------------------------------------- about: supported versions */
+#versions { scroll-margin-top: 90px; }
+.kb-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+.kb-summary:empty { display: none; }
+.kb-stat { border: 1px solid var(--rim); border-radius: 14px; padding: 16px 18px; background: rgba(255,255,255,.015); }
+.kb-stat b { display: block; font: 700 26px var(--font); color: var(--text); letter-spacing: -.01em; }
+.kb-stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 13.5px; }
+.kb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.kb-card { border: 1px solid var(--rim); border-radius: 16px; background: var(--surface); padding: 22px; min-width: 0; }
+.kb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.kb-head h3 { font-size: 18px; }
+.kb-count { font: 500 12px var(--mono); color: var(--mint); border: 1px solid rgba(61,214,140,.35); border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+.kb-range { margin-top: 4px; font: 600 14px var(--mono); color: var(--azure); }
+.kb-blurb { margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.kb-lines { margin-top: 14px; border-top: 1px solid var(--line); }
+.kb-line { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: start; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.kb-line:last-child { border-bottom: 0; padding-bottom: 0; }
+.kb-line-name { font: 600 12.5px var(--mono); color: var(--dim); padding-top: 3px; }
+.kb-vs { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.kb-v { font: 500 12.5px var(--mono); color: var(--text); background: rgba(255,255,255,.04); border: 1px solid var(--rim); border-radius: 6px; padding: 2px 7px; }
+.kb-note { margin-top: 16px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+@media (max-width: 760px) { .kb-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 380px) { .kb-grid { grid-template-columns: 1fr; } .kb-card { padding: 18px; } }

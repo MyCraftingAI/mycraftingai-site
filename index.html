@@ -57,7 +57,7 @@
             <span class="chip">Forge</span>
             <span class="chip">Fabric</span>
             <span class="chip">Datapacks</span>
-            <span class="chip">Every Minecraft version your loader supports</span>
+            <a class="chip" href="about.html#versions" title="See every supported version">1.7.10 &ndash; 26.x, verified per version</a>
           </div>
         </div>
 
@@ -169,11 +169,11 @@
             </button>
             <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png?v=20261126" data-alt="Build and Run page with the compile pipeline and game log">
               <h3>Build &amp; Run <span class="k">Ctrl 8</span></h3>
-              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the errors go straight back to the assistant. Run a test server with its addresses, admins and offline players. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
+              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the Auto-Healer fixes common errors first - without tokens - and the rest goes straight back to the assistant. Run a test server with its addresses, admins and offline players. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
             </button>
             <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png?v=20261126" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
               <h3>Version Converter <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 9</span></h3>
-              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to the latest - and hands you a ready-to-build ZIP for each, with the token cost shown first. Then pick each version next to Run Mod to build and test it, one by one.</p>
+              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to 26.x, each with verified guides - and hands you a ready-to-build ZIP for each, with the token cost shown first. Then pick each version next to Run Mod to build and test it, one by one.</p>
             </button>
           </div>
           <figure class="shot" style="margin:0">
@@ -194,7 +194,7 @@
         <div class="steps-grid">
           <div class="step-card reveal">
             <h3>Create a project</h3>
-            <p>Pick NeoForge, Forge or Fabric and a Minecraft version. The official template is downloaded and renamed to your mod, so your package is <code>com.my_first_mod</code>, not <code>com.example</code>.</p>
+            <p>Pick NeoForge, Forge or Fabric and a Minecraft version - every version in the list has its own verified guides. The official template is downloaded and renamed to your mod, so your package is <code>com.my_first_mod</code>, not <code>com.example</code>.</p>
           </div>
           <div class="step-card reveal">
             <h3>Say what you want</h3>
@@ -202,11 +202,11 @@
           </div>
           <div class="step-card reveal">
             <h3>Run it</h3>
-            <p>Press <code>Run Mod</code>. It compiles, fixes its own build errors as many times as you allow, and opens Minecraft with your mod loaded.</p>
+            <p>Press <code>Run Mod</code>. It checks and compiles your mod, repairs common errors without spending tokens, has the assistant fix the rest as many times as you allow, and opens Minecraft with your mod loaded.</p>
           </div>
         </div>
         <div class="facts reveal">
-          <div class="fact"><b>All versions</b><span>NeoForge, Forge, Fabric and datapacks - whatever version you pick</span></div>
+          <div class="fact"><b>1.7.10 &ndash; 26.x</b><span>NeoForge, Forge, Fabric and datapacks - each version with verified guides</span></div>
           <div class="fact"><b>16-64 px</b><span>Textures painted at the size the game expects</span></div>
           <div class="fact"><b>1 to &infin;</b><span>auto-fix rounds when a build fails - you set the limit</span></div>
           <div class="fact"><b>Your files</b><span>Everything stays in your own project folder</span></div>
@@ -332,7 +332,7 @@
           </details>
           <details>
             <summary>Which Minecraft versions and loaders work?</summary>
-            <div class="answer">NeoForge, Forge, Fabric and plain datapacks, on every Minecraft version those loaders publish - from older releases to the newest. The new-project wizard loads the live list of versions and loader builds, and the assistant adapts its code to the exact version of your project, so a 1.20.1 Forge mod and a 1.21.4 NeoForge mod each get the right APIs.</div>
+            <div class="answer">Forge from 1.7.10, NeoForge from 1.20.2 and Fabric from 1.14.3 - up to the newest 26.x releases - plus plain datapacks. Every version you can pick has its own guides in the app's built-in reference library, checked against that version's real game and loader files, so a 1.12.2 Forge mod, a 1.20.1 Fabric mod and a 26.3 NeoForge mod each get the right names and APIs. The new-project screen shows only those versions, matched with the loader's live list of builds. <a href="about.html#versions">See every supported version</a>.</div>
           </details>
           <details>
             <summary>What is a token, and what happens when I run out?</summary>
@@ -356,7 +356,7 @@
           </details>
           <details>
             <summary>Can it move my mod to another loader or Minecraft version?</summary>
-            <div class="answer">Yes - with the Version Converter, part of the Studio plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.1 or newer and Fabric 1.14 or newer, up to the latest releases (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated tokens for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you - up to the number of repair rounds you choose, or until it compiles. Every converted version is also kept as a project: pick it in the Version list next to Run Mod to build and test it in the app, and use Export to save its .jar or project ZIP. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
+            <div class="answer">Yes - with the Version Converter, part of the Studio plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.2 or newer and Fabric 1.14.3 or newer, up to the latest 26.x releases - every target version has verified guides the conversion is written from (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated tokens for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you - up to the number of repair rounds you choose, or until it compiles. Every converted version is also kept as a project: pick it in the Version list next to Run Mod to build and test it in the app, and use Export to save its .jar or project ZIP. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
           </details>
           <details>
             <summary>How do I get my mod file (.jar) to play or share?</summary>
@@ -380,7 +380,7 @@
           </details>
           <details>
             <summary>How many times does it try to fix a failing build?</summary>
-            <div class="answer">You decide. In Settings &rarr; Assistant, set any number of attempts or switch on Unlimited. With Unlimited it keeps going until the build passes or your tokens run out.</div>
+            <div class="answer">First the <b>Auto-Healer</b> tries, for free: before every build it checks your JSON files and mod id, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - up to 3 times without using any tokens, keeping a backup of each file it changes. Whatever is left goes to the assistant with the exact error lines and the real names from your Minecraft version. How many AI rounds it gets is up to you: in Settings &rarr; Assistant, set any number of attempts or switch on Unlimited, which keeps going until the build passes or your tokens run out. The Auto-Healer can be switched off there too.</div>
           </details>
           <details>
             <summary>Who owns the mods I make?</summary>
@@ -392,7 +392,7 @@
           </details>
           <details>
             <summary>Does it work without internet?</summary>
-            <div class="answer">The editor and your files do. The assistant and the pixel-art AI need a connection, because the work runs on our servers.</div>
+            <div class="answer">The editor, your files and the built-in version reference library do. The assistant and the pixel-art AI need a connection, because the work runs on our servers.</div>
           </details>
           <details>
             <summary>Is this made by Mojang?</summary>
@@ -422,6 +422,6 @@
   <script src="assets/js/plans.js?v=20261123"></script>
   <script src="assets/js/api.js?v=20261124"></script>
   <script src="assets/js/ui.js?v=20261124"></script>
-  <script src="assets/js/home.js?v=20261124"></script>
+  <script src="assets/js/home.js?v=20261127"></script>
 </body>
 </html>

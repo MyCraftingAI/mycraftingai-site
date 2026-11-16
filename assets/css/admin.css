@@ -387,3 +387,20 @@ body[data-page="admin"] { background: var(--ground); }
   .ad-pr-q { grid-column: 1 / -1; }
   .ad-pr-two { grid-template-columns: 1fr; }
 }
+
+/* System > Desktop app release & reference library */
+.ad-release { margin-bottom: 4px; }
+.ad-notes { margin-top: 12px; }
+.ad-note-list { margin: 0 0 10px; padding-left: 18px; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+.ad-note-list li { margin: 0 0 8px; }
+.ad-note-list b { color: var(--text); font-weight: 600; }
+.ad-note-list code, .ad-kb-partial code { font: 12px var(--mono); color: var(--azure); }
+.ad-kb-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0 6px; }
+.ad-kb-kpis > div { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,.02); }
+.ad-kb-kpis b { display: block; font: 600 20px var(--font); color: var(--text); }
+.ad-kb-kpis span { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.ad-kb-partial { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 10px; }
+.ad-kb-partial summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+.ad-kb-partial summary:hover { color: var(--text); }
+.ad-kb-partial .ad-rows { max-height: 260px; overflow: auto; padding-right: 4px; }
+@media (max-width: 560px) { .ad-kb-kpis { grid-template-columns: 1fr 1fr; } }

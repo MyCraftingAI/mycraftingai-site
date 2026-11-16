@@ -64,6 +64,7 @@
   function initial(u) { return esc(((u.username || u.email || "?").charAt(0) || "?").toUpperCase()); }
   function errText(e) { return (e && e.message) || "Something went wrong."; }
   function toast(msg, isErr) {
+    if (isErr && state.quiet) return;  // a background refresh that failed: the next one tries again
     var t = $("[data-toast]");
     t.textContent = msg; t.className = "ad-toast show" + (isErr ? " err" : "");
     clearTimeout(t._t); t._t = setTimeout(function () { t.className = "ad-toast"; }, isErr ? 4200 : 2600);
@@ -246,7 +247,7 @@
   function loadInsights() {
     state.insDays = state.insDays || 30;
     $$("[data-ins-range] button").forEach(function (b) { b.classList.toggle("on", Number(b.dataset.days) === state.insDays); });
-    $("[data-ins-kpis]").innerHTML = '<div class="ad-skel"></div>';
+    if (!state.quiet) $("[data-ins-kpis]").innerHTML = '<div class="ad-skel"></div>';
     A.insights(state.insDays).then(function (d) {
       var dl = d.downloads, act = d.active;
       var signups = d.days.reduce(function (s, x) { return s + x.signups; }, 0);
@@ -753,18 +754,20 @@
     if (u.hasNote) t.push('<span class="ad-tag plan">note</span>');
     return t.join("") || '<span class="ad-muted">active</span>';
   }
+  function spanOf(u) { return u.period === "day" ? "today" : "this month"; }
   function usage(u) {
-    if (u.dailyLimit == null) return '<span class="ad-mono">' + fmt(u.usedToday) + '</span> <span class="ad-muted">/ ∞</span>';
+    var when = '<div class="ad-muted" style="font-size:11px">' + spanOf(u) + "</div>";
+    if (u.dailyLimit == null) return '<span class="ad-mono">' + fmt(u.usedToday) + '</span> <span class="ad-muted">/ ∞</span>' + when;
     var pct = Math.min(100, u.usedToday / Math.max(1, u.dailyLimit) * 100);
     var col = pct >= 100 ? "var(--ruby)" : pct > 80 ? "var(--amber)" : "var(--accent)";
     return '<span class="ad-mono">' + fmt(u.usedToday) + '</span> <span class="ad-muted">/ ' + fmt(u.dailyLimit) + "</span>" +
-      '<div class="ad-meter"><i style="width:' + Math.max(1, pct) + "%;background:" + col + '"></i></div>';
+      '<div class="ad-meter"><i style="width:' + Math.max(1, pct) + "%;background:" + col + '"></i></div>' + when;
   }
 
   function loadUsers() {
     renderChips();
     var s = state.users;
-    $("[data-rows]").innerHTML = '<tr><td colspan="8"><div class="ad-skel" style="margin:10px 0"></div><div class="ad-skel" style="margin:10px 0;width:70%"></div></td></tr>';
+    if (!state.quiet) $("[data-rows]").innerHTML = '<tr><td colspan="8"><div class="ad-skel" style="margin:10px 0"></div><div class="ad-skel" style="margin:10px 0;width:70%"></div></td></tr>';
     return A.users({ query: s.query, page: s.page, plan: s.plan, status: s.status, sort: s.sort }).then(function (d) {
       s.page = d.page; s.pages = d.pages; s.rows = d.users;
       $("[data-rows]").innerHTML = d.users.length ? d.users.map(function (u) {
@@ -899,8 +902,8 @@
   function tabOverview(u) {
     var left = u.remainingToday == null ? "Unlimited" : fmt(u.remainingToday);
     return '<div class="ad-mini">' +
-      "<div><small>Today</small><b>" + fmt(u.usedToday) + '</b><span class="ad-muted" style="font-size:12px">of ' + tokens(u.dailyLimit) + "</span></div>" +
-      "<div><small>Left today</small><b>" + left + "</b></div>" +
+      "<div><small>Used " + spanOf(u) + "</small><b>" + fmt(u.usedToday) + '</b><span class="ad-muted" style="font-size:12px">of ' + tokens(u.dailyLimit) + "</span></div>" +
+      "<div><small>Left " + spanOf(u) + "</small><b>" + left + "</b></div>" +
       "<div><small>All-time tokens</small><b>" + fmt(u.allTime.tokens) + "</b></div>" +
       "<div><small>AI requests</small><b>" + num(u.allTime.requests) + "</b></div>" +
       "</div>" +
@@ -946,7 +949,7 @@
           '<label class="ad-check"><input type="checkbox" data-ai-notify checked> Email the user from support@</label>' +
           '<div><button class="btn btn-warn" data-ai-pause>Pause AI</button></div></div>'
       : '<div class="ad-form"><label class="ad-check"><input type="checkbox" data-ai-notify checked> Email the user that AI is back</label><div><button class="btn btn-ok" data-ai-resume>Resume AI now</button></div></div>';
-    var monthly = u.period === "month", span = monthly ? "this billing month" : "today", usage = u.usage || {};
+    var monthly = u.period !== "day", span = u.period === "month" ? "this billing month" : monthly ? "this month" : "today", usage = u.usage || {};
     var periodLine = monthly
       ? "Billing month from " + when(u.cycleStartedAt) + " · renews " + when(u.periodEndsAt) + (u.firstMonth ? " · first month" : "")
       : "Applies every day until removed. Refills at 00:00 UTC.";
@@ -1187,7 +1190,7 @@
       });
     }
     if (t.matches("[data-reset-usage]")) {
-      var spanText = u.period === "month" ? "this billing month" : "today";
+      var spanText = u.period === "month" ? "this billing month" : u.period === "none" ? "this month" : "today";
       return ask({ title: "Reset usage for " + spanText + "?", text: u.username + " has used " + num(u.usedToday) + " tokens " + spanText + ". This gives them their whole allowance back.", ok: "Reset" }).then(function (v) {
         if (v) run(t, A.update(u.id, { resetUsageToday: true }), null, "Resetting").then(function (d) { applied(d, "Usage reset"); });
       });
@@ -1360,7 +1363,7 @@
   /* ------------------------------------------------------------ activity */
   function loadEvents() {
     var ev = state.ev;
-    $("[data-events]").innerHTML = '<div class="ad-skel"></div>';
+    if (!state.quiet) $("[data-events]").innerHTML = '<div class="ad-skel"></div>';
     A.events(ev.page, ev.action).then(function (d) {
       ev.pages = d.pages;
       $("[data-events]").innerHTML = d.events.length ? d.events.map(eventHtml).join("") : '<div class="ad-empty">No activity yet.</div>';
@@ -1402,6 +1405,71 @@
           d.checkedAt ? "Checked " + esc(ago(d.checkedAt)) : ""
         ], "");
     }, function (e) { box.innerHTML = '<div class="ad-card"><p class="ad-muted">' + esc(errText(e)) + "</p></div>"; });
+  }
+
+  /* The live app's release notes (latest.json) and the reference library the app
+     ships with (data/versions.json, written by tools/export_versions.py). Both are
+     static files of this website, so they show exactly what visitors and the app see. */
+  function noteHtml(line) {
+    return esc(line).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  }
+  function siteJson(path) {
+    return fetch(path + "?" + Date.now(), { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error(path + " - HTTP " + r.status);
+      return r.json();
+    });
+  }
+  function loadRelease() {
+    var notesBox = $("[data-release-notes]"), kbRows = $("[data-kb-rows]");
+    if (!notesBox || !kbRows) return Promise.resolve();
+    var live = siteJson("latest.json").then(function (m) {
+      var items = String(m.notes || "").split(/\n+/).map(function (l) { return l.replace(/^\s*[-*]\s+/, "").trim(); }).filter(Boolean);
+      $("[data-release-title]").textContent = "What's new in v" + (m.version || "?");
+      $("[data-release-sub]").textContent = (m.published ? "Released " + when(m.published) + " · " : "") +
+        items.length + " change" + (items.length === 1 ? "" : "s") + (m.available === false ? " · download paused" : "");
+      var shown = 5;
+      notesBox.innerHTML = items.length ? '<ul class="ad-note-list">' + items.map(function (l, i) {
+        return "<li" + (i >= shown ? " hidden" : "") + ">" + noteHtml(l) + "</li>";
+      }).join("") + "</ul>" + (items.length > shown ? '<button class="btn btn-ghost btn-sm" data-notes-more>Show all ' + items.length + " changes</button>" : "")
+        : '<p class="ad-muted">This release has no notes.</p>';
+      var more = $("[data-notes-more]");
+      if (more) more.addEventListener("click", function () {
+        $$(".ad-note-list li[hidden]").forEach(function (li) { li.hidden = false; });
+        more.remove();
+      });
+      return m.version || "";
+    }, function (e) { notesBox.innerHTML = '<p class="ad-muted">' + esc(errText(e)) + "</p>"; return ""; });
+
+    var lib = siteJson("data/versions.json");
+    return Promise.all([live, lib.catch(function (e) { return { error: e }; })]).then(function (r) {
+      var liveVersion = r[0], d = r[1];
+      if (!d || d.error) {
+        kbRows.innerHTML = '<div class="r"><span>Not published yet</span><span class="ad-hint">Run <code>python tools/export_versions.py</code>, then publish the site.</span></div>';
+        return;
+      }
+      var t = d.totals || {}, per = d.guidesPerVersion || 7;
+      function kpi(v, k) { return '<div><b>' + esc(String(v)) + "</b><span>" + esc(k) + "</span></div>"; }
+      $("[data-kb-kpis]").innerHTML = kpi(num(t.offered || 0), "loader versions") + kpi(num(t.minecraftVersions || 0), "Minecraft versions") +
+        kpi(num(t.complete || 0), "with all " + per + " guides");
+      $("[data-kb-sub]").innerHTML = "Library built " + esc(d.libraryBuilt || "-") + " · listed for app v" + esc(d.appVersion || "?") +
+        (liveVersion && d.appVersion && liveVersion !== d.appVersion ? ' <span class="ad-tag warn">live app is v' + esc(liveVersion) + "</span>" : "");
+      var partial = [];
+      kbRows.innerHTML = (d.loaders || []).map(function (l) {
+        var full = l.versions.filter(function (v) { return v.complete; }).length;
+        l.versions.forEach(function (v) { if (!v.complete) partial.push({ loader: l.label, v: v }); });
+        return '<div class="r"><span><b style="color:var(--text)">' + esc(l.label) + "</b> " + esc(l.oldest || "-") + " – " + esc(l.newest || "-") +
+          '<br><span style="font-size:12.5px">' + esc((l.usedFor || []).join(" · ")) + "</span></span><span>" + num(l.count) + " versions<br>" +
+          '<span class="ad-tag ' + (full === l.count ? "good" : "info") + '">' + full + " complete</span></span></div>";
+      }).join("");
+      var det = $("[data-kb-partial]");
+      det.hidden = !partial.length;
+      if (partial.length) {
+        det.querySelector("summary").textContent = partial.length + " version" + (partial.length === 1 ? "" : "s") + " with some guides missing";
+        $("[data-kb-partial-rows]").innerHTML = partial.map(function (p) {
+          return '<div class="r"><span>' + esc(p.loader) + " " + esc(p.v.minecraft) + '</span><span class="ad-muted">' + p.v.guides + " of " + per + " guides</span></div>";
+        }).join("");
+      }
+    });
   }
 
   /* Live AI queue: calls running / waiting, the adaptive limit and push-backs. */
@@ -1877,7 +1945,7 @@
     users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
     server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
     pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee lemon squeezy sales",
-    activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek"
+    activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek release notes what's new changelog app version reference library minecraft versions guides loaders"
   };
   function findActions() {
     return [
@@ -2028,6 +2096,7 @@
 
   function loadSystem() {
     loadUpdates(false);
+    loadRelease();
     loadHealth();
     loadBalance(false);
     loadSenders().then(function (s) {
@@ -2368,7 +2437,7 @@
     var btn = e.target.closest && e.target.closest("[data-updates-refresh]");
     if (!btn) return;
     busy(btn, true, "Checking");
-    loadUpdates(true).then(function () { busy(btn, false); toast("Up to date"); });
+    Promise.all([loadUpdates(true), loadRelease()]).then(function () { busy(btn, false); toast("Up to date"); });
   });
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest("[data-legal-publish]");
@@ -2428,6 +2497,35 @@
   window.addEventListener("beforeunload", function (e) {
     if (PR.draft && prDirty()) { e.preventDefault(); e.returnValue = ""; }  // unsaved plans & pricing
   });
+
+  /* ------------------------------------------------------------ live view */
+  /* The numbers keep themselves current - no F5. Read-only views refresh quietly every
+     15 s while the tab is visible; anything you're editing is never touched. */
+  var LIVE = { dashboard: function () { loadDashboard(); }, insights: function () { loadInsights(); },
+    ads: function () { loadAds(); }, revenue: function () { loadRevenue(); },
+    users: function () { return loadUsers(); }, activity: function () { loadEvents(); } };
+  var lastTouch = 0;
+  ["pointerdown", "keydown", "wheel"].forEach(function (t) {
+    document.addEventListener(t, function () { lastTouch = Date.now(); }, { passive: true });
+  });
+  function liveBusy() {
+    if (document.hidden || !state.booted || !$("[data-modal]").hidden) return true;
+    var el = document.activeElement;
+    if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return true;  // typing or choosing
+    var sel = window.getSelection && window.getSelection();
+    if (sel && String(sel).length) return true;  // selecting text to copy
+    return Date.now() - lastTouch < 5000;  // in the middle of something
+  }
+  function liveTick() {
+    var load = LIVE[state.view];
+    if (!load || liveBusy()) return;
+    state.quiet = true;
+    try { Promise.resolve(load()).then(liveDone, liveDone); } catch (e) { liveDone(); }
+    $$("[data-live-stamp]").forEach(function (s) { s.textContent = "Updated " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); });
+  }
+  function liveDone() { setTimeout(function () { state.quiet = false; }, 1500); }
+  setInterval(liveTick, 15000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) setTimeout(liveTick, 300); });
 
   wirePricing();
   start();
