@@ -620,13 +620,26 @@
   function esc(text) { return window.MCA.escapeHtml(String(text == null ? "" : text)); }
   function monthlyOf(plan) { return plan.period === "month" ? plan.monthlyTokens : null; }
 
+  /** Customer price that leaves ``priceCents`` after Dodo's fee: (base + fixed) / (1 - percent), half-up. */
+  function grossCents(priceCents, t) {
+    if (priceCents <= 0) return 0;
+    var keep = 1 - Number(t.feePercent) / 100;
+    // Work in hundredths of a cent first so 562.5 rounds up like the server's Decimal maths.
+    var exact = (priceCents + Math.round(Number(t.feeFixed) * 100)) / keep;
+    return Math.floor(Math.round(exact * 100) / 100 + 0.5);
+  }
+
   /** Same formula as the server (app/core/plans.py quote): pack price if it matches, else the base rate. */
   function quote(tokens) {
     var t = DATA.topup;
     var baseCents = Math.round(tokens / 1e6 * Math.round(t.pricePerMillion * 100));
     var pack = (t.packs || []).filter(function (p) { return Number(p.tokens) === tokens; })[0];
+    if (pack && pack.totalCents != null) {  // the live catalogue sends the server's own quote
+      return { tokens: tokens, baseCents: pack.baseCents, priceCents: pack.priceCents, feeCents: pack.feeCents,
+               totalCents: pack.totalCents, discount: pack.discountPercent || 0 };
+    }
     var priceCents = pack ? (pack.priceCents != null ? pack.priceCents : Math.round(pack.price * 100)) : baseCents;
-    var feeCents = Math.round(priceCents * t.feePercent / 100) + Math.round(t.feeFixed * 100);
+    var feeCents = grossCents(priceCents, t) - priceCents;
     var saved = Math.max(0, baseCents - priceCents);
     return { tokens: tokens, baseCents: baseCents, priceCents: priceCents, feeCents: feeCents,
              totalCents: priceCents + feeCents, discount: baseCents && saved ? Math.round(saved * 100 / baseCents) : 0 };
@@ -861,37 +874,15 @@
     if (!host) return;
     renderPlans();
     renderCompare();
-    // Lemon Squeezy checkout (inactive until the URLs are set in config.js).
+    // Dodo Payments checkout, opened in an overlay on this page (assets/js/checkout.js).
+    // The server makes the session (price, any running promotion code) - never the browser.
     host.addEventListener("click", function (e) {
       var button = e.target.closest("[data-checkout]");
       if (!button) return;
       var id = button.dataset.checkout;
-      var url = (cfg.checkout || {})[id];
-      if (!url) {
-        if (window.MCA.session) {
-          window.MCA.modal(
-            "Paid plans open soon",
-            "Checkout isn't switched on yet. You're signed in, so you can upgrade from your account page the moment it opens.",
-            [{ label: "Not now" }, { label: "Go to your account", primary: true, href: "account.html" }]
-          );
-          return;
-        }
-        window.MCA.modal(
-          "Paid plans open soon",
-          "Checkout isn't switched on yet. Create a free account now and we'll keep your spot - you can upgrade from your account page the moment it opens.",
-          [{ label: "Not now" }, { label: "Create free account", primary: true, href: "signup.html?plan=" + encodeURIComponent(id) }]
-        );
-        return;
-      }
-      window.MCA.api.me().then(function (me) {
-        var target = new URL(url);
-        if (me.user && me.user.email) target.searchParams.set("checkout[email]", me.user.email);
-        var promo = activePromo(id);
-        if (promo) target.searchParams.set("checkout[discount_code]", promo.code);
-        location.href = target.href;
-      }, function () {
-        location.href = "signup.html?plan=" + encodeURIComponent(id);
-      });
+      var plan = planById(id);
+      if (!window.MCA.checkout) return;
+      window.MCA.checkout.plan(id, { label: plan ? plan.name : "", back: "index.html#plan-" + id });
     });
     applyPromo();  // a promotion that was already known before the cards existed
   }
@@ -952,27 +943,8 @@
     range.addEventListener("input", function () { amount.value = range.value; renderBill(); });
 
     function buy(tokens) {
-      var api = window.MCA.api;
-      var back = location.origin + location.pathname.replace(/[^/]*$/, "") + "account.html?topup=thanks";
-      api.me().then(function (me) {
-        if (!me || !me.user) throw new api.ApiError("unauthorized", "", 401);
-        return api.billing.topup(tokens, back);
-      }).then(function (result) {
-        location.href = result.url;
-      }, function (err) {
-        if (err && (err.status === 401 || err.code === "unauthorized" || err.code === "not_live")) {
-          window.MCA.modal("Sign in to buy tokens",
-            "Top-up tokens are added to your MyCraftingAI account, so sign in (or create a free account) first. You'll come straight back here.",
-            [{ label: "Not now" }, { label: "Create account", href: "signup.html?next=" + encodeURIComponent("index.html#topup") },
-             { label: "Sign in", primary: true, href: "login.html?next=" + encodeURIComponent("index.html#topup") }]);
-          return;
-        }
-        if (err && err.code === "topups_unavailable") {
-          window.MCA.modal("Top-ups open soon", err.message || "Token top-ups aren't switched on yet.", [{ label: "OK", primary: true }]);
-          return;
-        }
-        window.MCA.modal("Couldn't start the payment", (err && err.message) || "Please try again in a minute.", [{ label: "OK", primary: true }]);
-      });
+      // Checkout opens in an overlay on this page; the server prices the tokens.
+      if (window.MCA.checkout) window.MCA.checkout.tokens(tokens, { back: "index.html#topup" });
     }
     buyButton.addEventListener("click", function () { buy(Number(buyButton.dataset.tokens)); });
     packsHost.addEventListener("click", function (e) {

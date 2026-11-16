@@ -7,7 +7,10 @@
  *  googleSignIn    true once the server's /v1/auth/google/start route works.
  *  contactEmail    Sales / support address for Enterprise (empty = "soon").
  *  downloadUrl     Windows installer link shown after sign-up (empty = "soon").
- *  checkout        Lemon Squeezy checkout URLs per paid plan (empty = "soon").
+ *
+ * Payments: Dodo Payments checkout opens in an overlay on our own pages
+ * (assets/js/checkout.js). The account server creates every checkout session,
+ * so there are no payment links or keys to set here.
  */
 /* Always use the secure site. Some phone browsers (e.g. Xiaomi's) open
    "mycraftingai.com" over plain http://, where the account server refuses
@@ -25,11 +28,6 @@ window.MCA_CONFIG = {
   googleSignIn: true,
   contactEmail: "",
   downloadUrl: "",
-  checkout: {
-    builder: "",
-    pro: "",
-    studio: ""
-  },
   /* Never change: the desktop app listens only on this host. */
   desktopCallbackHost: "127.0.0.1",
 

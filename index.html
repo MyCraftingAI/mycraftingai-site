@@ -26,7 +26,7 @@
     "url": "https://mycraftingai.com/",
     "downloadUrl": "https://mycraftingai.com/download.html",
     "screenshot": "https://mycraftingai.com/assets/img/assistant.png",
-    "offers": { "@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": "0", "highPrice": "26.75", "offerCount": "4" },
+    "offers": { "@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": "0", "highPrice": "26.46", "offerCount": "4" },
     "publisher": { "@type": "Organization", "name": "MyCraftingAI", "url": "https://mycraftingai.com/", "email": "contact@mycraftingai.com" }
   }
   </script>
@@ -35,7 +35,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261128">
 </head>
 <body>
   <header data-site-header></header>
@@ -282,7 +282,7 @@
           <p>Exactly what each plan includes - and what it doesn't.</p>
         </div>
         <div class="compare open" id="compare" role="region" aria-label="Plan comparison" tabindex="0"></div>
-        <p class="price-note">Prices in USD. Taxes may apply depending on where you live. Cancel any time from your account page - your plan runs to the end of the paid month. Payments are non-refundable (<a href="terms.html#refunds">Terms</a>).</p>
+        <p class="price-note">Prices in USD, payment processing included. Taxes may apply depending on where you live. Checkout opens right on this page (Dodo Payments). Cancel any time from your account page - your plan runs to the end of the paid month. Payments are non-refundable (<a href="terms.html#refunds">Terms</a>).</p>
       </div>
     </section>
 
@@ -307,14 +307,14 @@
           </div>
           <div class="topup-bill" aria-live="polite">
             <div class="row"><span>Tokens</span><b id="topup-tokens">1,500,000</b></div>
-            <div class="row"><span id="topup-rate">Price ($3.00 per million)</span><b id="topup-price">$4.50</b></div>
-            <div class="row"><span>Payment processing fee <i class="fee-why" title="Charged by our payment provider, Lemon Squeezy: a percentage of the price plus a fixed amount per payment.">?</i></span><b id="topup-fee">$0.73</b></div>
-            <div class="row total"><span>Total</span><b id="topup-total">$5.23</b></div>
+            <div class="row"><span id="topup-rate">Price ($2.00 per million)</span><b id="topup-price">$3.00</b></div>
+            <div class="row"><span>Payment processing fee <i class="fee-why" title="Charged by our payment provider, Dodo Payments: 4% of the payment plus $0.40. It's added on top so the token price stays the same.">?</i></span><b id="topup-fee">$0.54</b></div>
+            <div class="row total"><span>Total</span><b id="topup-total">$3.54</b></div>
             <button class="btn btn-primary btn-block" type="button" id="topup-buy">Buy 1,500,000 tokens</button>
             <p class="fine" id="topup-note">Valid for 12 months. Added to your account as soon as the payment goes through.</p>
           </div>
         </div>
-        <p class="price-note">Top-ups are one-off payments, not subscriptions. You need a free account to buy them. Payments are processed by Lemon Squeezy and are non-refundable (<a href="terms.html#topups">Terms</a>).</p>
+        <p class="price-note">Top-ups are one-off payments, not subscriptions. You need a free account to buy them. You pay on this page in a secure Dodo Payments checkout - you're never sent to another site. Payments are non-refundable (<a href="terms.html#topups">Terms</a>).</p>
       </div>
     </section>
 
@@ -340,11 +340,11 @@
           </details>
           <details>
             <summary>How does the monthly allowance work?</summary>
-            <div class="answer">Your billing month starts the moment you subscribe and renews on the same date and time every month. Your first month comes with extra tokens (for example 2,000,000 on Builder instead of 1,500,000) - once per account. Unused plan tokens expire when the month renews and don't carry over.</div>
+            <div class="answer">Your billing month starts the moment you subscribe and renews on the same date and time every month. Your first month comes with extra tokens (for example 3,000,000 on Builder instead of 2,000,000) - once per account. Each month after, the new allowance is added as soon as the renewal payment goes through. Unused plan tokens expire when the month renews and don't carry over.</div>
           </details>
           <details>
             <summary>How do token top-ups work?</summary>
-            <div class="answer">Pick a package or type any amount, and you'll see the price, the payment processing fee and the total before you pay. Top-up tokens are added to your account as soon as the payment goes through, are used only after your plan's allowance runs out, and stay valid for 12 months - they don't expire when your month renews. Bigger packages cost less per token.</div>
+            <div class="answer">Pick a package or type any amount, and you'll see the price, the payment processing fee and the total before you pay. Top-up tokens are added to your account as soon as the payment goes through, are used only after your plan's allowance runs out, and stay valid for 12 months - they don't expire when your month renews. Every amount uses the same $2.00-per-million rate; the payment fee is 4% plus $0.40, so it's a smaller share of bigger top-ups.</div>
           </details>
           <details>
             <summary>What can I do on the Free plan?</summary>
@@ -388,7 +388,7 @@
           </details>
           <details>
             <summary>How do I pay?</summary>
-            <div class="answer">Checkout runs through Lemon Squeezy, our payment provider. Subscriptions renew monthly on the date you subscribed. You can cancel from your account page at any time: you won't be charged again and you keep your plan until the end of the month you paid for. Top-ups are one-off payments with a small processing fee shown before you pay. Payments already made aren't refunded.</div>
+            <div class="answer">Payments are handled by Dodo Payments, our payment provider and merchant of record. The secure checkout opens right here on mycraftingai.com - you're never sent to another site - and Dodo Payments sends your receipt. Subscriptions renew monthly on the date you subscribed. You can cancel from your account page at any time: you won't be charged again and you keep your plan until the end of the month you paid for. Top-ups are one-off payments with a small processing fee shown before you pay. Payments already made aren't refunded.</div>
           </details>
           <details>
             <summary>Does it work without internet?</summary>
@@ -419,9 +419,10 @@
   <footer data-site-footer></footer>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js?v=20261123"></script>
-  <script src="assets/js/api.js?v=20261124"></script>
+  <script src="assets/js/plans.js?v=20261128"></script>
+  <script src="assets/js/api.js?v=20261128"></script>
   <script src="assets/js/ui.js?v=20261124"></script>
-  <script src="assets/js/home.js?v=20261127"></script>
+  <script src="assets/js/checkout.js?v=20261128"></script>
+  <script src="assets/js/home.js?v=20261128"></script>
 </body>
 </html>

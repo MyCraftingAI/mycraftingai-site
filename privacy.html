@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261128">
 </head>
 <body>
   <header data-site-header></header>
@@ -38,7 +38,7 @@
       <article class="prose">
         <span class="eyebrow">Legal</span>
         <h1>Privacy Policy</h1>
-        <p class="updated">Effective 15 November 2026</p>
+        <p class="updated">Effective 16 November 2026</p>
 
         <div class="legal-summary">
           <b>The short version</b>
@@ -63,7 +63,7 @@
           <li><b>Usage counts:</b> how many tokens and requests your account uses each day and in each billing month, to apply your plan's allowance, track your top-up tokens and show your usage.</li>
           <li><b>AI requests:</b> the instructions you type and the project context the app attaches, such as file names and the source files relevant to that request. In the 3D Studio and Texture Studio this includes your description of a mob or texture and the structure of its model (bone names, sizes and positions). When you use the Version Converter, the source code and data files of the mod you choose are sent in batches to be converted (its folder is read on your computer and never changed; assets such as textures are copied locally and not sent). These pass through our servers to our AI model provider to produce the answer. We don't store the content of requests or answers afterwards.</li>
           <li><b>AI queue records:</b> when many people use the AI at once, a request can wait in line before it starts. While it waits or runs, we keep a short-lived record of it: a random request ID, your account ID and plan, its place in line, how long it has waited and how often it was retried. The app uses this to show you your place in line. The record contains no request content and is deleted when the request finishes, within 15 minutes at most. We also keep overall counters (for example how many requests waited) that are not linked to anyone.</li>
-          <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, the date and time your subscription started (which sets your billing cycle), renewal and end dates, and a link to your customer portal. We keep whether your account has already received its first-month allowance. We never receive your full card number.</li>
+          <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, the date and time your subscription started (which sets your billing cycle), renewal and end dates, each paid billing month and the tokens it gave, and the IDs needed to open your customer portal. We keep whether your account has already received its first-month allowance. We never receive your full card number.</li>
           <li><b>Token top-ups:</b> when you buy tokens, we keep the order number, the number of tokens, the price and processing fee, when you bought them, when they expire and how many you have used. Top-ups our support team adds for you are recorded the same way, with a short note.</li>
           <li><b>Ad unlocks (Free plan):</b> when you unlock a tool by watching an ad, we keep a short-lived record linked to your account: a random single-use ticket, its status and timing, how many seconds the unlock page was open in front (sent every two seconds while it is visible), how many unlocks you used today and when your unlock ends. These records delete themselves within 48 hours.</li>
           <li><b>Messages you send us:</b> support requests and the messages you send with the sales and support forms on our <a href="contact.html">contact page</a>: your email address, your message and, if you choose to give them, your name and company. They are delivered to our contact@ or support@ inbox, used only to answer you, and kept for as long as needed to handle your request (normally no longer than 24 months). The forms are protected against abuse by counting messages per IP address and email address for a short time.</li>
@@ -105,7 +105,7 @@
         <p>We use a small number of service providers. Each receives only what it needs, and each is bound to protect it:</p>
         <ul>
           <li><b>AI model providers</b>: third-party providers of the language models that generate answers. They receive only the request content needed to produce an answer.</li>
-          <li><b>Lemon Squeezy</b>: our payment provider and merchant of record for subscriptions and token top-ups. They process checkout, payments, invoices and tax under their own privacy policy. To credit a top-up to the right account, we send them your account ID and the number of tokens with the checkout; they send these back to us with the payment confirmation.</li>
+          <li><b>Dodo Payments</b>: our payment provider and merchant of record for subscriptions and token top-ups. They process checkout, payments, invoices and tax under their own privacy policy. Their secure checkout form is loaded on our website (from Dodo Payments and the jsDelivr content network) only when you choose to pay, and the card and billing details you type into it go directly to Dodo Payments - not to us. To start a checkout we send them your email address and username, and, to credit your purchase to the right account, your account ID, the plan or number of tokens and the price; they send these back to us with the payment confirmation, together with their customer and subscription IDs and the billing dates.</li>
           <li><b>Google</b>: if you choose "Continue with Google", to confirm your identity. The website loads fonts from Google Fonts, which shares your IP address with Google. Google AdSense and Google Ad Manager serve the ads on our download and unlock pages (see <a href="#advertising">Advertising</a>).</li>
           <li><b>Hosting and email providers</b>: run our servers, database backups and outgoing email.</li>
           <li><b>GitHub</b>: hosts the website and app downloads. Downloading the app or checking for updates connects to their servers.</li>

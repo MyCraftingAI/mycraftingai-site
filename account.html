@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261128">
 </head>
 <body data-page="account">
   <header data-site-header></header>
@@ -52,6 +52,7 @@
             <span class="chip" data-topup-chip>0 left</span>
           </div>
           <p class="dim" style="font-size:14px;margin-top:8px">Used after your plan's allowance runs out. They don't expire when your month renews.</p>
+          <p class="dim" style="font-size:14px;margin-top:6px" data-topup-price></p>
           <div style="margin-top:8px" data-topup-rows></div>
           <div class="notice" data-notice role="status" style="margin-top:14px"></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
@@ -67,7 +68,7 @@
           <div class="notice" data-notice role="status" style="margin-top:14px"></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px" data-sub-actions>
             <a class="btn btn-primary" href="index.html#pricing" data-sub-upgrade>See plans</a>
-            <a class="btn" href="#" target="_blank" rel="noopener" data-sub-portal hidden>Invoices &amp; payment method</a>
+            <button class="btn" type="button" data-sub-portal hidden>Invoices &amp; payment method</button>
             <button class="btn btn-ghost btn-danger" type="button" data-sub-cancel hidden>Cancel subscription</button>
             <button class="btn btn-primary" type="button" data-sub-resume hidden>Resume subscription</button>
           </div>
@@ -178,9 +179,9 @@
   </main>
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js?v=20261123"></script>
-  <script src="assets/js/api.js?v=20261124"></script>
+  <script src="assets/js/plans.js?v=20261128"></script>
+  <script src="assets/js/api.js?v=20261128"></script>
   <script src="assets/js/ui.js?v=20261124"></script>
-  <script src="assets/js/auth.js?v=20261124"></script>
+  <script src="assets/js/auth.js?v=20261128"></script>
 </body>
 </html>

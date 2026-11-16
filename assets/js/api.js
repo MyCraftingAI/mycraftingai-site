@@ -142,7 +142,7 @@
       plan: sub.plan, planName: sub.planName || sub.plan, status: sub.status,
       renewsAt: active ? sub.renewsAt : null, endsAt: sub.endsAt || null,
       cancelled: sub.status === "cancelled", canCancel: active, canResume: sub.status === "cancelled",
-      portalUrl: ""
+      hasPortal: false, portalUrl: ""
     };
   }
 
@@ -218,6 +218,13 @@
         if (cancelling) { s.status = "cancelled"; s.endsAt = s.renewsAt; } else { s.status = "active"; s.endsAt = null; }
         store.set("users", users);
         return delay({ subscription: previewSub(s) });
+      case "POST /v1/billing/subscribe":
+      case "POST /v1/billing/topup":
+        if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+        // Preview: no payments leave this computer.
+        return delay().then(function () {
+          return fail("billing_unavailable", 503, "Preview mode: checkout opens on the live site with your Dodo Payments keys.");
+        });
       case "DELETE /v1/users/me":
         if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
         if (body.confirm !== "DELETE") return delay().then(function () { return fail("confirm_required", 400, "Type DELETE to confirm."); });
@@ -346,9 +353,13 @@
       get: function () { return request("GET", "/v1/billing"); },
       cancel: function () { return request("POST", "/v1/billing/cancel", {}); },
       resume: function () { return request("POST", "/v1/billing/resume", {}); },
-      /** Token top-up: the server prices it and returns the checkout URL. */
-      topup: function (tokens, returnUrl) { return request("POST", "/v1/billing/topup", { tokens: tokens, returnUrl: returnUrl || "" }); },
-      topups: function () { return request("GET", "/v1/billing/topups"); }
+      /** Monthly plan: a Dodo Payments checkout session ({checkoutUrl}) opened in our own overlay. */
+      subscribe: function (plan) { return request("POST", "/v1/billing/subscribe", { plan: plan }); },
+      /** Token top-up: the server prices it and returns a checkout session for the overlay. */
+      topup: function (tokens) { return request("POST", "/v1/billing/topup", { tokens: tokens }); },
+      topups: function () { return request("GET", "/v1/billing/topups"); },
+      /** One-time link to the Dodo Payments customer portal (card, invoices). */
+      portal: function () { return request("GET", "/v1/billing/portal"); }
     },
     /** Plans, feature matrix and top-up pricing exactly as set in the admin panel. */
     pricing: function () {

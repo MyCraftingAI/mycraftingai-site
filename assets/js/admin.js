@@ -331,14 +331,15 @@
   }
 
   /* -------------------------------------------------------------- revenue */
-  var SUB_TAG = { active: "good", on_trial: "info", past_due: "warn", cancelled: "bad", expired: "bad", paused: "warn", unpaid: "bad" };
+  var SUB_TAG = { active: "good", pending: "info", past_due: "warn", on_hold: "bad", cancelling: "warn", cancelled: "bad",
+                  expired: "bad", paused: "warn", failed: "bad" };
   function loadRevenue() {
     A.revenue().then(function (r) {
       var c = r.counts;
       $("[data-rev-kpis]").innerHTML = [
         kpi("MRR", money(r.mrr), "monthly recurring revenue"),
         kpi("ARR", money(r.arr, false), "MRR × 12"),
-        kpi("Paying subscribers", num(c.active + c.pastDue + c.trial), num(c.trial) + " on trial"),
+        kpi("Paying subscribers", num(c.active + c.pastDue), num(c.cancelling) + " cancelling at period end"),
         kpi("Avg. per subscriber", money(r.arpu), "per month"),
         kpi("This month", "+" + num(r.newThisMonth), num(r.cancelledThisMonth) + " cancelled"),
         kpi("Needs attention", num(c.pastDue), "payments failing (past due)", c.pastDue > 0)
@@ -346,8 +347,7 @@
       $("[data-rev-plans]").innerHTML = bars(r.byPlan.map(function (p) { return [p.name + " (" + p.subscribers + ")", Math.round(p.mrr), PLAN_COLOR[p.plan]]; })).replace(/<b>([\d,]+)<\/b>/g, "<b>$$$1</b>");
       $("[data-rev-health]").innerHTML =
         '<div class="r"><span>Active</span><b>' + num(c.active) + "</b></div>" +
-        '<div class="r"><span>On trial</span><b>' + num(c.trial) + "</b></div>" +
-        '<div class="r"><span>Past due (payment failing)</span><b>' + num(c.pastDue) + "</b></div>" +
+        '<div class="r"><span>Past due (renewal retrying)</span><b>' + num(c.pastDue) + "</b></div>" +
         '<div class="r"><span>Cancelled, running to period end</span><b>' + num(c.cancelling) + "</b></div>" +
         '<div class="r"><span>Ended</span><b>' + num(c.ended) + "</b></div>" +
         '<div class="r"><span>Paid plans given by admins (no subscription)</span><b>' + num(r.complimentary) + "</b></div>";
@@ -355,8 +355,8 @@
         return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag paid">' + esc(s.planName) + "</span></td>" +
           '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(s.status.replace("_", " ")) + "</span></td>" +
           "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2)) + "</td>" +
-          "<td>" + (s.status === "cancelled" ? "ends " + when(s.endsAt) : when(s.renewsAt)) + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
-      }).join("") : '<tr><td colspan="6"><div class="ad-empty">No subscriptions yet. They appear here as soon as Lemon Squeezy reports a checkout.</div></td></tr>';
+          "<td>" + (s.status === "cancelled" || s.status === "cancelling" ? "ends " + when(s.endsAt) : when(s.renewsAt)) + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
+      }).join("") : '<tr><td colspan="6"><div class="ad-empty">No subscriptions yet. They appear here as soon as Dodo Payments reports a payment.</div></td></tr>';
     }, function (e) { toast(errText(e), true); });
   }
 
@@ -471,7 +471,7 @@
         '<div class="ad-inline" style="gap:10px;flex-wrap:wrap">' +
           '<label style="flex:2;min-width:180px">Name shown to people<input class="input" data-promo-label maxlength="60" value="' + esc(p ? p.label : (PROMO_LABEL[v.theme] || "")) + '" placeholder="e.g. Black Friday"></label>' +
           '<label style="flex:1;min-width:170px">Ends (optional)<input class="input" type="datetime-local" data-promo-until value="' + esc(p && p.until ? p.until.slice(0, 16) : "") + '"></label></div>' +
-        '<div class="ad-promo-table"><div class="ad-promo-row head"><span>Plan</span><span>Discount</span><span>Lemon Squeezy code</span><span>Price</span></div>' +
+        '<div class="ad-promo-table"><div class="ad-promo-row head"><span>Plan</span><span>Discount</span><span>Dodo Payments code</span><span>Price</span></div>' +
         plans.map(function (id) {
           var spec = per[id], enabled = p ? !!spec : true;
           return '<div class="ad-promo-row' + (enabled ? "" : " off") + '" data-promo-row="' + id + '">' +
@@ -482,7 +482,7 @@
         }).join("") + "</div>" +
         '<div class="ad-row-actions" style="margin-top:-4px"><button class="btn btn-ghost btn-sm" data-promo-same>Use the first plan\'s discount and code for all</button></div>' +
         '<label>Terms (optional)<input class="input" data-promo-terms maxlength="160" value="' + esc(p ? p.terms : "") + '" placeholder="e.g. First 3 months, new subscriptions only"></label>' +
-        '<div class="ad-hint">Create each code in Lemon Squeezy first (Store → Discounts) with the same percentage, limited to that plan - Lemon Squeezy is what actually charges the discounted price.</div>' +
+        '<div class="ad-hint">Create each code in the Dodo Payments dashboard first (Sales → Discounts) with the same percentage, limited to that plan\'s product - Dodo is what actually charges the discounted price. The server adds the code to every checkout for that plan.</div>' +
         '<div class="ad-row-actions"><button class="btn btn-primary" data-promo-save>' + (p ? "Update promotion" : "Start promotion") + "</button>" +
         (p ? '<button class="btn btn-ghost" data-promo-stop>End promotion</button>' : "") + "</div>";
     } else if (p) {
@@ -684,8 +684,9 @@
       function row(name, ok, okText, badText) { return '<div class="r"><span>' + esc(name) + '</span><span class="ad-tag ' + (ok ? "good" : "warn") + '">' + esc(ok ? okText : badText) + "</span></div>"; }
       $("[data-integrations]").innerHTML =
         row("Google sign-in", i.googleSignIn, "configured", "not set up") +
-        row("Lemon Squeezy webhooks", i.lemonSqueezyWebhooks, "configured", "no signing secret") +
-        row("Lemon Squeezy API (cancel / resume)", i.lemonSqueezyApi, "configured", "LEMONSQUEEZY_API_KEY missing") +
+        row("Dodo Payments webhooks", i.dodoWebhooks, "configured", "DODO_PAYMENTS_WEBHOOK_SECRET missing") +
+        row("Dodo Payments API (checkout, cancel / resume)", i.dodoApi, (i.dodoMode === "test" ? "test mode" : "live"), "DODO_PAYMENTS_API_KEY missing") +
+        row("Dodo top-up product", i.dodoTopupProduct, "configured", "DODO_PRODUCT_TOPUP missing") +
         row("Outgoing email", i.email, "configured", "SMTP not set up");
     }, function (e) { toast(errText(e), true); });
   }
@@ -1105,7 +1106,7 @@
     return '<div class="ad-card"><h3>' + (u.active ? "Disable account" : "Enable account") + "</h3><p class=\"ad-sub\">" +
       (u.active ? "Blocks sign-in everywhere and ends every session. Nothing is deleted - you can enable it again." : "Lets them sign in again.") + "</p>" +
       '<button class="btn ' + (u.active ? "btn-warn" : "btn-ok") + '" data-toggle-active>' + (u.active ? "Disable account" : "Enable account") + "</button></div>" +
-      '<div class="ad-card" style="border-color:rgba(242,85,90,.35)"><h3>Delete account</h3><p class="ad-sub">Removes the account, sessions and usage history permanently. Cancel paid subscriptions in Lemon Squeezy first.</p>' +
+      '<div class="ad-card" style="border-color:rgba(242,85,90,.35)"><h3>Delete account</h3><p class="ad-sub">Removes the account, sessions and usage history permanently. Cancel paid subscriptions in the Dodo Payments dashboard first.</p>' +
       '<button class="btn btn-danger" data-delete>Delete permanently</button></div>';
   }
 
@@ -1161,7 +1162,7 @@
     }
     if (t.dataset.topupRevoke) {
       var leftOver = Number(t.dataset.topupLeft || 0);
-      return ask({ title: "Remove " + num(leftOver) + " unused top-up tokens?", text: "The tokens already used stay used. This doesn't refund any payment - refunds are made in Lemon Squeezy (a refunded order removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
+      return ask({ title: "Remove " + num(leftOver) + " unused top-up tokens?", text: "The tokens already used stay used. This doesn't refund any payment - refunds are made in the Dodo Payments dashboard (a refunded payment removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
         if (v) run(t, A.revokeTopup(t.dataset.topupRevoke), null, "Removing").then(function () { openUser(u.id, "ai"); toast(num(leftOver) + " top-up tokens removed"); });
       });
     }
@@ -1757,8 +1758,20 @@
     var t = PR.draft.topup, base = Math.round(tokens / 1e6 * Math.round(t.pricePerMillion * 100));
     var pack = (t.packs || []).filter(function (p) { return Number(p.tokens) === tokens; })[0];
     var price = pack ? Math.round(pack.price * 100) : base;
-    var fee = Math.round(price * t.feePercent / 100) + Math.round(t.feeFixed * 100);
+    var fee = prGross(price, t) - price;
     return { base: base, price: price, fee: fee, total: price + fee, off: base && base > price ? Math.round((base - price) * 100 / base) : 0 };
+  }
+  /** Same as the server (app/core/plans.py gross_cents): (base + fixed) / (1 - fee %), half-up to the cent. */
+  function prGross(cents, t) {
+    if (cents <= 0) return 0;
+    var exact = (cents + Math.round(Number(t.feeFixed) * 100)) / (1 - Number(t.feePercent) / 100);
+    return Math.floor(Math.round(exact * 100) / 100 + 0.5);
+  }
+  /** What a plan price leaves after Dodo's fee (the same percent + fixed fee as top-ups). */
+  function prNet(price, t) {
+    if (!price) return 0;
+    var cents = Math.round(price * 100);
+    return Math.round(cents - cents * Number(t.feePercent) / 100 - Number(t.feeFixed) * 100);
   }
   function prNum(path, label, opts) {
     opts = opts || {};
@@ -1777,7 +1790,8 @@
     return '<div class="ad-card ad-pr-plan" data-pr-plan="' + id + '"><div class="ad-pr-top"><input class="input ad-pr-name" data-pr="' + base + '.name" data-pr-type="text" maxlength="40" value="' + esc(p.name) + '">' +
       '<span class="ad-tag plan">' + esc(id) + "</span>" + (p.period === "month" ? '<span class="ad-tag info">monthly</span>' : p.period === "day" ? '<span class="ad-tag plan">daily</span>' : "") + "</div>" +
       '<div class="ad-form">' +
-      (id === "free" ? "" : prNum(base + ".price", id === "enterprise" ? "Price (blank = Custom)" : "Price per month", { money: true, unit: "USD", placeholder: id === "enterprise" ? "Custom" : "" })) +
+      (id === "free" ? "" : prNum(base + ".price", id === "enterprise" ? "Price (blank = Custom)" : "Price per month", { money: true, unit: "USD", placeholder: id === "enterprise" ? "Custom" : "",
+        hint: id !== "enterprise" && p.price ? "Charged by Dodo Payments - you keep about " + usd(prNet(p.price, PR.draft.topup)) + " after its " + PR.draft.topup.feePercent + "% + " + usd(Math.round(PR.draft.topup.feeFixed * 100)) + " fee" : "" })) +
       allowance +
       '<label>Thinking modes<select data-pr="' + base + '.maxThinking" data-pr-type="text">' + PR.data.thinking.map(function (l) {
         return '<option value="' + l + '"' + (p.maxThinking === l ? " selected" : "") + ">" + esc(THINK_LABEL[l] || l) + "</option>";
@@ -1809,9 +1823,9 @@
     return '<div class="ad-card ad-pr-topup"><div class="ad-inline" style="justify-content:space-between"><div><h3>Token top-ups</h3><p class="ad-sub" style="margin:0">One-off token purchases on any plan. Used after the plan allowance; valid for the days set below.</p></div>' +
       '<label class="ad-toggle"><input type="checkbox" data-pr="topup.enabled" data-pr-type="bool"' + (t.enabled ? " checked" : "") + "><i></i></label></div>" +
       '<div class="ad-form ad-pr-grid">' +
-      prNum("topup.pricePerMillion", "Price per 1,000,000 tokens", { money: true, unit: "USD", hint: "Before the processing fee" }) +
-      prNum("topup.feePercent", "Processing fee", { money: true, unit: "%", hint: "Percent of the price" }) +
-      prNum("topup.feeFixed", "Fixed fee per payment", { money: true, unit: "USD" }) +
+      prNum("topup.pricePerMillion", "Price per 1,000,000 tokens", { money: true, unit: "USD", hint: "What you keep after Dodo's fee" }) +
+      prNum("topup.feePercent", "Dodo Payments fee", { money: true, unit: "%", hint: "Percent of the total - added on top: total = (price + fixed) / (1 − %)" }) +
+      prNum("topup.feeFixed", "Fixed fee per payment", { money: true, unit: "USD", hint: "Dodo's fixed part ($0.40)" }) +
       prNum("topup.validityDays", "Valid for", { unit: "days" }) +
       prNum("topup.minTokens", "Smallest custom top-up", { unit: "tokens", step: 100000 }) +
       prNum("topup.maxTokens", "Largest custom top-up", { unit: "tokens", step: 1000000 }) +
@@ -1858,7 +1872,7 @@
               '<td><span class="ad-tag ' + (r.status === "active" ? "good" : "plan") + '">' + esc(r.status) + "</span></td>" +
               "<td>" + (r.status === "active" && r.left ? '<button class="btn btn-ghost btn-sm" data-sale-revoke="' + esc(r.id) + '" data-sale-left="' + r.left + '">Remove</button>' : "") + "</td></tr>";
           }).join("") + "</tbody></table></div>"
-          : '<div class="ad-empty">No top-ups yet. They appear here as soon as Lemon Squeezy confirms a payment.</div>');
+          : '<div class="ad-empty">No top-ups yet. They appear here as soon as Dodo Payments confirms a payment.</div>');
     }, function (e) { host.innerHTML = '<p class="ad-muted">' + esc(errText(e)) + "</p>"; });
   }
   function prRead(input) {
@@ -1914,7 +1928,7 @@
       }
       if (t.dataset.prPackRemove != null) { PR.draft.topup.packs.splice(Number(t.dataset.prPackRemove), 1); return renderPricing(); }
       if (t.matches("[data-pr-save]")) {
-        return ask({ title: "Save plans & pricing?", text: "The website, the server and every open app use the new values within seconds. If you changed a monthly price, also change it in Lemon Squeezy.", ok: "Save changes" }).then(function (v) {
+        return ask({ title: "Save plans & pricing?", text: "The website, the server and every open app use the new values within seconds. If you changed a monthly price, also change the product's price in Dodo Payments.", ok: "Save changes" }).then(function (v) {
           if (!v) return;
           run(t, A.savePricing(PR.draft), null, "Saving").then(function (d) {
             PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
@@ -1930,7 +1944,7 @@
       }
       if (t.dataset.saleRevoke) {
         var left = Number(t.dataset.saleLeft || 0);
-        return ask({ title: "Remove " + num(left) + " unused top-up tokens?", text: "This doesn't refund the payment - refunds are made in Lemon Squeezy (a refunded order removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
+        return ask({ title: "Remove " + num(left) + " unused top-up tokens?", text: "This doesn't refund the payment - refunds are made in the Dodo Payments dashboard (a refunded payment removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
           if (v) run(t, A.revokeTopup(t.dataset.saleRevoke), num(left) + " top-up tokens removed", "Removing").then(loadTopupSales);
         });
       }
@@ -1941,10 +1955,10 @@
   var FIND = { items: [], sel: 0, users: [], userQuery: "", timer: null };
   var VIEW_WORDS = {
     dashboard: "overview kpi tokens today plans sign-ups attention", insights: "downloads active app versions thinking top users charts export csv",
-    ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr lemon squeezy billing", gifts: "token gifts bonus free tokens",
+    ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr dodo payments billing", gifts: "token gifts bonus free tokens",
     users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
     server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
-    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee lemon squeezy sales",
+    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee dodo payments sales",
     activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek release notes what's new changelog app version reference library minecraft versions guides loaders"
   };
   function findActions() {
@@ -2402,7 +2416,7 @@
         perPlan[id] = { percent: Number($('[data-promo-pct="' + id + '"]').value), code: code };
       });
       if (!Object.keys(perPlan).length) return toast("Turn on at least one plan.", true);
-      if (missing) return toast(missing + " needs its Lemon Squeezy discount code.", true);
+      if (missing) return toast(missing + " needs its Dodo Payments discount code.", true);
       var promo = { label: $("[data-promo-label]").value.trim(), terms: $("[data-promo-terms]").value.trim(),
         plans: perPlan, until: untilP ? new Date(untilP).toISOString() : null };
       var summary = Object.keys(perPlan).map(function (id) { return cap(id) + " " + perPlan[id].percent + "% (" + perPlan[id].code + ")"; }).join(", ");

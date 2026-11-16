@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261123">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261128">
   <link rel="stylesheet" href="assets/css/admin.css?v=20261127">
 </head>
 <body data-page="admin">
@@ -176,7 +176,7 @@
       <section class="ad-view" data-view="revenue" hidden>
         <div class="ad-head">
           <button class="ad-menu" data-menu aria-label="Menu">☰</button>
-          <div><h1>Revenue</h1><p>Subscriptions from Lemon Squeezy. Amounts are list prices before tax and fees.</p></div>
+          <div><h1>Revenue</h1><p>Subscriptions from Dodo Payments. Amounts are list prices before tax; Dodo's fee (4% + $0.40) is included in them.</p></div>
         </div>
         <div class="ad-grid ad-kpis" data-rev-kpis></div>
         <div class="ad-grid ad-two">
@@ -229,7 +229,7 @@
           <div class="ad-rows" data-cfg-theme-switches style="margin-top:6px"></div>
         </div>
         <div class="ad-card">
-          <h3>Subscription prices</h3><p class="ad-sub">Keep prices the same, or run a promotion with a Lemon Squeezy discount code. The website shows the sale price and adds the code at checkout; the app shows the offer in its title bar.</p>
+          <h3>Subscription prices</h3><p class="ad-sub">Keep prices the same, or run a promotion with a Dodo Payments discount code. The website shows the sale price and the server adds the code to the checkout; the app shows the offer in its title bar.</p>
           <div class="ad-form" data-cfg-promo></div>
         </div>
         <div class="ad-card">
@@ -272,9 +272,9 @@
           <button class="btn btn-primary btn-sm" data-pr-save disabled>Save changes</button>
         </div>
         <div class="ad-note">
-          <b>Subscription charges come from Lemon Squeezy.</b> When you change a plan's monthly price here, change the price of the matching
-          product variant in Lemon Squeezy too - this page changes what the website and app show, Lemon Squeezy changes what is charged.
-          Top-up prices are charged exactly as set here.
+          <b>Subscription charges come from Dodo Payments.</b> When you change a plan's monthly price here, change the price of the matching
+          product in the Dodo Payments dashboard too - this page changes what the website and app show, Dodo changes what is charged.
+          Top-up prices are charged exactly as computed here: total = (base price + fixed fee) / (1 − fee %), so the base price is what you keep.
         </div>
         <div data-pr><div class="ad-skel"></div></div>
         <div class="ad-card" data-pr-sales>
@@ -510,6 +510,6 @@
   <script src="assets/js/plans.js"></script>
   <script src="assets/js/api.js?v=20261124"></script>
   <script src="assets/js/ui.js?v=20261124"></script>
-  <script src="assets/js/admin.js?v=20261127"></script>
+  <script src="assets/js/admin.js?v=20261128"></script>
 </body>
 </html>

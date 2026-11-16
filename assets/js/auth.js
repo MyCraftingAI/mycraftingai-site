@@ -272,7 +272,7 @@
     var plan = params.get("plan");
     var planInfo = ((window.MCA_PLANS || {}).plans || []).filter(function (p) { return p.id === plan; })[0];
     if (planInfo && planInfo.price) {
-      $("[data-plan-hint]").textContent = "You picked " + planInfo.name + ". Your account starts on Free - upgrade from your account page as soon as checkout opens.";
+      $("[data-plan-hint]").textContent = "You picked " + planInfo.name + ". Your account starts on Free - once you're signed in, choose " + planInfo.name + " under Pricing to pay securely right on this site.";
     }
     wirePasswordMeter($("#password"));
 
@@ -433,8 +433,10 @@
         split.hidden = false;
       }
       topupCard();
-      if (/[?&]topup=thanks\b/.test(location.search)) {
-        notice(root, "ok", "Thanks for your purchase! Your tokens are added as soon as the payment is confirmed - usually within a minute. This page updates when you reload it.");
+      if (/[?&](topup=thanks|checkout=done)\b/.test(location.search)) {
+        notice(root, "ok", "Thanks for your purchase! It's added to your account as soon as Dodo Payments confirms the payment - usually within a minute. This page updates when you reload it.");
+      } else if (usage.renewalPending) {
+        notice(root, "warn", "Your plan's monthly renewal is being processed. This month's tokens are added as soon as the payment goes through.");
       }
       $("[data-name]").textContent = me.user.name || "-";
       $("[data-email]").textContent = me.user.email;
@@ -544,23 +546,47 @@
           upgrade.textContent = granted ? "Compare plans" : "Upgrade plan";
         } else {
           var status = sub.status;
-          var label = { active: "Active", on_trial: "Trial", past_due: "Payment due", cancelled: "Cancelled", expired: "Ended", paused: "Paused", unpaid: "Unpaid" }[status] || status;
-          var colour = sub.cancelled ? "var(--amber)" : (status === "active" || status === "on_trial") ? "var(--mint)" : "var(--ruby)";
+          var label = { active: "Active", past_due: "Payment due", on_hold: "Payment failed", cancelled: "Cancelled",
+                        expired: "Ended", paused: "Paused", failed: "Not started", pending: "Starting" }[status] || status;
+          if (sub.cancelled && status === "active") label = "Ends soon";
+          var colour = sub.cancelled ? "var(--amber)" : status === "active" ? "var(--mint)" : "var(--ruby)";
           setChip(label, colour);
           html += row("Plan", esc(sub.planName || plan.name || "-"));
           html += row("Status", esc(label));
           if (sub.renewsAt) html += row("Renews on", esc(day(sub.renewsAt)));
           if (sub.cancelled && sub.endsAt) html += row("Access until", esc(day(sub.endsAt)));
-          if (status === "past_due") html += row("Action needed", "Update your payment method");
+          if (sub.paymentProblem || status === "past_due" || status === "on_hold") {
+            html += row("Action needed", "Update your payment method");
+          }
+          html += row("Payments", "Dodo Payments");
           cancelBtn.hidden = !sub.canCancel;
           resumeBtn.hidden = !sub.canResume;
-          if (sub.portalUrl && /^https:\/\//.test(sub.portalUrl)) { portal.href = sub.portalUrl; portal.hidden = false; }
+          portal.hidden = !sub.hasPortal;
           upgrade.hidden = sub.canCancel || sub.canResume;
           upgrade.textContent = "See plans";
         }
         rows.innerHTML = html;
       }
       render(me.subscription || null);
+
+      // Invoices and the saved card live in Dodo's customer portal; the link is made on request.
+      portal.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (!api.billing.portal) return;
+        var tab = window.open("", "_blank");
+        if (tab) tab.opener = null;
+        busy(portal, true, "Opening");
+        api.billing.portal().then(function (r) {
+          busy(portal, false);
+          if (r && /^https:\/\//.test(r.url || "")) {
+            if (tab) tab.location.href = r.url; else location.href = r.url;
+          } else if (tab) { tab.close(); }
+        }, function (err) {
+          busy(portal, false);
+          if (tab) tab.close();
+          notice(card, "error", err.message);
+        });
+      });
 
       cancelBtn.addEventListener("click", function () {
         var sub = me.subscription || {};
@@ -681,6 +707,7 @@
     function topupCard() {
       var card = $("#topups");
       if (!card || !api.billing.topups) return;
+      topupPrice(card);
       api.billing.topups().then(function (data) {
         var left = data.balance || 0;
         $("[data-topup-chip]", card).textContent = left.toLocaleString("en-US") + " left";
@@ -697,6 +724,25 @@
       }, function (err) {
         if (err && err.status !== 404) notice(card, "error", err.message);
       });
+    }
+
+    /** "1,000,000 tokens for $2.50": the gross price (Dodo's fee included), live catalogue first. */
+    function topupPrice(card) {
+      var line = $("[data-topup-price]", card);
+      if (!line) return;
+      function show(topup) {
+        if (!topup || topup.enabled === false) { line.textContent = ""; return; }
+        var pack = (topup.packs || []).filter(function (p) { return Number(p.tokens) === 1000000; })[0];
+        var cents = pack && pack.totalCents != null ? pack.totalCents : (function () {
+          var base = Math.round(Number(topup.pricePerMillion) * 100);
+          var exact = (base + Math.round(Number(topup.feeFixed) * 100)) / (1 - Number(topup.feePercent) / 100);
+          return Math.floor(Math.round(exact * 100) / 100 + 0.5);
+        })();
+        line.textContent = "1,000,000 tokens cost $" + (cents / 100).toFixed(2) +
+          ", payment fee included. Paid securely on this site with Dodo Payments.";
+      }
+      show(window.MCA_PLANS && window.MCA_PLANS.topup);
+      if (api.pricing) api.pricing().then(function (data) { if (data && data.topup) show(data.topup); }, function () {});
     }
 
     // Download button: the download page prepares the installer, then starts it.

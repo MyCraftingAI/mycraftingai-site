@@ -604,7 +604,16 @@ main, .site-footer { position: relative; z-index: 1; }
 .modal-card { width: 100%; max-width: 440px; background: var(--raised); border: 1px solid var(--rim); border-radius: 16px; padding: 28px; }
 .modal-card h3 { font-size: 22px; }
 .modal-card p { margin-top: 10px; color: var(--muted); }
-.modal-card .actions { margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px; }
+.modal-card .actions { margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+/* In-site checkout (Dodo Payments overlay): the layer shown while the session is made */
+.checkout-busy { position: fixed; inset: 0; z-index: 190; display: none; align-items: center; justify-content: center; background: rgba(5,5,8,.7); backdrop-filter: blur(4px); padding: 24px; }
+.checkout-busy.open { display: flex; }
+.checkout-busy-card { display: flex; align-items: center; gap: 14px; background: var(--raised); border: 1px solid var(--rim); border-radius: 14px; padding: 18px 22px; color: var(--text); }
+.checkout-spinner { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--rim); border-top-color: var(--accent); animation: checkout-spin .8s linear infinite; }
+@keyframes checkout-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .checkout-spinner { animation-duration: 2.4s; } }
+.secure-note { margin-top: 10px; font-size: 13px; color: var(--dim); }
 
 /* ------------------------------------------------------------- advertising
    Only on get.html and unlock.html. Ads are always labelled and kept apart

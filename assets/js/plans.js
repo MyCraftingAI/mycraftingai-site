@@ -40,11 +40,11 @@ window.MCA_PLANS = {
     {
       "id": "builder",
       "name": "Builder",
-      "price": 5.75,
+      "price": 5.63,
       "period": "month",
       "dailyTokens": null,
-      "firstMonthTokens": 2000000,
-      "monthlyTokens": 1500000,
+      "firstMonthTokens": 3000000,
+      "monthlyTokens": 2000000,
       "contact": false,
       "maxThinking": "normal",
       "features": [
@@ -60,8 +60,8 @@ window.MCA_PLANS = {
       ],
       "tagline": "Everything you need for weekend modding.",
       "highlights": [
-        "2,000,000 tokens in your first month",
-        "1,500,000 tokens every month after",
+        "3,000,000 tokens in your first month",
+        "2,000,000 tokens every month after",
         "Every tool except 3D Studio, Particles and Version Converter, no ads",
         "Thinking modes: None, Low and Normal",
         "Texture Studio, Sounds, Recipes & Loot and Build & Run"
@@ -78,11 +78,11 @@ window.MCA_PLANS = {
     {
       "id": "pro",
       "name": "Pro",
-      "price": 11.0,
+      "price": 10.83,
       "period": "month",
       "dailyTokens": null,
-      "firstMonthTokens": 5000000,
-      "monthlyTokens": 3000000,
+      "firstMonthTokens": 7000000,
+      "monthlyTokens": 5000000,
       "contact": false,
       "maxThinking": "high",
       "features": [
@@ -98,8 +98,8 @@ window.MCA_PLANS = {
       ],
       "tagline": "For people shipping mods every week.",
       "highlights": [
-        "5,000,000 tokens in your first month",
-        "3,000,000 tokens every month after",
+        "7,000,000 tokens in your first month",
+        "5,000,000 tokens every month after",
         "Everything in Builder",
         "All thinking modes, including High",
         "3D Studio, Particles and Version Converter are not included"
@@ -117,11 +117,11 @@ window.MCA_PLANS = {
     {
       "id": "studio",
       "name": "Studio",
-      "price": 26.75,
+      "price": 26.46,
       "period": "month",
       "dailyTokens": null,
-      "firstMonthTokens": 14000000,
-      "monthlyTokens": 7000000,
+      "firstMonthTokens": 16000000,
+      "monthlyTokens": 12000000,
       "contact": false,
       "maxThinking": "high",
       "features": [
@@ -140,8 +140,8 @@ window.MCA_PLANS = {
       ],
       "tagline": "The whole studio: code, textures and 3D.",
       "highlights": [
-        "14,000,000 tokens in your first month",
-        "7,000,000 tokens every month after",
+        "16,000,000 tokens in your first month",
+        "12,000,000 tokens every month after",
         "Everything in Pro",
         "3D Studio: mobs, animations, 3D weapons and armor",
         "Particles: custom particles, trails and effects",
@@ -216,9 +216,9 @@ window.MCA_PLANS = {
   },
   "topup": {
     "enabled": true,
-    "pricePerMillion": 3.0,
-    "feePercent": 5.0,
-    "feeFixed": 0.5,
+    "pricePerMillion": 2.0,
+    "feePercent": 4.0,
+    "feeFixed": 0.4,
     "minTokens": 500000,
     "maxTokens": 100000000,
     "stepTokens": 100000,
@@ -226,23 +226,23 @@ window.MCA_PLANS = {
     "packs": [
       {
         "tokens": 1000000,
-        "price": 3.0
+        "price": 2.0
       },
       {
         "tokens": 2500000,
-        "price": 7.0
+        "price": 5.0
       },
       {
         "tokens": 5000000,
-        "price": 13.5
+        "price": 10.0
       },
       {
         "tokens": 10000000,
-        "price": 25.0
+        "price": 20.0
       },
       {
         "tokens": 25000000,
-        "price": 60.0
+        "price": 50.0
       }
     ]
   },
