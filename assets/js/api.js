@@ -476,6 +476,9 @@
         /** The Workshop (community): reports, members, content and spaces. */
         community: {
           overview: function () { return request("GET", "/v1/admin/community/overview"); },
+          /** Pioneer Access: poll results, and the switch that closes / opens The Workshop. */
+          poll: function () { return request("GET", "/v1/admin/community/poll"); },
+          pioneer: function (enabled) { return request("POST", "/v1/admin/community/pioneer", { enabled: !!enabled }); },
           reports: function (status, page) { return request("GET", "/v1/admin/community/reports?status=" + encodeURIComponent(status || "open") + "&page=" + (page || 1)); },
           resolve: function (id, d) { return request("POST", "/v1/admin/community/reports/" + encodeURIComponent(id), d); },
           members: function (q) {

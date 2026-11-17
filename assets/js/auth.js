@@ -2,6 +2,18 @@
 (function () {
   "use strict";
 
+  /* Opened as the bank-verification window of a checkout (assets/js/checkout.js):
+     hand the result to the page that is waiting for it and close. */
+  try {
+    if (window.name === "mca-bank" && window.opener && window.opener !== window &&
+        /[?&]checkout=/.test(location.search)) {
+      window.opener.postMessage({ type: "mca:bank-return", url: location.href }, location.origin);
+      document.documentElement.style.visibility = "hidden";
+      setTimeout(function () { window.close(); }, 50);
+      return;
+    }
+  } catch (e) { /* opener on another site: show the account page normally */ }
+
   var api = window.MCA.api;
   var cfg = window.MCA_CONFIG || {};
   var params = new URLSearchParams(location.search);

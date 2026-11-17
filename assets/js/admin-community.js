@@ -43,6 +43,49 @@
     });
   }
 
+  /* ----------------------------------------------------- Pioneer Access */
+  function pioneer() {
+    return C.poll().then(function (p) {
+      var host = $("[data-cm-pioneer]");
+      var on = !!p.pioneer;
+      var colors = ["#4f63f5", "#3dd68c", "#f5b74a"];
+      var bars = p.options.map(function (o, i) {
+        return '<div style="margin-top:12px"><div class="ad-inline" style="justify-content:space-between;gap:12px">' +
+          '<span style="font-size:14px">' + esc(o.label) + "</span>" +
+          '<b style="font-family:var(--mono);font-size:13px;white-space:nowrap">' + kit().num(o.total) + " &middot; " + o.percent + "%</b></div>" +
+          '<div style="height:8px;border-radius:5px;background:rgba(255,255,255,.06);margin-top:6px;overflow:hidden">' +
+          '<div style="height:100%;width:' + o.percent + "%;background:" + colors[i % colors.length] + ';border-radius:5px"></div></div>' +
+          '<div class="ad-muted" style="font-size:12px;margin-top:4px">' + kit().num(o.paid) + " paying &middot; " + kit().num(o.free) + " free</div></div>";
+      }).join("");
+      host.innerHTML =
+        '<div class="ad-inline" style="justify-content:space-between;align-items:flex-start;gap:16px">' +
+        "<div><h3>Pioneer Access</h3><p class=\"ad-sub\" style=\"margin:4px 0 0;max-width:62ch\">" +
+        (on ? "The Workshop is <b>closed</b>: members see the closed-phase announcement and the poll, and can't post, comment, upload or message. The team can still post."
+          : "The Workshop is <b>open</b> to every member.") +
+        " The default comes from <code>COMMUNITY_PIONEER</code> in the server .env; this switch overrides it live.</p></div>" +
+        '<div class="ad-row-actions"><span class="ad-tag ' + (on ? "warn" : "good") + '">' + (on ? "Closed" : "Open") + "</span>" +
+        '<button class="btn btn-sm ' + (on ? "btn-primary" : "btn-danger") + '" data-cm-pioneer-toggle="' + (on ? "open" : "close") + '">' +
+        (on ? "Open The Workshop" : "Close (Pioneer Access)") + "</button></div></div>" +
+        '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">' +
+        '<div class="ad-inline" style="justify-content:space-between"><b>' + esc(p.question) + "</b>" +
+        '<span class="ad-muted" style="font-size:13px">' + kit().num(p.total) + " vote" + (p.total === 1 ? "" : "s") +
+        (p.lastVoteAt ? " &middot; last " + esc(kit().since(p.lastVoteAt)) : "") + "</span></div>" + bars + "</div>";
+    });
+  }
+
+  function togglePioneer(btn) {
+    var open = btn.dataset.cmPioneerToggle === "open";
+    kit().ask({
+      title: open ? "Open The Workshop to everyone?" : "Close The Workshop (Pioneer Access)?",
+      text: open ? "Members can post, comment, upload and message again. The poll stays in the results here."
+        : "Members will see the closed-phase announcement and the poll instead of the feed, and can't post, comment, upload or message.",
+      ok: open ? "Open it" : "Close it", danger: !open
+    }).then(function (v) {
+      if (!v) return;
+      kit().run(btn, C.pioneer(!open), open ? "The Workshop is open." : "The Workshop is closed (Pioneer Access).").then(function () { load(); });
+    });
+  }
+
   /* ------------------------------------------------------------ reports */
   function reports() {
     var s = st.reports;
@@ -208,7 +251,7 @@
   function load(isQuiet) {
     var tabs = { reports: reports, content: content, members: members, spaces: spaces };
     $$("[data-cm-tab]").forEach(function (b) { b.classList.toggle("on", b.dataset.cmTab === st.tab); });
-    var work = Promise.all([overview(), tabs[st.tab]()]);
+    var work = Promise.all([pioneer(), overview(), tabs[st.tab]()]);
     return isQuiet ? work.catch(function () {}) : quiet(work);
   }
 
@@ -225,6 +268,7 @@
       var p = b.dataset.cmPage.split(":"); st[p[0]].page = Math.max(1, st[p[0]].page + Number(p[1]));
       return quiet({ reports: reports, content: content, members: members }[p[0]]());
     }
+    if ((b = t.closest("[data-cm-pioneer-toggle]"))) return togglePioneer(b);
     if ((b = t.closest("[data-cm-report]"))) return resolveReport(b);
     if ((b = t.closest("[data-cm-mod]"))) return moderate(b);
     if ((b = t.closest("[data-cm-member]"))) return memberAction(b);

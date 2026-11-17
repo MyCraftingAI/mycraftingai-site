@@ -295,6 +295,57 @@ textarea.input { height: auto; min-height: 220px; padding: 12px 14px; line-heigh
 .cm-me-links svg { width: 16px; height: 16px; }
 .cm-me-links em { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--accent); color: #fff; font: 600 11px/20px var(--mono); font-style: normal; text-align: center; }
 
+/* ------------------------------------------------ Pioneer Access (closed) */
+body.cm-closed .cm-layout { grid-template-columns: minmax(0, 1fr); }
+body.cm-closed .cm-side, body.cm-closed .cm-aside { display: none; }
+.cm-pioneer { max-width: 780px; margin: 18px auto 0; display: flex; flex-direction: column; gap: 16px; }
+.cm-pioneer-card { position: relative; overflow: hidden; text-align: center; padding: 44px 40px 34px; border-radius: 22px;
+  border: 1px solid var(--rim);
+  background: radial-gradient(90% 120% at 50% 0%, rgba(79,99,245,.30), transparent 60%),
+              radial-gradient(60% 80% at 100% 100%, rgba(245,183,74,.10), transparent 60%), var(--surface); }
+.cm-pioneer-card::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .4;
+  background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 22px 22px; mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent); -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent); }
+.cm-pioneer-card > * { position: relative; z-index: 1; }
+.cm-pioneer-badge { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border-radius: 999px;
+  font: 600 11.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #F8D798;
+  background: rgba(245,183,74,.10); border: 1px solid rgba(245,183,74,.35); }
+.cm-pioneer-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+.cm-pioneer-icon { width: 64px; height: 64px; margin: 22px auto 0; border-radius: 18px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(160deg, #6376ff, #3b4bc8); box-shadow: 0 18px 40px -18px rgba(79,99,245,.9), 0 0 0 1px rgba(255,255,255,.12) inset; }
+.cm-pioneer-icon svg { width: 30px; height: 30px; }
+.cm-pioneer h1 { font: 700 38px/1.1 var(--display); letter-spacing: -.02em; margin-top: 18px; }
+.cm-pioneer-msg { color: #d4d4dc; font-size: 17px; line-height: 1.65; max-width: 58ch; margin: 14px auto 0; }
+.cm-pioneer-goals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 26px; text-align: left; }
+.cm-pioneer-goals div { padding: 14px 16px; border-radius: 14px; background: rgba(10,10,14,.55); border: 1px solid var(--rim); }
+.cm-pioneer-goals .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: var(--azure);
+  background: rgba(79,99,245,.16); margin-bottom: 10px; }
+.cm-pioneer-goals .ic svg { width: 17px; height: 17px; }
+.cm-pioneer-goals b { display: block; font-size: 14.5px; }
+.cm-pioneer-goals small { display: block; color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 3px; }
+.cm-poll { padding: 26px 28px; border-radius: 20px; border: 1px solid var(--rim); background: var(--surface); }
+.cm-poll h2 { font: 700 22px/1.25 var(--display); letter-spacing: -.01em; margin-top: 10px; }
+.cm-poll-note { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.cm-poll-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.cm-poll-opt { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--rim); background: #0e0e14; transition: border-color .15s, background .15s; }
+.cm-poll-opt:hover { border-color: var(--edge); background: #13131a; }
+.cm-poll-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.cm-poll-opt input:disabled ~ .t { color: var(--muted); }
+.cm-poll-opt .n { width: 28px; height: 28px; flex: none; border-radius: 8px; display: grid; place-items: center;
+  font: 700 13px var(--mono); color: var(--muted); background: var(--raised); border: 1px solid var(--rim); }
+.cm-poll-opt .t { flex: 1; font-size: 15px; line-height: 1.45; color: var(--text); }
+.cm-poll-opt .tick { width: 22px; height: 22px; flex: none; border-radius: 50%; display: grid; place-items: center; color: transparent;
+  border: 1.5px solid var(--edge); }
+.cm-poll-opt .tick svg { width: 13px; height: 13px; }
+.cm-poll-opt.on { border-color: rgba(79,99,245,.7); background: rgba(79,99,245,.12); }
+.cm-poll-opt.on .n { color: #fff; background: var(--accent); border-color: var(--accent); }
+.cm-poll-opt.on .tick { color: #fff; background: var(--accent); border-color: var(--accent); }
+.cm-poll-opt:has(input:focus-visible) { outline: 2px solid var(--azure); outline-offset: 2px; }
+.cm-poll-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+.cm-poll-state { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13.5px; }
+.cm-poll-state svg { width: 15px; height: 15px; color: var(--mint); }
+
 /* ------------------------------------------------------------------ phones */
 @media (max-width: 1180px) {
   .cm-layout { grid-template-columns: 220px minmax(0, 1fr); }
@@ -311,6 +362,11 @@ textarea.input { height: auto; min-height: 220px; padding: 12px 14px; line-heigh
   .cm-nav a { flex: none; height: 34px; border: 1px solid var(--rim); background: var(--surface); font-size: 13.5px; white-space: nowrap; }
   .cm-nav a .sw { display: none; }
   .cm-head h1 { font-size: 24px; }
+  .cm-pioneer-card { padding: 30px 20px 24px; }
+  .cm-pioneer h1 { font-size: 30px; }
+  .cm-pioneer-msg { font-size: 15.5px; }
+  .cm-pioneer-goals { grid-template-columns: 1fr; }
+  .cm-poll { padding: 20px 18px; }
   .cm-hero { grid-template-columns: 1fr; padding: 20px; }
   .cm-hero h1 { font-size: 26px; }
   .cm-hero-stats div { min-width: 0; flex: 1; }

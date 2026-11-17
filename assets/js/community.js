@@ -69,7 +69,11 @@
     palette: svg('<path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.6 0-1.2-1-1.4-1-2.4 0-.9.7-1.5 1.6-1.5H16a5 5 0 0 0 5-5c0-4.2-4-7.5-9-7.5z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/>'),
     book: svg('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/>'),
     bulb: svg('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>'),
-    chat: svg('<path d="M4 5h16v11H9l-5 4z"/>')
+    chat: svg('<path d="M4 5h16v11H9l-5 4z"/>'),
+    lock: svg('<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/><path d="M12 14.5v2.5"/>'),
+    users: svg('<circle cx="9" cy="8" r="3.2"/><path d="M3 19c.7-3.2 3-5 6-5s5.3 1.8 6 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14c2.2.2 3.8 1.6 4.4 4"/>'),
+    server: svg('<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>'),
+    check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>')
   };
 
   /* ----------------------------------------------------------- helpers */
@@ -348,6 +352,7 @@
   }
 
   function renderNav() {
+    if (closed()) { nav.innerHTML = ""; return; }
     var r = route();
     function item(href, icon, label, active, count) {
       return '<a href="' + href + '" class="' + (active ? "active" : "") + '"><span class="sw">' + icon + "</span>" + esc(label) +
@@ -376,7 +381,7 @@
     var join = el("[data-join-card]"), card = el("[data-space-card]"), mine = el("[data-me-card]");
     if (join) join.hidden = signedIn() || api.mode !== "live";
     if (mine) {
-      mine.hidden = !(signedIn() && state.me);
+      mine.hidden = !(signedIn() && state.me) || closed();
       if (!mine.hidden) {
         var m = state.me;
         mine.innerHTML = '<div class="cm-me">' + avatar(m, "md") + '<div><b>' + esc(m.username) + "</b> " + badges(m) +
@@ -399,9 +404,78 @@
 
   function clearTimers() { state.timers.forEach(clearInterval); state.timers = []; }
 
+  /* ------------------------------------------------- Pioneer Access (closed) */
+  function closed() { return !!(state.status && state.status.pioneer && !state.status.bypass); }
+
+  function showPioneer() {
+    var s = state.status, poll = s.poll || {}, mine = poll.myVote;
+    document.body.classList.add("cm-closed");
+    var options = (poll.options || []).map(function (o, i) {
+      return '<label class="cm-poll-opt' + (mine === o.id ? " on" : "") + '">' +
+        '<input type="radio" name="cm-poll" value="' + esc(o.id) + '"' + (mine === o.id ? " checked" : "") + (signedIn() ? "" : " disabled") + ">" +
+        '<span class="n">' + (i + 1) + "</span><span class=\"t\">" + esc(o.label) + "</span>" +
+        '<span class="tick">' + I.check + "</span></label>";
+    }).join("");
+    var next = encodeURIComponent("community.html");
+    var action = signedIn()
+      ? '<button class="btn btn-primary" type="submit" data-poll-submit' + (mine ? "" : " disabled") + ">" + (mine ? "Update my vote" : "Submit vote") + "</button>" +
+        '<span class="cm-poll-state" data-poll-state>' + (mine ? I.check + "Your vote is saved. You can change it any time." : "One vote per member - you can change it later.") + "</span>"
+      : '<a class="btn btn-primary" href="login.html?next=' + next + '">Sign in to vote</a>' +
+        '<a class="btn btn-ghost" href="signup.html?next=' + next + '">Create a free account</a>';
+    view.innerHTML =
+      '<section class="cm-pioneer">' +
+      '<div class="cm-pioneer-card">' +
+      '<span class="cm-pioneer-badge"><i></i>Pioneer Access &middot; closed phase</span>' +
+      '<div class="cm-pioneer-icon">' + I.lock + "</div>" +
+      "<h1>The Workshop</h1>" +
+      '<p class="cm-pioneer-msg">' + esc(s.message) + "</p>" +
+      '<div class="cm-pioneer-goals">' +
+      '<div><span class="ic">' + I.users + "</span><b>First 1,000 subscribers</b><small>The community opens to everyone at this milestone.</small></div>" +
+      '<div><span class="ic">' + I.server + "</span><b>Dedicated infrastructure</b><small>Fast, safe file hosting and moderation for every mod you share.</small></div>" +
+      "</div></div>" +
+      '<form class="cm-poll" data-poll>' +
+      '<span class="cm-label" style="margin:0">Help us shape the launch</span>' +
+      (signedIn()
+        ? "<h2>" + esc(poll.question || "") + "</h2>" + '<div class="cm-poll-opts">' + options + "</div>"
+        : "<h2>Have your say on how The Workshop opens</h2>" +
+          '<p class="cm-poll-note">Members can vote in a one-question poll. Sign in with your MyCraftingAI account to take part.</p>') +
+      '<div class="cm-poll-actions">' + action + "</div>" +
+      "</form></section>";
+    var form = view.querySelector("[data-poll]");
+    form.addEventListener("change", function () {
+      form.querySelectorAll(".cm-poll-opt").forEach(function (l) { l.classList.toggle("on", l.querySelector("input").checked); });
+      var btn = form.querySelector("[data-poll-submit]");
+      if (btn) btn.disabled = false;
+    });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var picked = form.querySelector("input[name=cm-poll]:checked");
+      var btn = form.querySelector("[data-poll-submit]");
+      if (!picked || !btn) return;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>Saving';
+      req("POST", "/poll", { option: picked.value }).then(function (fresh) {
+        state.status = fresh;
+        showPioneer();
+        toast("Thanks - your vote is saved.");
+      }, function (err) {
+        btn.disabled = false;
+        btn.textContent = mine ? "Update my vote" : "Submit vote";
+        oops(err);
+      });
+    });
+  }
+
+  function pioneerBanner() {
+    if (!(state.status && state.status.pioneer && state.status.bypass)) return "";
+    return '<div class="cm-banner">' + I.lock + '<div><b>Pioneer Access is on.</b> Members see the closed-phase announcement and the poll; ' +
+      'only the team can post. Open it to everyone in <a href="admin.html#community">Admin &rsaquo; Community</a>.</div></div>';
+  }
+
   function banner() {
+    var pioneer = pioneerBanner();
     var r = state.me && state.me.restriction;
-    if (!r) return "";
+    if (!r) return pioneer;
     if (r.type === "banned") return '<div class="cm-banner error">' + I.shield + '<div>Your account can read The Workshop but can\'t post, comment, vote or send messages.' + (r.reason ? " Reason: " + esc(r.reason) : "") + ' Questions? <a href="contact.html#support">Contact support</a>.</div></div>';
     return '<div class="cm-banner">' + I.shield + "<div>You can't post until " + esc(fullDate(r.until)) + "." + (r.reason ? " Reason: " + esc(r.reason) : "") + "</div></div>";
   }
@@ -416,6 +490,7 @@
       view.innerHTML = '<div class="cm-empty"><b>The Workshop opens with the live server</b>The community needs the MyCraftingAI account server. It isn\'t available in preview mode.</div>';
       return;
     }
+    if (closed()) return showPioneer();
     switch (r.name) {
       case "p": return showPost(r.arg);
       case "new": return showComposer(null, r.arg);
@@ -1178,7 +1253,7 @@
 
   /* ---------------------------------------------------------------- start */
   function pollUnread() {
-    if (!signedIn() || document.hidden) return;
+    if (!signedIn() || document.hidden || closed()) return;
     req("GET", "/unread").then(function (u) { state.unread = u; renderNav(); }, function () {});
   }
 
@@ -1196,7 +1271,11 @@
       return req("GET", "/me").then(function (cm) { state.me = cm; state.unread = { notifications: cm.notifications, messages: cm.messages }; });
     }, function () { state.session = null; });
     var spaces = req("GET", "/spaces").then(function (d) { state.spaces = d.spaces; }, function () { state.spaces = []; });
-    Promise.all([session, spaces]).then(render, render);
+    // Ask after the session is known, so the vote and the team bypass are included.
+    var status = session.then(function () {
+      return req("GET", "/status").then(function (d) { state.status = d; }, function () { state.status = null; });
+    });
+    Promise.all([status, spaces]).then(render, render);
     setInterval(pollUnread, 30000);
     document.addEventListener("mca:legal-accepted", function () {
       req("GET", "/me").then(function (cm) { state.me = cm; render(); }, function () {});

@@ -97,12 +97,93 @@
       return;
     } else if (outcome === "failed") {
       modal("Payment didn't go through",
-        "Your bank declined the payment and nothing was charged. Try again with another card, or switch the currency " +
-        "in the payment window to your own (cards issued in India usually need INR). If it keeps failing, write to billing@mycraftingai.com.",
+        job.mode === "test"
+          ? "Payments are in test mode: real cards are never charged and are always declined here. Use a test card such as " +
+            "4242 4242 4242 4242 (or the India test card 4576 2389 1277 1450), expiry 06/32, CVC 123."
+          : "Your bank declined the payment and nothing was charged. Please try again - you can choose another card, " +
+            "UPI, Google Pay or your own currency in the payment window. If it keeps failing, write to billing@mycraftingai.com.",
         [{ label: "OK", primary: true }]);
     }
+    closeBankWindow();
     state = null;
   }
+
+  /* ------------------------------------------------------- bank verification
+   * Some cards need the bank to confirm the payment (3-D Secure, Indian e-mandates,
+   * wallets). Dodo asks us to open the bank's page; instead of sending the whole site
+   * there, it opens in a small window above our page. Browsers only allow that window
+   * after a click on our page, so the customer presses "Continue to your bank" first.
+   * When the bank is done, Dodo brings that window back to our account page with the
+   * result, we close it and show the outcome here. */
+  var bankWin = null, bankTimer = null;
+
+  function closeBankWindow() {
+    if (bankTimer) { clearInterval(bankTimer); bankTimer = null; }
+    try { if (bankWin && !bankWin.closed) bankWin.close(); } catch (e) { /* already gone */ }
+    bankWin = null;
+  }
+
+  function resultFromUrl(url) {
+    var status = "";
+    try { status = String(new URL(url, location.href).searchParams.get("status") || "").toLowerCase(); } catch (e) { /* bad url */ }
+    if (FAILED.indexOf(status) !== -1) return "failed";
+    return SUCCESS.indexOf(status) !== -1 ? "success" : "processing";
+  }
+
+  function watchBankWindow() {
+    if (bankTimer) clearInterval(bankTimer);
+    bankTimer = setInterval(function () {
+      if (!bankWin) return closeBankWindow();
+      if (bankWin.closed) {
+        closeBankWindow();
+        busy(false);
+        if (state && !state.finished) {
+          modal("Bank verification closed",
+            "The bank window was closed before the payment was confirmed. If you finished it, your purchase shows up on " +
+            "your account page in a minute; otherwise nothing was charged - you can try again.",
+            [{ label: "OK" }, { label: "Go to your account", primary: true, href: "account.html" }]);
+        }
+        return;
+      }
+      try {
+        var href = bankWin.location.href;  // readable only once the window is back on our site
+        if (href && sameSite(href) && !/^about:/.test(href)) finish(resultFromUrl(href));
+      } catch (e) { /* still on the bank's or Dodo's page */ }
+    }, 700);
+  }
+
+  function openBankWindow(url) {
+    var w = 520, h = 720;
+    var left = Math.max(0, (window.screenX || 0) + ((window.outerWidth || w) - w) / 2);
+    var top = Math.max(0, (window.screenY || 0) + ((window.outerHeight || h) - h) / 2);
+    bankWin = window.open(url, "mca-bank", "popup,width=" + w + ",height=" + h + ",left=" + Math.round(left) + ",top=" + Math.round(top));
+    if (!bankWin) { location.href = url; return; }  // popups blocked: continue on this page instead
+    try { bankWin.focus(); } catch (e) { /* ignore */ }
+    busy(true, "Finish the verification in your bank's window…");
+    raise("mca-checkout-busy");
+    watchBankWindow();
+  }
+
+  /** Our dialogs and the waiting layer must sit above Dodo's overlay (it uses z-index 1000). */
+  function raise(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.zIndex = "2147483000";
+  }
+
+  function askForBank(url) {
+    busy(false);
+    modal("Confirm with your bank",
+      "Your bank needs to confirm this payment. It opens in a small secure window above this page - you stay on mycraftingai.com.",
+      [{ label: "Cancel", onClick: function () { close(); } },
+       { label: "Continue to your bank", primary: true, onClick: function () { openBankWindow(url); } }]);
+    raise("mca-modal");
+  }
+
+  /* A bank window that came back to our site reports the result to this page. */
+  window.addEventListener("message", function (e) {
+    if (e.origin !== location.origin || !e.data || e.data.type !== "mca:bank-return") return;
+    if (state && !state.finished) finish(resultFromUrl(String(e.data.url || "")));
+  });
 
   function onEvent(event) {
     if (!state || !event) return;
@@ -130,9 +211,9 @@
           // Back at our return_url: the payment finished (processing payments complete later by webhook).
           finish(FAILED.indexOf(status2) !== -1 || state.result === "failed" ? "failed" : "success");
         } else if (url) {
-          // A bank or wallet step that has to happen on the bank's own page (3-D Secure, etc).
-          // Dodo brings the customer back to our return_url (the account page) afterwards.
-          location.href = url;
+          // A bank or wallet step that has to happen on the bank's own page (3-D Secure,
+          // e-mandates, wallets): it opens in a small window above our page.
+          askForBank(url);
         }
         break;
       }
@@ -161,14 +242,14 @@
     busy(true, job.busyText);
     return loadSdk().then(function (sdk) {
       state = { kind: job.kind || "", label: job.label || "", plan: job.plan || "", before: job.before || MCA().session || null,
-                sdk: sdk, result: "" };
+                sdk: sdk, result: "", mode: mode };
       sdk.Initialize({ mode: mode, displayType: "overlay", onEvent: onEvent });
       sdk.Checkout.open({
         checkoutUrl: checkoutUrl,
         options: { manualRedirect: true, showTimer: true, showSecurityBadge: true, payButtonText: job.payText || undefined }
       });
       // If the frame never reports back (blocked by an extension), don't leave the spinner up.
-      setTimeout(function () { busy(false); }, 15000);
+      setTimeout(function () { if (!bankWin) busy(false); }, 15000);
     }, function () {
       busy(false);
       modal("Couldn't open the secure checkout",
@@ -245,6 +326,7 @@
     var job = state;
     if (job.result === "success") { finish("success"); return; }
     try { if (job.sdk && job.sdk.Checkout.isOpen()) job.sdk.Checkout.close(); } catch (e) { /* already closed */ }
+    closeBankWindow();
     busy(false);
     state = null;
   }
