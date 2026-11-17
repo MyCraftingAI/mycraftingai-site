@@ -1,9 +1,9 @@
 {
   "version": "1.1.4",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60738255,
-  "sha256": "9dae833283c8e35a03517292b04760ec96df0d490eb4c6f6e2560dbe630edb70",
-  "published": "2026-11-17T08:08:12Z",
+  "size": 60821069,
+  "sha256": "229d53f29a26745efefed20872e17a2b07755cbd13326e40179e02d2defd3526",
+  "published": "2026-11-17T11:16:33Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
   "notes": "- **The Workshop - the MyCraftingAI community**: a new **The Workshop** page in the sidebar. Browse spaces like Showcase, Mod Releases, Help & Bugs, Textures & Models and Tutorials, sort by Hot, New, Top or Active, and search every post.\n- **Share your mods from the app**: press **New post**, then **Add from project** to attach your mod's .jar, a project ZIP, textures, models (.bbmodel), sounds or logs straight from the open project. Images show right in the post.\n- **Comments, votes and follows**: reply in threads, up- and downvote, save posts for later and follow a post to get a notification for every new comment.\n- **Private messages**: chat 1:1 with other modders and send images or files. You can block anyone or turn messages off.\n- **Notifications**: replies, mentions, messages and moderator notes - with an unread badge on the sidebar.\n- **Safe downloads**: shared files are checked by type on the server and downloaded only after you confirm. Each file shows its SHA-256 fingerprint. Report anything harmful with one click.\n- The same community is on the website at mycraftingai.com/community.html. Please read the new [community rules](https://mycraftingai.com/community-rules.html)."

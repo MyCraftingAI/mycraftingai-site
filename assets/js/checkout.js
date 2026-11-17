@@ -97,7 +97,8 @@
       return;
     } else if (outcome === "failed") {
       modal("Payment didn't go through",
-        "Nothing was charged. Please try again or use another payment method. If it keeps failing, write to billing@mycraftingai.com.",
+        "Your bank declined the payment and nothing was charged. Try again with another card, or switch the currency " +
+        "in the payment window to your own (cards issued in India usually need INR). If it keeps failing, write to billing@mycraftingai.com.",
         [{ label: "OK", primary: true }]);
     }
     state = null;

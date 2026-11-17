@@ -373,8 +373,21 @@
   }
 
   function aside(space) {
-    var join = el("[data-join-card]"), card = el("[data-space-card]");
+    var join = el("[data-join-card]"), card = el("[data-space-card]"), mine = el("[data-me-card]");
     if (join) join.hidden = signedIn() || api.mode !== "live";
+    if (mine) {
+      mine.hidden = !(signedIn() && state.me);
+      if (!mine.hidden) {
+        var m = state.me;
+        mine.innerHTML = '<div class="cm-me">' + avatar(m, "md") + '<div><b>' + esc(m.username) + "</b> " + badges(m) +
+          "<small>" + (m.karma || 0) + " karma</small></div></div>" +
+          '<div class="cm-me-links">' +
+          '<a href="#/messages">' + I.mail + "Messages" + (state.unread.messages ? "<em>" + state.unread.messages + "</em>" : "") + "</a>" +
+          '<a href="#/notifications">' + I.bell + "Notifications" + (state.unread.notifications ? "<em>" + state.unread.notifications + "</em>" : "") + "</a>" +
+          '<a href="#/u/' + encodeURIComponent(m.username) + '">' + I.star + "My profile</a>" +
+          '<a href="#/settings">' + I.gear + "Profile &amp; settings</a></div>";
+      }
+    }
     if (!card) return;
     if (!space) { card.hidden = true; return; }
     card.hidden = false;
@@ -448,16 +461,48 @@
       '<button class="down' + (mine === -1 ? " on" : "") + '" data-act="vote" data-v="-1" aria-label="Downvote">' + I.down + "</button></div>";
   }
 
+  /** Home: a welcome hero and the spaces to explore. */
+  function hero(newButton) {
+    var posts = state.spaces.reduce(function (n, s) { return n + (s.posts || 0); }, 0);
+    var who = state.me && state.me.username ? "Welcome back, " + esc(state.me.username) : "The Workshop";
+    return '<section class="cm-hero">' +
+      '<div class="cm-hero-text"><span class="eyebrow">MyCraftingAI community</span>' +
+      "<h1>" + who + "</h1>" +
+      "<p>Share the mods, textures and models you make with MyCraftingAI, get unstuck on build errors, and learn from other modders.</p>" +
+      '<div class="cm-hero-actions">' + newButton +
+      '<a class="btn" href="#/s/help">' + I.lifebuoy.replace("<svg", '<svg style="width:18px;height:18px"') + "Ask for help</a></div></div>" +
+      '<div class="cm-hero-stats"><div><b>' + posts + "</b><span>posts</span></div><div><b>" + state.spaces.length +
+      "</b><span>spaces</span></div><div><b>" + ((state.me && state.me.karma) || 0) + "</b><span>your karma</span></div></div>" +
+      "</section>" +
+      '<div class="cm-label">Explore spaces</div><div class="cm-spaces">' +
+      state.spaces.map(function (s) {
+        return '<a class="cm-space-tile" href="#/s/' + encodeURIComponent(s.slug) + '" style="--c:' + esc(s.color) + '">' +
+          '<span class="ic">' + (I[s.icon] || I.chat) + "</span><b>" + esc(s.name) + "</b><small>" + esc(s.description) + "</small>" +
+          '<em>' + (s.posts || 0) + " post" + (s.posts === 1 ? "" : "s") + (s.locked ? " &middot; team only" : "") + "</em></a>";
+      }).join("") + "</div>";
+  }
+
+  function spaceHead(space, newButton) {
+    return '<section class="cm-space-head" style="--c:' + esc(space.color) + '">' +
+      '<span class="ic">' + (I[space.icon] || I.chat) + "</span>" +
+      '<div class="grow"><h1>' + esc(space.name) + "</h1><p>" + esc(space.description) + "</p>" +
+      '<small>' + (space.posts || 0) + " post" + (space.posts === 1 ? "" : "s") +
+      (space.locked ? " &middot; only the MyCraftingAI team starts posts here" : "") + "</small></div>" + newButton + "</section>";
+  }
+
   function showFeed(opts) {
     var space = opts.space ? state.spaces.filter(function (s) { return s.slug === opts.space; })[0] : null;
-    if (space) aside(space);
     var title = opts.saved ? "Saved posts" : opts.q ? "Search" : space ? space.name : "The Workshop";
     var desc = opts.saved ? "Posts you saved for later." : opts.q ? "Posts matching “" + opts.q + "”."
       : space ? space.description : "Share Minecraft mods, textures and models, get help, and learn from other modders.";
     var newHref = "#/new" + (space && !space.locked ? "/" + encodeURIComponent(space.slug) : "");
-    view.innerHTML = banner() +
-      '<div class="cm-head"><div><h1>' + esc(title) + "</h1><p>" + esc(desc) + "</p></div>" +
-      (space && space.locked ? "" : '<a class="btn btn-primary" href="' + newHref + '" data-new>' + I.plus.replace("<svg", '<svg style="width:18px;height:18px"') + "New post</a>") + "</div>" +
+    var home = !space && !opts.saved && !opts.q;
+    var newButton = space && space.locked ? "" : '<a class="btn btn-primary" href="' + newHref + '" data-new>' +
+      I.plus.replace("<svg", '<svg style="width:18px;height:18px"') + "New post</a>";
+    var head = home ? hero(newButton) : (space ? spaceHead(space, newButton)
+      : '<div class="cm-head"><div><h1>' + esc(title) + "</h1><p>" + esc(desc) + "</p></div>" + newButton + "</div>");
+    view.innerHTML = banner() + head +
+      (home ? '<div class="cm-label">Latest from the community</div>' : "") +
       '<div class="cm-tools">' +
       '<div class="cm-tabs" role="tablist">' + [["hot", "Hot"], ["new", "New"], ["top", "Top"], ["active", "Active"]].map(function (t) {
         return '<button type="button" data-sort="' + t[0] + '" class="' + (state.sort === t[0] ? "on" : "") + '">' + t[1] + "</button>";
