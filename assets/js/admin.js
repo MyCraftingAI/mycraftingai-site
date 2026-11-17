@@ -151,6 +151,7 @@
     if (view === "messages") loadMessages();
     if (view === "activity") loadEvents();
     if (view === "system") loadSystem();
+    if (view === "community" && window.MCA.adminCommunity) window.MCA.adminCommunity.load();
     window.scrollTo(0, 0);
   }
 
@@ -2152,7 +2153,7 @@
     var h = location.hash.replace(/^#/, "");
     var m = h.match(/^users\/([0-9a-f-]{36})$/i);
     if (m) { if (state.view !== "users") go("users", false); openUser(m[1]); return; }
-    var view = ["dashboard", "insights", "ads", "revenue", "pricing", "gifts", "settings", "server", "users", "messages", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
+    var view = ["dashboard", "insights", "ads", "revenue", "pricing", "gifts", "settings", "server", "users", "messages", "community", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
     if (view !== state.view || !state.booted) go(view, false);
     state.booted = true;
   }
@@ -2533,7 +2534,8 @@
      15 s while the tab is visible; anything you're editing is never touched. */
   var LIVE = { dashboard: function () { loadDashboard(); }, insights: function () { loadInsights(); },
     ads: function () { loadAds(); }, revenue: function () { loadRevenue(); },
-    users: function () { return loadUsers(); }, activity: function () { loadEvents(); } };
+    users: function () { return loadUsers(); }, activity: function () { loadEvents(); },
+    community: function () { if (window.MCA.adminCommunity) return window.MCA.adminCommunity.load(true); } };
   var lastTouch = 0;
   ["pointerdown", "keydown", "wheel"].forEach(function (t) {
     document.addEventListener(t, function () { lastTouch = Date.now(); }, { passive: true });
@@ -2556,6 +2558,9 @@
   function liveDone() { setTimeout(function () { state.quiet = false; }, 1500); }
   setInterval(liveTick, 15000);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) setTimeout(liveTick, 300); });
+
+  /* Shared helpers for admin-community.js (The Workshop moderation view). */
+  window.MCA.adminKit = { ask: ask, toast: toast, run: run, since: since, when: when, num: num, openUser: function (id) { openUser(id); } };
 
   wirePricing();
   start();

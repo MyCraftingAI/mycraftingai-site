@@ -473,6 +473,24 @@
         endGift: function (id) { return request("POST", "/v1/admin/gifts/" + encodeURIComponent(id) + "/end", {}); },
         deleteGift: function (id) { return request("DELETE", "/v1/admin/gifts/" + encodeURIComponent(id)); },
         balance: function (refresh) { return request("GET", "/v1/admin/balance" + (refresh ? "?refresh=true" : "")); },
+        /** The Workshop (community): reports, members, content and spaces. */
+        community: {
+          overview: function () { return request("GET", "/v1/admin/community/overview"); },
+          reports: function (status, page) { return request("GET", "/v1/admin/community/reports?status=" + encodeURIComponent(status || "open") + "&page=" + (page || 1)); },
+          resolve: function (id, d) { return request("POST", "/v1/admin/community/reports/" + encodeURIComponent(id), d); },
+          members: function (q) {
+            q = q || {};
+            return request("GET", "/v1/admin/community/members?query=" + encodeURIComponent(q.query || "") + "&status=" + encodeURIComponent(q.status || "") + "&page=" + (q.page || 1));
+          },
+          member: function (id, d) { return request("POST", "/v1/admin/community/members/" + encodeURIComponent(id), d); },
+          content: function (q) {
+            q = q || {};
+            return request("GET", "/v1/admin/community/content?kind=" + encodeURIComponent(q.kind || "posts") + "&status=" + encodeURIComponent(q.status || "") + "&query=" + encodeURIComponent(q.query || "") + "&page=" + (q.page || 1));
+          },
+          moderate: function (kind, id, d) { return request("POST", "/v1/admin/community/content/" + kind + "/" + encodeURIComponent(id), d); },
+          spaces: function () { return request("GET", "/v1/admin/community/spaces"); },
+          saveSpace: function (id, d) { return id ? request("PATCH", "/v1/admin/community/spaces/" + encodeURIComponent(id), d) : request("POST", "/v1/admin/community/spaces", d); }
+        },
         /** Daily metrics as CSV, downloaded with the session cookie. */
         exportMetrics: function (days) {
           if (mode !== "live") return fail("not_live", 503);

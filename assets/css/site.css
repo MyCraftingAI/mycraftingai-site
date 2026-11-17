@@ -105,7 +105,8 @@ p { margin: 0; }
 .brand:hover { color: var(--text); }
 .brand svg { width: 30px; height: 30px; }
 .nav { display: flex; gap: 4px; margin-left: 12px; }
-.nav a { color: var(--muted); font-size: 15px; padding: 8px 12px; border-radius: 8px; }
+.nav a { color: var(--muted); font-size: 15px; padding: 8px 12px; border-radius: 8px; white-space: nowrap; }
+@media (max-width: 1120px) and (min-width: 901px) { .nav { margin-left: 4px; gap: 0; } .nav a { padding: 8px 8px; font-size: 14px; } }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--text); background: rgba(255,255,255,.04); }
 .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .header-actions .btn { height: 40px; padding: 0 16px; font-size: 14px; }
@@ -876,3 +877,9 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .kb-note { margin-top: 16px; color: var(--muted); font-size: 14px; line-height: 1.6; }
 @media (max-width: 760px) { .kb-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 380px) { .kb-grid { grid-template-columns: 1fr; } .kb-card { padding: 18px; } }
+
+/* The Workshop (community): unread bell next to the account chip */
+.cm-header-bell { position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; color: var(--muted); margin-right: 6px; }
+.cm-header-bell:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.cm-header-bell svg { width: 19px; height: 19px; }
+.cm-header-bell i { position: absolute; top: 6px; right: 5px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--ruby); color: #fff; font: 700 10px/16px var(--mono); font-style: normal; text-align: center; }

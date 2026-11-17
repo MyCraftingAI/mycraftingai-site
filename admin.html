@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261128">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261127">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261117w">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261117w">
 </head>
 <body data-page="admin">
   <div class="ad-gate" data-gate>
@@ -38,6 +38,7 @@
       <button class="ad-nav" data-nav="gifts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v7h14v-7M12 8v12"/><path d="M12 8c-1.5-3-5-3.5-5-1.2C7 8.5 10 8 12 8c2 0 5 .5 5-1.2C17 4.5 13.5 5 12 8z"/></svg>Token gifts</button>
       <button class="ad-nav" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.4.2 4 1.8 4.6 4.5"/></svg>Users<span class="ad-count" data-count-users>–</span></button>
       <button class="ad-nav" data-nav="messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Messages</button>
+      <button class="ad-nav" data-nav="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>Community<span class="ad-count warn" data-cm-badge hidden></span></button>
       <button class="ad-nav" data-nav="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h2"/><path d="M10 12h10"/><circle cx="8" cy="12" r="2"/><path d="M4 18h12"/><path d="M20 18h0"/><circle cx="18" cy="18" r="2"/></svg>Live settings<span class="ad-count warn" data-switch-badge hidden>!</span></button>
       <button class="ad-nav" data-nav="server"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h6M11 16.5h6"/></svg>Server settings<span class="ad-count" data-srv-badge hidden></span></button>
       <button class="ad-nav" data-nav="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Activity log</button>
@@ -204,6 +205,21 @@
             <div class="ad-gifts" data-gift-list><div class="ad-skel"></div></div>
           </div>
         </div>
+      </section>
+
+      <!-- The Workshop (community) -->
+      <section class="ad-view" data-view="community" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Community</h1><p>The Workshop: reports, members, posts and spaces. Every action is written to the activity log and the member gets a notification.</p></div>
+          <div class="ad-grow"></div>
+          <a class="btn btn-ghost btn-sm" href="community.html" target="_blank" rel="noopener">Open The Workshop</a>
+        </div>
+        <div class="ad-grid ad-kpis" data-cm-kpis></div>
+        <div class="ad-seg" data-cm-tabs style="margin:18px 0 12px">
+          <button data-cm-tab="reports" class="on">Reports</button><button data-cm-tab="content">Posts &amp; comments</button><button data-cm-tab="members">Members</button><button data-cm-tab="spaces">Spaces</button>
+        </div>
+        <div data-cm-body><div class="ad-skel"></div></div>
       </section>
 
       <!-- Live settings -->
@@ -508,8 +524,9 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261124"></script>
-  <script src="assets/js/ui.js?v=20261130"></script>
-  <script src="assets/js/admin.js?v=20261130"></script>
+  <script src="assets/js/api.js?v=20261117w"></script>
+  <script src="assets/js/ui.js?v=20261117w"></script>
+  <script src="assets/js/admin.js?v=20261117w"></script>
+  <script src="assets/js/admin-community.js?v=20261117w"></script>
 </body>
 </html>

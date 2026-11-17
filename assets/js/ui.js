@@ -29,6 +29,7 @@
       '<a href="' + link("#tour") + '">Features</a>' +
       '<a href="' + link("#pricing") + '">Pricing</a>' +
       '<a href="download.html">Download</a>' +
+      '<a href="community.html">Community</a>' +
       '<a href="' + link("#faq") + '">FAQ</a>' +
       '<a href="about.html">About</a>' +
       "</nav>" +
@@ -62,7 +63,7 @@
       '<div class="wrap"><div class="footer-grid">' +
       '<div><a class="brand" href="index.html">' + LOGO + "MyCraftingAI</a>" +
       '<p style="margin-top:14px;max-width:34ch">A desktop app that writes, paints and runs Minecraft mods from plain English.</p></div>' +
-      '<div><h4>Product</h4><a href="download.html">Download</a><a href="' + link("#demo") + '">How it works</a><a href="' + link("#tour") + '">Features</a><a href="' + link("#pricing") + '">Pricing</a><a href="' + link("#faq") + '">FAQ</a></div>' +
+      '<div><h4>Product</h4><a href="download.html">Download</a><a href="community.html">Community</a><a href="' + link("#demo") + '">How it works</a><a href="' + link("#tour") + '">Features</a><a href="' + link("#pricing") + '">Pricing</a><a href="' + link("#faq") + '">FAQ</a></div>' +
       '<div><h4>Account</h4><a href="login.html">Sign in</a><a href="signup.html">Create account</a><a href="forgot.html">Reset password</a><a href="account.html">Your plan</a></div>' +
       '<div><h4>Company</h4>' + contact + '<a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a>' +
       '<a href="privacy.html#cookies">Cookie Policy</a><a href="#" data-cookie-settings>Cookie settings</a></div>' +
@@ -99,10 +100,29 @@
     api.me().then(function (me) {
       var name = (me.user && (me.user.name || me.user.email)) || "Account";
       slot.innerHTML =
+        '<a class="cm-header-bell" href="community.html#/notifications" aria-label="Community notifications" title="The Workshop: notifications and messages">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5h4"/></svg><i hidden></i></a>' +
         '<a class="account-chip" href="account.html"><span class="avatar">' +
         escapeHtml(name.charAt(0).toUpperCase()) + "</span>" + escapeHtml(me.plan ? me.plan.name : "Account") + "</a>";
       applySession(me);
+      communityBadge();
     }, function () { /* signed out: keep the buttons */ });
+  }
+
+  /** Unread community notifications + messages on the header bell (The Workshop). */
+  function communityBadge() {
+    var bell = document.querySelector(".cm-header-bell i");
+    var base = String(cfg.apiBase || "").replace(/\/+$/, "");
+    if (!bell || !base || !window.fetch) return;
+    if (document.body && document.body.dataset.page === "community") return;  // the page keeps it fresh itself
+    fetch(base + "/v1/community/unread", { credentials: "include", headers: { "Accept": "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (u) {
+        if (!u) return;
+        var n = (u.notifications || 0) + (u.messages || 0);
+        bell.textContent = n > 99 ? "99+" : String(n);
+        bell.hidden = !n;
+      }, function () { /* ignore */ });
   }
 
   /* ---------------------------------------------------- signed in
@@ -189,7 +209,8 @@
    * The pages that are part of signing in, and the policies themselves, are
    * never blocked. The server enforces the same rule for AI requests. */
   var LEGAL_OPEN_PAGES = ["welcome.html", "login.html", "signup.html", "forgot.html", "terms.html",
-                          "privacy.html", "desktop.html", "404.html", "unlock.html", "contact.html", "about.html"];
+                          "privacy.html", "desktop.html", "404.html", "unlock.html", "contact.html", "about.html",
+                          "community-rules.html"];
 
   function currentPage() {
     return (location.pathname.split("/").pop() || "index.html").toLowerCase();

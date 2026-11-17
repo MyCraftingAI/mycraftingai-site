@@ -53,3 +53,20 @@ window.MCA_CONFIG = {
     downloadDelay: 10
   }
 };
+
+/* Local development only: open the site from your own PC with
+   ?api=http://127.0.0.1:8000 to use a local account server (remembered in this
+   browser; ?api=off goes back). Ignored on the public site. */
+(function () {
+  if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
+  try {
+    var m = /[?&]api=([^&#]+)/.exec(location.search);
+    if (m) {
+      var v = decodeURIComponent(m[1]);
+      if (v === "off") localStorage.removeItem("mca_dev_api");
+      else if (/^http:\/\/(127\.0\.0\.1|localhost):\d{2,5}$/.test(v)) localStorage.setItem("mca_dev_api", v);
+    }
+    var dev = localStorage.getItem("mca_dev_api");
+    if (dev) window.MCA_CONFIG.apiBase = dev;
+  } catch (e) { /* private mode */ }
+})();
