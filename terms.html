@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261117x">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
 </head>
 <body>
   <header data-site-header></header>
@@ -21,7 +21,8 @@
         <a href="#eligibility">2. Who may use it</a>
         <a href="#accounts">3. Your account</a>
         <a href="#service">4. The service and AI</a>
-        <a href="#ads">4.1 Ads and ad unlocks</a>
+        <a href="#ai-processing">4.1 How AI processing works</a>
+        <a href="#ads">4.2 Ads and ad unlocks</a>
         <a href="#payments">5. Plans and payment</a>
         <a href="#topups">5.1 Token top-ups</a>
         <a href="#cancel">6. Cancelling</a>
@@ -52,6 +53,7 @@
           <ul>
             <li>You own the mods, code and textures you make. Keep backups and test before you publish.</li>
             <li>AI can be wrong. You decide what to keep, ship and share.</li>
+            <li>To answer you, the app sends your request and the project files, pictures and error logs it needs to our AI providers. Nothing is stored after the answer, and we never use your projects to train AI models.</li>
             <li>Paid plans renew monthly, on the date and time you subscribed, until you cancel. Cancel any time from your account page; your plan runs to the end of the month you paid for.</li>
             <li>Each paid plan gives a monthly token allowance (a larger one in your first month, once per account). Input and output tokens come from the same pool, and unused plan tokens expire when the month renews.</li>
             <li>The Version Converter (Pro and Studio plans) ports mods to other loaders and Minecraft versions. Only convert mods you have the right to modify; you see the estimated tokens before it starts.</li>
@@ -60,7 +62,8 @@
             <li>Don't misuse the service, share accounts or try to get around limits.</li>
             <li>The app has no ads. On the Free plan you can choose to watch a short ad on our website to unlock some tools for a limited time.</li>
             <li>When the AI is very busy, requests may wait in line. Higher plans are served first, and waiting never costs tokens.</li>
-            <li>In The Workshop, our community, what you post is public and you're responsible for it. Follow the <a href="community-rules.html">community rules</a>, share only files you have the right to share, and never upload malware. Moderators can remove content and restrict accounts.</li>
+            <li>In The Workshop, our community, what you post is public and you're responsible for it. Follow the <a href="community-rules.html">community rules</a>, share only files you have the right to share, and never upload malware. Every upload is scanned for viruses, and moderators can remove content and restrict accounts.</li>
+            <li>Payments are handled by Dodo Payments, our merchant of record. We never see your card details.</li>
           </ul>
           <p>This summary helps you read the terms; it doesn't replace them.</p>
         </div>
@@ -108,10 +111,20 @@
             </ul>
           </li>
           <li><b>Availability.</b> We work hard to keep the Service available, but it may be interrupted for maintenance, updates, provider outages or events outside our control. We don't guarantee any particular uptime.</li>
-          <li><b>Third-party providers.</b> Some features rely on outside providers, such as AI model providers, our payment provider, Google sign-in and Google's advertising services. Their availability is outside our control.</li>
+          <li><b>Third-party providers.</b> Some features rely on outside providers, such as AI model providers, our payment provider Dodo Payments, Google sign-in and Google's advertising services. Their availability is outside our control.</li>
         </ul>
 
-        <h3 id="ads">4.1 Advertising and ad unlocks</h3>
+        <h3 id="ai-processing">4.1 How AI processing works</h3>
+        <ul>
+          <li><b>What is sent.</b> To produce an answer, the app sends what that request needs through our servers to the AI model provider: your message, the project files relevant to it, pictures or files you attach or paste, and, for the studios, your descriptions and the structure of the model you're working on. When <b>Auto-fix</b> is on, compile errors, build logs and Minecraft crash reports are sent automatically so the Assistant can repair the mod. You can turn Auto-fix off in the app's settings. The Version Converter sends the source code and data files of the mod you choose to convert.</li>
+          <li><b>Reference material.</b> To keep code accurate for your Minecraft version and mod loader, the app may add matching pages from its built-in Minecraft modding reference library to a request. They count as input tokens like any other context.</li>
+          <li><b>Automatic actions use tokens.</b> Automatic repairs, verification steps and "Always continue" parts are AI requests too, and they use tokens from your allowance. The app shows them as they happen and stops after the number of attempts set in Settings.</li>
+          <li><b>No training on your work.</b> We don't use your prompts, projects or AI output to train AI models, and we don't keep the content of requests or answers after they're delivered (see the <a href="privacy.html#ai">Privacy Policy</a>). AI providers process requests under their API terms and receive a random identifier for your account, never your name or email address.</li>
+          <li><b>No human review.</b> AI answers are generated automatically and aren't checked by a person before you see them. Treat them as a draft: review, build and test before you use or share anything.</li>
+          <li><b>What you send is your responsibility.</b> Don't put passwords, keys, other people's personal data or files you aren't allowed to share into requests or attachments.</li>
+        </ul>
+
+        <h3 id="ads">4.2 Advertising and ad unlocks</h3>
         <ul>
           <li><b>Where ads appear.</b> The desktop app never shows ads. Our website shows ads, served by Google and its partners, only on the download page and the unlock page. They are clearly labelled. We don't control the content of third-party ads and don't endorse the products they promote.</li>
           <li><b>Ad unlocks on the Free plan.</b> Some tools that are not part of the Free plan (currently Build &amp; Run and Texture Studio) can be unlocked for a limited time by choosing to watch a rewarded ad on our unlock page. Today, one ad unlocks one Build &amp; Run, which includes the game launch and the automatic fixes of that run for a limited period, or five minutes of Texture Studio. We show the current reward before you watch.</li>
@@ -182,7 +195,7 @@
           <li><b>Public content.</b> Posts, comments, images, files, your username, profile picture, bio, plan badge and karma are visible to everyone, including people who aren't signed in (files can only be downloaded by signed-in members). Don't post personal information about yourself or anyone else.</li>
           <li><b>Your licence to us.</b> You keep ownership of what you post. You give us a worldwide, non-exclusive, royalty-free licence to host, store, copy, display, distribute and format it (for example making thumbnails), only to run and show The Workshop on our website and in the app. The licence ends when you or we delete the content, except for copies we must keep for legal reasons or in backups for a limited time.</li>
           <li><b>Licences between members.</b> Unless you say otherwise in your post, other members may download and use the mods and files you share for their own personal use. Any other rights (for example re-uploading or including your work in their own mods) depend on the licence you choose and state.</li>
-          <li><b>Your responsibility for uploads.</b> Upload only files you made or have the right to share. Never upload malware, files that hide what they do, cheats for servers that forbid them, stolen accounts or anything illegal. We check file types and may scan uploads for viruses, but we don't review every file and can't guarantee that files shared by members are safe or work. You download and run other members' mods at your own risk.</li>
+          <li><b>Your responsibility for uploads.</b> Upload only files you made or have the right to share. Never upload malware, files that hide what they do, cheats for servers that forbid them, stolen accounts or anything illegal. Every upload is checked for its file type and size and scanned for known viruses on our own servers before it can be shared; flagged files are refused. Scanning can't catch everything, we don't review every file by hand, and we can't guarantee that files shared by members are safe or work. You download and run other members' mods at your own risk.</li>
           <li><b>Private messages.</b> Messages between members are only visible to the people in the conversation. We don't read them, except when a member reports a message, when needed to investigate abuse, security issues or legal requests, or when the law requires it. Don't use messages for spam, harassment or scams.</li>
           <li><b>Moderation.</b> We and our volunteer moderators may remove, hide or lock any content, and limit, mute or ban accounts from The Workshop, if we reasonably believe it breaks these Terms or the rules or is harmful. Content reported by several members may be hidden automatically until a moderator reviews it. A Workshop restriction doesn't affect the rest of your account or your paid plan, and isn't a reason for a refund.</li>
           <li><b>Reports and takedowns.</b> Use the Report button for anything that breaks the rules. If you believe content infringes your copyright or other rights, email <a href="mailto:contact@mycraftingai.com">contact@mycraftingai.com</a> with a link to the content, a description of your work and your contact details; we'll review it and remove infringing content. Members who repeatedly infringe will lose access.</li>
@@ -261,7 +274,7 @@
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261117x"></script>
-  <script src="assets/js/ui.js?v=20261117x"></script>
+  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/ui.js?v=20261118b"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261117x">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
 </head>
 <body>
   <header data-site-header></header>
@@ -19,6 +19,7 @@
         <b>On this page</b>
         <a href="#who">1. Who we are</a>
         <a href="#collect">2. What we collect</a>
+        <a href="#ai">2.1 AI processing</a>
         <a href="#not-collect">3. What we don't collect</a>
         <a href="#use">4. How we use it</a>
         <a href="#legal-bases">5. Legal bases</a>
@@ -46,9 +47,10 @@
             <li>We collect what's needed to run your account and the AI features.</li>
             <li>The desktop app has no ads or ad trackers. Google shows ads only on our download and unlock pages, personalised only if you allow it.</li>
             <li>Your projects stay on your computer. The app sends only the files a request needs.</li>
-            <li>We don't keep the text of your AI requests or the answers after they're delivered. We keep only token counts, per day and per billing month.</li>
+            <li>We don't keep the text of your AI requests or the answers after they're delivered, and we never use them to train AI models. We keep only token counts, per day and per billing month. AI providers get a random identifier, never your name or email address.</li>
+            <li>Payments go through Dodo Payments, our merchant of record. Your card details go straight to them, never to us.</li>
             <li>When the AI is busy, your request may wait in a short line. Its place in line is kept for a few minutes at most.</li>
-            <li>What you post in The Workshop, our community, is public. Private messages are seen only by the people in the conversation, and by moderators only if someone reports a message.</li>
+            <li>What you post in The Workshop, our community, is public, and every uploaded file is virus-scanned on our own servers. Private messages are seen only by the people in the conversation, and by moderators only if someone reports a message.</li>
             <li>We never sell your personal data.</li>
             <li>Optional cookies stay off until you allow them. You can delete your account at any time.</li>
           </ul>
@@ -73,6 +75,25 @@
           <li><b>Technical data:</b> when your browser or the app connects to us, our servers briefly log standard request data (IP address, time, requested address, response code) for security and troubleshooting.</li>
         </ul>
 
+        <h3 id="ai">2.1 How AI processing works</h3>
+        <p>MyCraftingAI's AI features run on large language models from third-party AI model providers. This is what happens to your data when you use them:</p>
+        <ul>
+          <li><b>What is sent.</b> Only what a request needs:
+            <ul>
+              <li>your message;</li>
+              <li>the project files relevant to it;</li>
+              <li>pictures and files you attach or paste (for example a screenshot);</li>
+              <li>in the studios, your descriptions and the structure of the model or texture you're working on;</li>
+              <li>with Auto-fix on, compile errors, build logs and Minecraft crash reports, so the Assistant can repair your mod.</li>
+            </ul>
+            The app may also add pages from its built-in Minecraft modding reference library; those come from the app itself, not from your computer's other files.</li>
+          <li><b>What isn't sent.</b> Your name, email address, username, password and payment details are never sent to AI providers. Each request carries only a random identifier derived one-way from your account ID, so providers can detect abuse without knowing who you are. Your project folder isn't uploaded as a whole.</li>
+          <li><b>How long it's kept.</b> Requests pass through our servers to the provider, and the answer comes back to your app. We don't store the content of requests or answers afterwards; we keep only token counts and short-lived queue records (section 2). AI providers process requests under their API terms and may keep them for a limited time for security and abuse monitoring, as those terms allow.</li>
+          <li><b>No training on your data.</b> We don't use your prompts, projects, pictures or AI output to train or improve AI models, and we don't sell them or share them with advertisers.</li>
+          <li><b>Where it happens.</b> AI processing may take place outside your country, including in the United States and China (see <a href="#transfers">International transfers</a>).</li>
+          <li><b>Your control.</b> Nothing is sent until you send a message or start a tool. You can turn Auto-fix off in the app's settings, and you choose which files to attach. Please don't put passwords, keys or other people's personal data into requests.</li>
+        </ul>
+
         <h2 id="not-collect">3. What we don't collect</h2>
         <ul>
           <li>We don't upload your project folder. Projects, chat history, settings and crash logs from the desktop app stay on your computer unless you choose to send them to us.</li>
@@ -90,7 +111,7 @@
           <li>to keep the AI service stable at busy times: requests wait in line, are retried automatically, and plans with priority access are served first;</li>
           <li>to manage subscriptions and token top-ups together with our payment provider, and to credit purchased tokens to your account;</li>
           <li>to answer support requests and tell you about important changes to the Service;</li>
-          <li>to run The Workshop: show posts and profiles, deliver private messages and notifications, scan uploads for safety, and moderate content that breaks the rules (including spam protection and rate limits);</li>
+          <li>to run The Workshop: show posts and profiles, deliver private messages and notifications, scan every uploaded file for viruses (on our own servers - files aren't sent to an outside scanning service), and moderate content that breaks the rules (including spam protection and rate limits);</li>
           <li>to send product news, only if you leave that option on;</li>
           <li>to show ads on our download and unlock pages, and to grant ad unlocks fairly (daily limits and fraud checks);</li>
           <li>to detect, investigate and prevent fraud, abuse and security incidents;</li>
@@ -108,7 +129,7 @@
         <h2 id="processors">6. Who processes your data</h2>
         <p>We use a small number of service providers. Each receives only what it needs, and each is bound to protect it:</p>
         <ul>
-          <li><b>AI model providers</b>: third-party providers of the language models that generate answers. They receive only the request content needed to produce an answer.</li>
+          <li><b>AI model providers</b>: third-party providers of the language models that generate answers. They receive only the request content needed to produce an answer and a random account identifier (see <a href="#ai">AI processing</a>).</li>
           <li><b>Dodo Payments</b>: our payment provider and merchant of record for subscriptions and token top-ups. They process checkout, payments, invoices and tax under their own privacy policy. Their secure checkout form is loaded on our website (from Dodo Payments and the jsDelivr content network) only when you choose to pay, and the card and billing details you type into it go directly to Dodo Payments - not to us. To start a checkout we send them your email address and username, and, to credit your purchase to the right account, your account ID, the plan or number of tokens and the price; they send these back to us with the payment confirmation, together with their customer and subscription IDs and the billing dates.</li>
           <li><b>Google</b>: if you choose "Continue with Google", to confirm your identity. The website loads fonts from Google Fonts, which shares your IP address with Google. Google AdSense and Google Ad Manager serve the ads on our download and unlock pages (see <a href="#advertising">Advertising</a>).</li>
           <li><b>Hosting and email providers</b>: run our servers, database backups and outgoing email.</li>
@@ -137,6 +158,7 @@
           <li><b>Sessions:</b> until you sign out, the session expires, or you end it from the account page.</li>
           <li><b>Security records:</b> sign-in codes expire within minutes. Failed sign-in counters are cleared after a short time. Server logs are kept for up to 30 days.</li>
           <li><b>Ad unlock records:</b> deleted automatically within 48 hours. Unlock links expire after 30 minutes.</li>
+          <li><b>AI request content:</b> not stored by us - it's passed to the AI provider and the answer is delivered to your app.</li>
           <li><b>AI queue records:</b> deleted when the request finishes, and within 15 minutes at most.</li>
           <li><b>Usage counts:</b> while your account is open.</li>
           <li><b>Billing records:</b> as long as tax and accounting law requires, which is usually several years. Our payment provider keeps its own records.</li>
@@ -193,7 +215,7 @@
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261117x"></script>
-  <script src="assets/js/ui.js?v=20261117x"></script>
+  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/ui.js?v=20261118b"></script>
 </body>
 </html>

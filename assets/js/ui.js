@@ -65,7 +65,9 @@
       '<p style="margin-top:14px;max-width:34ch">A desktop app that writes, paints and runs Minecraft mods from plain English.</p></div>' +
       '<div><h4>Product</h4><a href="download.html">Download</a><a href="community.html">Community</a><a href="' + link("#demo") + '">How it works</a><a href="' + link("#tour") + '">Features</a><a href="' + link("#pricing") + '">Pricing</a><a href="' + link("#faq") + '">FAQ</a></div>' +
       '<div><h4>Account</h4><a href="login.html">Sign in</a><a href="signup.html">Create account</a><a href="forgot.html">Reset password</a><a href="account.html">Your plan</a></div>' +
-      '<div><h4>Company</h4>' + contact + '<a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a>' +
+      '<div><h4>Company</h4>' + contact + "</div>" +
+      '<div><h4>Legal</h4><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a>' +
+      '<a href="community-rules.html">Community rules</a><a href="privacy.html#ai">AI &amp; your data</a>' +
       '<a href="privacy.html#cookies">Cookie Policy</a><a href="#" data-cookie-settings>Cookie settings</a></div>' +
       "</div>" +
       '<div class="footer-bottom"><span>&copy; ' + new Date().getFullYear() + " MyCraftingAI</span>" +
@@ -260,7 +262,8 @@
       '<div class="legal-box-head"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6l7-3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg><b>What\'s changed</b></div>' +
       '<p data-legal-summary></p>' +
       '<div class="legal-links"><a href="terms.html" target="_blank" rel="noopener">Terms of Service &#8599;</a>' +
-      '<a href="privacy.html" target="_blank" rel="noopener">Privacy Policy &#8599;</a></div>' +
+      '<a href="privacy.html" target="_blank" rel="noopener">Privacy Policy &#8599;</a>' +
+      '<a href="community-rules.html" target="_blank" rel="noopener">Community rules &#8599;</a></div>' +
       '<div class="legal-version" data-legal-version></div></div>' +
       '<label class="check"><input type="checkbox" data-legal-check> <span>I have read and agree to the updated Terms of Service and Privacy Policy.</span></label>' +
       '<div class="notice" data-legal-notice role="status"></div>' +

@@ -395,10 +395,32 @@
         (l.publishedAt ? "Published " + when(l.publishedAt) : "Original version") + " · " + num(d.accepted) + " of " + num(d.users) +
         " accounts agreed (" + share + "%)" + (d.pending ? " · " + num(d.pending) + " will be asked next time they sign in or open the app" : "") + "</span></div></div>" +
       (l.summary ? '<div class="ad-hint" style="white-space:pre-line">Last “what changed” note: ' + esc(l.summary) + "</div>" : "") +
+      '<div class="ad-rows" style="margin:6px 0 14px">' + LEGAL_DOCS.map(function (doc) {
+        return '<div class="r"><span>' + esc(doc[1]) + '</span><span class="ad-inline" style="gap:10px"><span class="ad-muted" data-legal-date="' + doc[0] + '">…</span>' +
+          '<a class="btn btn-ghost btn-sm" href="' + doc[0] + '" target="_blank" rel="noopener">Open ↗</a></span></div>';
+      }).join("") + "</div>" +
+      '<div class="ad-hint">After you edit terms.html or privacy.html and the website is live, publish a new version here: everyone sees the note below and must accept again before AI features work.</div>' +
       '<label>What changed (shown to everyone in the agreement prompt)<textarea class="input" rows="3" maxlength="600" style="min-height:90px" data-legal-summary placeholder="e.g. We clarified who owns AI-generated mods and how long usage logs are kept."></textarea></label>' +
+      '<div class="ad-row-actions" style="margin-top:-4px"><button class="btn btn-ghost btn-sm" type="button" data-legal-suggest>Use the suggested note for this update</button></div>' +
       '<label class="ad-check"><input type="checkbox" data-legal-notify> Also email every verified account about the update (recommended for important changes)</label>' +
       '<div class="ad-row-actions"><button class="btn btn-primary" data-legal-publish>Publish new version</button></div>';
+    LEGAL_DOCS.forEach(function (doc) {
+      fetch(doc[0], { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (html) {
+        var m = html.match(/class="updated">\s*(?:Effective|Last updated)\s*([^<]+)</i);
+        var cell = $('[data-legal-date="' + doc[0] + '"]');
+        if (cell) cell.textContent = m ? "Effective " + m[1].trim() : "Live";
+      }, function () { /* the page still opens */ });
+    });
   }
+  var LEGAL_DOCS = [["terms.html", "Terms of Service"], ["privacy.html", "Privacy Policy"], ["community-rules.html", "Community rules"]];
+  var LEGAL_SUGGESTED = "New: a clear section on how AI processing works (what is sent, Auto-fix logs, no training on your work, " +
+    "random IDs instead of your name or email), Dodo Payments as our payment provider and merchant of record, and virus scanning " +
+    "of every file shared in The Workshop. Sign-up now confirms you are 13 or older and accept the Community rules.";
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("[data-legal-suggest]")) return;
+    var box = $("[data-legal-summary]");
+    if (box) { box.value = LEGAL_SUGGESTED; box.focus(); }
+  });
   function renderSettings(c) {
     var v = c.values, f = c.fields;
     state.cfg = c;
