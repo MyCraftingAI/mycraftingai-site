@@ -716,8 +716,9 @@
     var spec = Array.isArray(promo.plans)  // older one-discount shape
       ? (promo.plans.indexOf(planId) >= 0 && promo.code ? { percent: promo.percent, code: promo.code } : null)
       : promo.plans[planId];
-    if (!spec || !spec.code || !spec.percent) return null;
-    return { percent: spec.percent, code: spec.code, label: promo.label || "Sale", terms: promo.terms || "" };
+    if (!spec || !spec.percent) return null;
+    return { percent: spec.percent, code: spec.code || "", label: promo.label || "Sale", terms: promo.terms || "",
+             months: promo.months || null };
   }
   function salePrice(price, promo) { return Math.round(price * (100 - promo.percent)) / 100; }
 
@@ -742,8 +743,9 @@
       card.appendChild(badge);
       note = document.createElement("p");
       note.className = "promo-note";
-      note.innerHTML = esc(promo.label) + " &middot; code <code>" + esc(promo.code) +
-        "</code> added at checkout" + (promo.terms ? " &middot; " + esc(promo.terms) : "");
+      var span = promo.months ? (promo.months === 1 ? " for your first month" : " for your first " + promo.months + " months") : "";
+      note.innerHTML = esc(promo.label) + " &middot; " + promo.percent + "% off" + esc(span) +
+        ", applied automatically at checkout" + (promo.terms ? " &middot; " + esc(promo.terms) : "");
       card.querySelector(".tokens").insertAdjacentElement("afterend", note);
     });
     $$("[data-compare-price]").forEach(function (td) {

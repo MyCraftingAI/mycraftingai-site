@@ -463,26 +463,33 @@
     var per = promoPlans(p);
     var html = '<div class="ad-promo-mode">' +
       '<button type="button" data-promo-mode="0" class="' + (on ? "" : "on") + '"><b>Same prices</b>Normal prices everywhere, no code.</button>' +
-      '<button type="button" data-promo-mode="1" class="' + (on ? "on" : "") + '"><b>Run a promotion</b>Sale prices on the website, codes added at checkout.</button></div>';
+      '<button type="button" data-promo-mode="1" class="' + (on ? "on" : "") + '"><b>Run a promotion</b>Sale prices on the website, discount applied automatically at checkout.</button></div>';
     if (on) {
       var live = p ? Object.keys(per).map(function (id) { return cap(id) + " " + per[id].percent + "% (" + per[id].code + ")"; }).join(" · ") : "";
+      var monthsNow = p ? (p.months || "") : "";
+      var monthChoices = [["", "Every month while subscribed"], [1, "First month only"], [2, "First 2 months"], [3, "First 3 months"],
+                          [6, "First 6 months"], [12, "First 12 months"]];
       html +=
-        (p ? '<div class="ad-status on"><span class="ic">●</span><div><b>Live: ' + esc(p.label) + "</b><span>" + esc(live) + (p.until ? " · until " + when(p.until) : "") + "</span></div></div>" : "") +
+        (p ? '<div class="ad-status on"><span class="ic">●</span><div><b>Live: ' + esc(p.label) + "</b><span>" + esc(live) +
+          (p.months ? " · first " + p.months + (p.months === 1 ? " month" : " months") : "") + (p.until ? " · until " + when(p.until) : "") + "</span></div></div>" : "") +
         '<div class="ad-inline" style="gap:10px;flex-wrap:wrap">' +
           '<label style="flex:2;min-width:180px">Name shown to people<input class="input" data-promo-label maxlength="60" value="' + esc(p ? p.label : (PROMO_LABEL[v.theme] || "")) + '" placeholder="e.g. Black Friday"></label>' +
-          '<label style="flex:1;min-width:170px">Ends (optional)<input class="input" type="datetime-local" data-promo-until value="' + esc(p && p.until ? p.until.slice(0, 16) : "") + '"></label></div>' +
-        '<div class="ad-promo-table"><div class="ad-promo-row head"><span>Plan</span><span>Discount</span><span>Dodo Payments code</span><span>Price</span></div>' +
+          '<label style="flex:1;min-width:170px">Ends (optional)<input class="input" type="datetime-local" data-promo-until value="' + esc(p && p.until ? p.until.slice(0, 16) : "") + '"></label>' +
+          '<label style="flex:1;min-width:190px">Discount lasts<select data-promo-months>' + monthChoices.map(function (c) {
+            return '<option value="' + c[0] + '"' + (String(monthsNow) === String(c[0]) ? " selected" : "") + ">" + c[1] + "</option>";
+          }).join("") + "</select></label></div>" +
+        '<div class="ad-promo-table"><div class="ad-promo-row head"><span>Plan</span><span>Discount</span><span>Code (optional)</span><span>Price</span></div>' +
         plans.map(function (id) {
           var spec = per[id], enabled = p ? !!spec : true;
           return '<div class="ad-promo-row' + (enabled ? "" : " off") + '" data-promo-row="' + id + '">' +
             '<label class="ad-check"><input type="checkbox" data-promo-plan="' + id + '"' + (enabled ? " checked" : "") + "> <b>" + cap(id) + "</b></label>" +
             '<span class="ad-pct"><input class="input" type="number" min="1" max="90" data-promo-pct="' + id + '" value="' + esc(spec ? spec.percent : 30) + '"><i>%</i></span>' +
-            '<input class="input" data-promo-code="' + id + '" maxlength="40" value="' + esc(spec ? spec.code : "") + '" placeholder="e.g. ' + id.toUpperCase().slice(0, 3) + '30" style="text-transform:uppercase">' +
+            '<input class="input" data-promo-code="' + id + '" maxlength="16" value="' + esc(spec ? spec.code : "") + '" placeholder="Automatic" style="text-transform:uppercase" title="3-16 letters and numbers. Leave empty and one is made for you.">' +
             '<span class="ad-promo-price" data-promo-price="' + id + '"></span></div>';
         }).join("") + "</div>" +
         '<div class="ad-row-actions" style="margin-top:-4px"><button class="btn btn-ghost btn-sm" data-promo-same>Use the first plan\'s discount and code for all</button></div>' +
         '<label>Terms (optional)<input class="input" data-promo-terms maxlength="160" value="' + esc(p ? p.terms : "") + '" placeholder="e.g. First 3 months, new subscriptions only"></label>' +
-        '<div class="ad-hint">Create each code in the Dodo Payments dashboard first (Sales → Discounts) with the same percentage, limited to that plan\'s product - Dodo is what actually charges the discounted price. The server adds the code to every checkout for that plan.</div>' +
+        '<div class="ad-hint">Nothing to set up in Dodo Payments: when you start or update the promotion, the server creates the matching Dodo discount for each plan (same percentage, only for that plan, ending when the sale ends) and applies it to every checkout automatically. Ending the promotion removes them. Codes are optional - leave them empty and they are made for you.</div>' +
         '<div class="ad-row-actions"><button class="btn btn-primary" data-promo-save>' + (p ? "Update promotion" : "Start promotion") + "</button>" +
         (p ? '<button class="btn btn-ghost" data-promo-stop>End promotion</button>' : "") + "</div>";
     } else if (p) {
@@ -524,7 +531,12 @@
     box.innerHTML = text ? esc(text) + (link ? ' <u><b>' + esc(lt || "Learn more") + " →</b></u>" : "") : '<span style="opacity:.6">Your announcement appears here.</span>';
   }
   function saveConfig(btn, changes, msg) {
-    return run(btn, A.setConfig(changes), msg, "Saving").then(function (c) { renderSettings(c); });
+    return run(btn, A.setConfig(changes), msg, "Saving").then(function (c) {
+      renderSettings(c);
+      // Promotion saved, but Dodo isn't connected yet: say when its discounts will be made.
+      var waiting = ((c && c.discounts) || []).filter(function (d) { return d.status === "not_synced"; })[0];
+      if (waiting) toast(waiting.message, true);
+    });
   }
 
   function tabUnlocks(u) {
@@ -2407,22 +2419,26 @@
       return promoPreview();
     }
     if (t.closest("[data-promo-save]")) {
-      var untilP = $("[data-promo-until]").value, perPlan = {}, missing = "";
+      var untilP = $("[data-promo-until]").value, perPlan = {}, badCode = "";
       $$("[data-promo-row]").forEach(function (r) {
         var id = r.dataset.promoRow;
         if (!$("[data-promo-plan]", r).checked) return;
         var code = $('[data-promo-code="' + id + '"]').value.trim().toUpperCase();
-        if (!code && !missing) missing = cap(id);
+        if (code && !/^[A-Z0-9]{3,16}$/.test(code) && !badCode) badCode = cap(id);
         perPlan[id] = { percent: Number($('[data-promo-pct="' + id + '"]').value), code: code };
       });
       if (!Object.keys(perPlan).length) return toast("Turn on at least one plan.", true);
-      if (missing) return toast(missing + " needs its Dodo Payments discount code.", true);
+      if (badCode) return toast(badCode + ": a code must be 3-16 letters and numbers - or leave it empty for an automatic one.", true);
+      var monthsP = $("[data-promo-months]").value;
       var promo = { label: $("[data-promo-label]").value.trim(), terms: $("[data-promo-terms]").value.trim(),
-        plans: perPlan, until: untilP ? new Date(untilP).toISOString() : null };
-      var summary = Object.keys(perPlan).map(function (id) { return cap(id) + " " + perPlan[id].percent + "% (" + perPlan[id].code + ")"; }).join(", ");
+        plans: perPlan, until: untilP ? new Date(untilP).toISOString() : null, months: monthsP ? Number(monthsP) : null };
+      var summary = Object.keys(perPlan).map(function (id) { return cap(id) + " " + perPlan[id].percent + "% off"; }).join(", ") +
+        (promo.months ? " for the first " + promo.months + (promo.months === 1 ? " month" : " months") : " every month");
       var btnP = t.closest("[data-promo-save]");
-      return ask({ title: "Start " + (promo.label || "the promotion") + "?", text: summary + ". The website shows the sale prices right away.", ok: "Go live" }).then(function (v) {
-        if (v) saveConfig(btnP, { promotion: promo }, "Promotion is live");
+      return ask({ title: "Start " + (promo.label || "the promotion") + "?",
+                   text: summary + ". The matching Dodo Payments discounts are created now, and the website shows the sale prices right away.",
+                   ok: "Go live" }).then(function (v) {
+        if (v) saveConfig(btnP, { promotion: promo }, "Promotion is live - discounts ready in Dodo Payments");
       });
     }
     if (t.closest("[data-promo-stop]")) {

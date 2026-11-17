@@ -8,9 +8,9 @@
  *
  * The SDK is pinned (version + Subresource Integrity) and loaded only when
  * someone clicks Buy. It runs with manualRedirect, so it never navigates the
- * page by itself: when the payment finishes we close the overlay and show the
- * result here. The account is updated by the payment webhook; this page just
- * refreshes it until the new plan or tokens show up.
+ * page by itself. When the payment succeeds (the "checkout.status" event) we
+ * close the overlay and open the account page, which waits for the payment
+ * webhook to add the plan or tokens and then shows them.
  *
  *   MCA.checkout.plan("pro")          subscribe to a monthly plan
  *   MCA.checkout.tokens(1000000)      buy a token top-up
@@ -80,36 +80,21 @@
     catch (e) { return false; }
   }
 
-  /** Watch the account until the webhook has applied the purchase (plan or top-up tokens). */
-  function refreshAccount(before) {
-    var api = MCA().api;
-    if (!api || !api.me) return;
-    var tries = 0;
-    (function poll() {
-      tries += 1;
-      api.me().then(function (me) {
-        var changed = before && me && (
-          (me.plan && before.plan && me.plan.id !== before.plan.id) ||
-          (me.usage && before.usage && me.usage.topupLeft !== before.usage.topupLeft));
-        try { document.dispatchEvent(new CustomEvent("mca:purchase", { detail: { me: me, done: !!changed } })); } catch (e) { /* old browser */ }
-        if (!changed && tries < 12) setTimeout(poll, 4000);
-      }, function () { if (tries < 12) setTimeout(poll, 4000); });
-    })();
-  }
-
   function finish(outcome) {
     if (!state || state.finished) return;
     state.finished = true;
     var job = state;
     try { if (job.sdk && job.sdk.Checkout.isOpen()) job.sdk.Checkout.close(); } catch (e) { /* already closed */ }
     busy(false);
-    if (outcome === "success") {
-      modal(job.kind === "plan" ? "Welcome to " + (job.label || "your new plan") + "!" : "Payment received",
-        job.kind === "plan"
-          ? "Your payment went through. Your plan and its tokens are added to your account within a minute - the desktop app picks them up automatically. Your receipt comes from Dodo Payments by email."
-          : "Your payment went through. The tokens are added to your account within a minute and stay valid for 12 months. Your receipt comes from Dodo Payments by email.",
-        [{ label: "Close" }, { label: "Go to your account", primary: true, href: "account.html" }]);
-      refreshAccount(job.before);
+    if (outcome === "success" || outcome === "processing") {
+      // Paid: straight to the account page, which waits for the webhook to add the purchase.
+      busy(true, "Payment received - opening your account…");
+      var next = "account.html?checkout=" + (outcome === "processing" ? "processing" : "done") +
+        "&kind=" + encodeURIComponent(job.kind || "") + (job.plan ? "&plan=" + encodeURIComponent(job.plan) : "") +
+        "#" + (job.kind === "plan" ? "subscription" : "topups");
+      setTimeout(function () { location.href = next; }, 600);
+      state = null;
+      return;
     } else if (outcome === "failed") {
       modal("Payment didn't go through",
         "Nothing was charged. Please try again or use another payment method. If it keeps failing, write to billing@mycraftingai.com.",
@@ -127,10 +112,12 @@
         busy(false);
         break;
       case "checkout.status": {
+        // manualRedirect: this is the final result ({status: "succeeded" | "failed" | ...}); the
+        // payment form waits on "Processing..." until we act on it.
         var status = statusOf(message);
-        if (SUCCESS.indexOf(status) !== -1) state.result = "success";
-        else if (FAILED.indexOf(status) !== -1) state.result = "failed";
-        else if (status === "processing") state.result = state.result || "processing";
+        if (SUCCESS.indexOf(status) !== -1) finish("success");
+        else if (FAILED.indexOf(status) !== -1) finish("failed");
+        else if (status) finish("processing");
         break;
       }
       case "checkout.redirect_requested": {
@@ -143,6 +130,7 @@
           finish(FAILED.indexOf(status2) !== -1 || state.result === "failed" ? "failed" : "success");
         } else if (url) {
           // A bank or wallet step that has to happen on the bank's own page (3-D Secure, etc).
+          // Dodo brings the customer back to our return_url (the account page) afterwards.
           location.href = url;
         }
         break;
@@ -171,7 +159,8 @@
     })()) ? "test" : "live";
     busy(true, job.busyText);
     return loadSdk().then(function (sdk) {
-      state = { kind: job.kind || "", label: job.label || "", before: job.before || MCA().session || null, sdk: sdk, result: "" };
+      state = { kind: job.kind || "", label: job.label || "", plan: job.plan || "", before: job.before || MCA().session || null,
+                sdk: sdk, result: "" };
       sdk.Initialize({ mode: mode, displayType: "overlay", onEvent: onEvent });
       sdk.Checkout.open({
         checkoutUrl: checkoutUrl,
@@ -223,7 +212,7 @@
     return api.me().then(function (me) {
       if (!me || !me.user) throw new api.ApiError("unauthorized", "", 401);
       return api.billing.subscribe(planId).then(function (session) {
-        return open(session.checkoutUrl, { kind: "plan", label: session.planName || opts.label, before: me,
+        return open(session.checkoutUrl, { kind: "plan", plan: planId, label: session.planName || opts.label, before: me,
                                            busyText: "Opening secure checkout…" });
       });
     }).catch(function (err) {

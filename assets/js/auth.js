@@ -433,8 +433,10 @@
         split.hidden = false;
       }
       topupCard();
-      if (/[?&](topup=thanks|checkout=done)\b/.test(location.search)) {
-        notice(root, "ok", "Thanks for your purchase! It's added to your account as soon as Dodo Payments confirms the payment - usually within a minute. This page updates when you reload it.");
+      if (/[?&]checkout=applied\b/.test(location.search)) {
+        notice(root, "ok", "Payment complete - your purchase is on your account. Your receipt is on its way from billing@mycraftingai.com.");
+      } else if (/[?&](topup=thanks|checkout=done|checkout=processing)\b/.test(location.search)) {
+        watchPurchase(me);
       } else if (usage.renewalPending) {
         notice(root, "warn", "Your plan's monthly renewal is being processed. This month's tokens are added as soon as the payment goes through.");
       }
@@ -459,6 +461,40 @@
       if (err.code === "unauthorized" || err.status === 401) { location.href = "login.html?next=account.html"; return; }
       notice(root, "error", err.message);
     });
+
+    /** Just paid: wait for the payment webhook to add the plan or tokens, then show the updated account. */
+    function watchPurchase(me) {
+      var params = new URLSearchParams(location.search);
+      var wantPlan = params.get("plan") || "";
+      var kind = params.get("kind") || (wantPlan ? "plan" : "topup");
+      var hash = location.hash || (kind === "plan" ? "#subscription" : "#topups");
+      notice(root, "ok", "Payment received - adding your " + (kind === "plan" ? "plan" : "tokens") +
+        " to your account. This usually takes a few seconds…");
+      var tries = 0;
+      /** A purchased top-up credited in the last 10 minutes (the webhook may beat this page). */
+      function freshTopup(data) {
+        var t = (data && data.topups || [])[0];
+        return !!(t && t.source === "purchase" && t.created && Date.now() - Date.parse(t.created) < 10 * 60 * 1000);
+      }
+      function done() { location.replace("account.html?checkout=applied" + hash); }
+      function check() {
+        tries += 1;
+        var ask = kind === "plan"
+          ? api.me().then(function (fresh) { return !!(fresh && fresh.plan && fresh.plan.id === wantPlan); })
+          : api.billing.topups().then(freshTopup);
+        ask.then(function (changed) {
+          if (changed) return done();
+          if (tries < 30) return setTimeout(check, 3000);
+          notice(root, "warn", "Your payment went through, but it's taking longer than usual to show here. " +
+            "Refresh this page in a few minutes - if it still isn't there, write to billing@mycraftingai.com.");
+        }, function () { if (tries < 30) setTimeout(check, 3000); });
+      }
+      if (kind === "plan" && wantPlan && me.plan && me.plan.id === wantPlan) {
+        notice(root, "ok", "Payment complete - your " + me.plan.name + " plan is active. Your receipt is on its way from billing@mycraftingai.com.");
+        return;
+      }
+      check();
+    }
 
     /** 2-step verification card: switching on/off is confirmed with an emailed code. */
     function securityCard(enabled) {

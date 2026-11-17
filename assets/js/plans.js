@@ -90,8 +90,10 @@ window.MCA_PLANS = {
         "files",
         "overview",
         "textures",
+        "convert",
         "sounds",
         "recipes",
+        "particles",
         "build",
         "attachments",
         "priority"
@@ -148,7 +150,7 @@ window.MCA_PLANS = {
         "Version Converter: any loader, any Minecraft version",
         "Room for large multi-mod projects"
       ],
-      "popular": false,
+      "popular": true,
       "countsCached": true,
       "thinking": [
         "none",
@@ -230,19 +232,19 @@ window.MCA_PLANS = {
       },
       {
         "tokens": 2500000,
-        "price": 5.0
+        "price": 4.78
       },
       {
         "tokens": 5000000,
-        "price": 10.0
+        "price": 9.39
       },
       {
         "tokens": 10000000,
-        "price": 20.0
+        "price": 18.32
       },
       {
         "tokens": 25000000,
-        "price": 50.0
+        "price": 41.84
       }
     ]
   },

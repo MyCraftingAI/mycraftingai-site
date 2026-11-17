@@ -574,16 +574,15 @@
     try { if (localStorage.getItem(key) === id) return; } catch (e) { /* private mode */ }
     var planIds = promo ? (Array.isArray(promo.plans) ? promo.plans : Object.keys(promo.plans || {})) : [];
     var plans = planIds.map(function (p) { return p.charAt(0).toUpperCase() + p.slice(1); }).join(", ");
-    var codes = promo && !Array.isArray(promo.plans) ? planIds.map(function (p) { return promo.plans[p].code; }) : [];
-    var oneCode = promo && (Array.isArray(promo.plans) ? promo.code : (codes.every(function (c) { return c === codes[0]; }) ? codes[0] : ""));
     var maxPct = promo ? (promo.maxPercent || promo.percent) : 0, minPct = promo ? (promo.minPercent || promo.percent) : 0;
+    var months = promo && promo.months ? (promo.months === 1 ? "first month" : "first " + promo.months + " months") : "";
     var bar = document.createElement("div");
     bar.className = "season-strip";
     bar.innerHTML = '<div class="wrap">' +
       (greet ? '<span class="em" aria-hidden="true">' + greet[0] + "</span><span><b>" + escapeHtml(greet[1]) + "</b></span>" : "") +
       (promo ? "<span>" + (greet ? "&middot; " : "") + "<b>" + escapeHtml(promo.label) + ":</b> " +
         (maxPct === minPct ? maxPct + "% off " : "up to " + maxPct + "% off ") + escapeHtml(plans) +
-        (oneCode ? ' with code <span class="code">' + escapeHtml(oneCode) + "</span>" : " &middot; codes added at checkout") +
+        (months ? " for your " + months : "") + " &middot; applied automatically at checkout" +
         (promo.terms ? " &middot; " + escapeHtml(promo.terms) : "") + "</span>" +
         '<a class="go" href="index.html#pricing">See plans &rarr;</a>' : "") +
       '<button type="button" aria-label="Hide">&times;</button></div>';
