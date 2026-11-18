@@ -1,10 +1,10 @@
 {
-  "version": "1.1.7",
+  "version": "1.1.8",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60887799,
-  "sha256": "9acbdb646d19773b545fd79ffbcda413c4c7dac9abbd0c477c1d5447dfc7d824",
-  "published": "2026-11-18T11:06:14Z",
+  "size": 60894688,
+  "sha256": "8c02f29182f2031e215b3fb43e3ee6487474b2cf10b4c13b239f50d8429f0f08",
+  "published": "2026-11-18T11:27:52Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Fixed: empty \"MyCraftingAI\" windows popped up while generating textures**: when several textures finished at once, the asset list rebuilt itself and old rows could appear as small blank windows. Old rows are now removed inside the list and can never become a window again.\n- **Pick the detail for a whole batch**: **Generate all that need art** and **Generate selected** now ask once which detail to use - **Fast**, **Normal**, **Max** or **Ultra Detail** - with how long each takes and an estimate for the whole batch (up to five paint at the same time)."
+  "notes": "- **Fixed: generated textures didn't change**: since 1.1.6 the Texture Studio's parallel painters weren't connected to your account, so every request failed at once (\"Painted in 0 s\") and a simple stand-in was painted from the description - the same picture every time, whatever Detail you chose. They now use your account like the rest of the app, so Fast, Normal, Max and Ultra Detail really paint new art.\n- **A failed generation never overwrites your texture**: if a request fails or the answer has no drawing, the texture stays exactly as it was and the card says why (\"Not finished - ...\") so you can try again.\n- **Fixed: block textures ignored the AI's drawing**: when MyPixelAI drew a block side by side (top, front, sides), the drawing was skipped and a generic stone pattern was painted instead. Every side is now painted from the AI's own pixels."
 }
