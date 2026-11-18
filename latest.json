@@ -1,10 +1,10 @@
 {
-  "version": "1.1.9",
+  "version": "1.1.10",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60897476,
-  "sha256": "5ef5750240c3be1b72fbf503f60c22b23b22745face1f38cad2639604416ee0a",
-  "published": "2026-11-18T11:46:33Z",
+  "size": 60892108,
+  "sha256": "5e4bbfd74528efdc9c1718b64ef26230aaf204a66a37a784566a8398b5ace456",
+  "published": "2026-11-18T12:06:43Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Fixed: \"Server error - servers are busy\" while painting several textures**: your account could run 4 AI requests at the same time, but the Texture Studio paints 5 - so one of them was refused at once. Accounts can now run more at the same time, and a request over the limit waits for a free slot instead of failing.\n- **Busy servers are handled for you**: if the servers are busy anyway, a texture now waits a moment and tries again by itself (up to 3 times) - the card says \"Servers busy - retrying soon\" and your texture stays untouched. For a while the studio also paints a little fewer textures at once, then speeds back up."
+  "notes": "- **Choose the size for a whole batch**: when you generate several textures (**Generate selected** or **Generate all that need art**), the dialog now asks for the **Size** as well as the detail - keep each texture's own size, or paint every item and block at 16\u00d716, 32\u00d732, 64\u00d764, 128\u00d7128 or 256\u00d7256. GUIs and mobs keep their own size so their slots and body parts still match your code. The button shows exactly what you'll get, e.g. \"Generate 12 \u00b7 Ultra Detail \u00b7 32\u00d732\"."
 }
