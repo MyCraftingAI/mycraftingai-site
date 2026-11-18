@@ -1,10 +1,10 @@
 {
-  "version": "1.1.6",
+  "version": "1.1.7",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60882434,
-  "sha256": "79ec8bf8f37a978016637cc1b344f9e5cdf33840a59a18aa315f0c24c4ceb67c",
-  "published": "2026-11-18T10:10:05Z",
+  "size": 60887799,
+  "sha256": "9acbdb646d19773b545fd79ffbcda413c4c7dac9abbd0c477c1d5447dfc7d824",
+  "published": "2026-11-18T11:06:14Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Five textures at once**: the Texture Studio now paints up to five textures at the same time. Everything else waits its turn and starts by itself, and a live line shows how many are painting, how many are waiting and about when the whole batch is done.\n- **Generate textures in bulk**: press **Select** in the asset list (or Ctrl+click rows), tick the textures you want - or pick **Needs art** to tick every missing or placeholder one - and press **Generate with AI**. Each is painted from its own description.\n- **Sharper small textures**: 16x16 items and blocks are now drawn on a bigger grid (Fast 2x, Normal 4x, Max 8x) and reduced cleanly - a real outline, light from the top-left, 3-4 tone shading and bevels, never blurred. Fast no longer produces flat blocks.\n- **New: Ultra Detail**: a 256x256-grid level for maximum-density art - micro-shading, specular highlights, rivets and depth.\n- **Fixed: Generate gave back the old texture**: changing Size, Detail or Style and pressing Generate again sometimes returned the previous result. Every Generate is now a fresh painting that replaces the file and the canvas right away.\n- **GUI slots line up exactly**: generated GUI textures get their slot frames (and energy / fluid gauge wells) stamped at the exact positions your Menu and Screen code uses, in the vanilla colours - items sit perfectly in their slots in game.\n- **Professional art briefs**: the Assistant now describes every texture as a pixel-art spec - a hex colour ramp per material, materials, top-left light, and for GUIs the exact position of every slot, bar and arrow - so MyPixelAI's results are consistent and polished.\n- **Fixed: \"Generate all missing with AI\" did nothing**: placeholder textures now count as needing art (they're marked \"placeholder\" in the list). If everything is already painted, it offers to let you pick textures to regenerate."
+  "notes": "- **Fixed: empty \"MyCraftingAI\" windows popped up while generating textures**: when several textures finished at once, the asset list rebuilt itself and old rows could appear as small blank windows. Old rows are now removed inside the list and can never become a window again.\n- **Pick the detail for a whole batch**: **Generate all that need art** and **Generate selected** now ask once which detail to use - **Fast**, **Normal**, **Max** or **Ultra Detail** - with how long each takes and an estimate for the whole batch (up to five paint at the same time)."
 }
