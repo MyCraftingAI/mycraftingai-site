@@ -1,10 +1,10 @@
 {
-  "version": "1.1.8",
+  "version": "1.1.9",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60894688,
-  "sha256": "8c02f29182f2031e215b3fb43e3ee6487474b2cf10b4c13b239f50d8429f0f08",
-  "published": "2026-11-18T11:27:52Z",
+  "size": 60897476,
+  "sha256": "5ef5750240c3be1b72fbf503f60c22b23b22745face1f38cad2639604416ee0a",
+  "published": "2026-11-18T11:46:33Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Fixed: generated textures didn't change**: since 1.1.6 the Texture Studio's parallel painters weren't connected to your account, so every request failed at once (\"Painted in 0 s\") and a simple stand-in was painted from the description - the same picture every time, whatever Detail you chose. They now use your account like the rest of the app, so Fast, Normal, Max and Ultra Detail really paint new art.\n- **A failed generation never overwrites your texture**: if a request fails or the answer has no drawing, the texture stays exactly as it was and the card says why (\"Not finished - ...\") so you can try again.\n- **Fixed: block textures ignored the AI's drawing**: when MyPixelAI drew a block side by side (top, front, sides), the drawing was skipped and a generic stone pattern was painted instead. Every side is now painted from the AI's own pixels."
+  "notes": "- **Fixed: \"Server error - servers are busy\" while painting several textures**: your account could run 4 AI requests at the same time, but the Texture Studio paints 5 - so one of them was refused at once. Accounts can now run more at the same time, and a request over the limit waits for a free slot instead of failing.\n- **Busy servers are handled for you**: if the servers are busy anyway, a texture now waits a moment and tries again by itself (up to 3 times) - the card says \"Servers busy - retrying soon\" and your texture stays untouched. For a while the studio also paints a little fewer textures at once, then speeds back up."
 }
