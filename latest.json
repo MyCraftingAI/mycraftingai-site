@@ -1,10 +1,10 @@
 {
-  "version": "1.1.10",
+  "version": "1.1.11",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60892108,
-  "sha256": "5e4bbfd74528efdc9c1718b64ef26230aaf204a66a37a784566a8398b5ace456",
-  "published": "2026-11-18T12:06:43Z",
+  "size": 60899124,
+  "sha256": "510c9320cd349604bcd9a64fd64352a2fea6b1a950984f5d662e5da734870da2",
+  "published": "2026-11-19T07:01:43Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Choose the size for a whole batch**: when you generate several textures (**Generate selected** or **Generate all that need art**), the dialog now asks for the **Size** as well as the detail - keep each texture's own size, or paint every item and block at 16\u00d716, 32\u00d732, 64\u00d764, 128\u00d7128 or 256\u00d7256. GUIs and mobs keep their own size so their slots and body parts still match your code. The button shows exactly what you'll get, e.g. \"Generate 12 \u00b7 Ultra Detail \u00b7 32\u00d732\"."
+  "notes": "- **Block sides when you generate**: choose how a block is painted - **Same on every side** (one texture for the whole block, like stone) or **Different on each side** (its own top, bottom, front, back and sides, like a furnace or a machine). The choice is on the Generate card for any block, and in the batch dialog whenever the selection contains blocks. Your last choice is remembered."
 }
