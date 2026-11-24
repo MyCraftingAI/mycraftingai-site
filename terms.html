@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261201">
 </head>
 <body>
   <header data-site-header></header>
@@ -24,7 +24,7 @@
         <a href="#ai-processing">4.1 How AI processing works</a>
         <a href="#ads">4.2 Ads and ad unlocks</a>
         <a href="#payments">5. Plans and payment</a>
-        <a href="#topups">5.1 Token top-ups</a>
+        <a href="#topups">5.1 Coin top-ups</a>
         <a href="#cancel">6. Cancelling</a>
         <a href="#refunds">7. No refunds</a>
         <a href="#acceptable-use">8. Acceptable use</a>
@@ -46,7 +46,7 @@
       <article class="prose">
         <span class="eyebrow">Legal</span>
         <h1>Terms of Service</h1>
-        <p class="updated">Effective 17 November 2026</p>
+        <p class="updated">Effective 24 November 2026</p>
 
         <div class="legal-summary">
           <b>The short version</b>
@@ -54,14 +54,14 @@
             <li>You own the mods, code and textures you make. Keep backups and test before you publish.</li>
             <li>AI can be wrong. You decide what to keep, ship and share.</li>
             <li>To answer you, the app sends your request and the project files, pictures and error logs it needs to our AI providers. Nothing is stored after the answer, and we never use your projects to train AI models.</li>
-            <li>Paid plans renew monthly, on the date and time you subscribed, until you cancel. Cancel any time from your account page; your plan runs to the end of the month you paid for.</li>
-            <li>Each paid plan gives a monthly token allowance (a larger one in your first month, once per account). Input and output tokens come from the same pool, and unused plan tokens expire when the month renews.</li>
-            <li>The Version Converter (Pro and Studio plans) ports mods to other loaders and Minecraft versions. Only convert mods you have the right to modify; you see the estimated tokens before it starts.</li>
-            <li>You can buy extra tokens (top-ups) at any time. The price, the payment processing fee and the total are shown before you pay; top-up tokens stay valid for 12 months.</li>
+            <li>Paid plans are billed monthly or yearly (your choice at checkout) and renew on the date and time you subscribed, until you cancel. Cancel any time from your account page; your plan runs to the end of the month or year you paid for.</li>
+            <li>AI usage is paid for in Coins. Each request costs Coins for what the AI really used (cached project context costs little, new input more, answers and reasoning the most); the app shows an estimate before you send and the exact cost afterwards. Monthly billing gives a monthly Coin allowance (a larger one in your first month, once per account). Yearly billing gives the whole year's Coins at the start of each paid year: 12 months of Coins plus the yearly bonus shown on the pricing page. Unused plan Coins expire when the month or year renews.</li>
+            <li>The Version Converter (Pro and Studio plans) ports mods to other loaders and Minecraft versions. Only convert mods you have the right to modify; you see the estimated Coins before it starts.</li>
+            <li>You can buy extra Coins (top-ups) at any time. The price, the payment processing fee and the total are shown before you pay; top-up Coins stay valid for 12 months. Coins have no cash value.</li>
             <li><b>All payments are final and non-refundable</b>, except where the law says otherwise.</li>
             <li>Don't misuse the service, share accounts or try to get around limits.</li>
             <li>The app has no ads. On the Free plan you can choose to watch a short ad on our website to unlock some tools for a limited time.</li>
-            <li>When the AI is very busy, requests may wait in line. Higher plans are served first, and waiting never costs tokens.</li>
+            <li>When the AI is very busy, requests may wait in line. Higher plans are served first, and waiting never costs Coins.</li>
             <li>In The Workshop, our community, what you post is public and you're responsible for it. Follow the <a href="community-rules.html">community rules</a>, share only files you have the right to share, and never upload malware. Every upload is scanned for viruses, and moderators can remove content and restrict accounts.</li>
             <li>Payments are handled by Dodo Payments, our merchant of record. We never see your card details.</li>
           </ul>
@@ -88,25 +88,25 @@
 
         <h2 id="service">4. The Service and the AI features</h2>
         <ul>
-          <li><b>Token allowances.</b> Tokens measure the text the AI reads and writes. Input tokens (what is sent to the AI, including project context) and output tokens (the AI's answers and reasoning) are taken from the same allowance.
+          <li><b>Coins.</b> AI usage is measured and paid for in Coins. Each AI request costs Coins in proportion to what our AI provider charges us for it: the new text the AI reads, the project context it already has cached (charged at a much lower rate), and the text it writes, including its reasoning. Requests made during the provider's peak hours (currently weekdays 01:00-04:00 and 06:00-10:00 UTC) cost twice as much as at other times. The app shows an estimate before a request and the exact Coins after each answer. Your plan's Coins, any top-up Coins and any gifted Coins together form your balance.
             <ul>
-              <li><b>Free plan:</b> a daily allowance that refills at 00:00 UTC. Only new tokens count (the uncached part of each request plus the answer).</li>
-              <li><b>Paid plans:</b> a monthly allowance on a billing cycle that starts at the exact date and time you subscribe and renews on the same date and time each month (on the last day of shorter months where that date doesn't exist). All tokens processed count. Your first billing month comes with the larger first-month allowance shown on the pricing page; it is given once per account, not again after cancelling and subscribing again.</li>
-              <li><b>No rollover.</b> Plan tokens you don't use expire at the end of the billing cycle (or day, on Free). They don't carry over and have no cash value.</li>
-              <li>When your allowance (and any top-up tokens) runs out, AI requests pause until the allowance renews or you buy a top-up.</li>
+              <li><b>Free plan:</b> a daily Coin allowance that refills at 00:00 UTC.</li>
+              <li><b>Paid plans:</b> a monthly Coin allowance on a billing cycle that starts at the exact date and time you subscribe and renews on the same date and time each month (on the last day of shorter months where that date doesn't exist). Your first billing month comes with the larger first-month allowance shown on the pricing page; it is given once per account, not again after cancelling and subscribing again. On yearly billing the allowance covers the whole 12-month cycle instead (12 months of Coins plus the yearly bonus, available from the first day), and the first-month bonus doesn't apply.</li>
+              <li><b>No rollover.</b> Plan Coins you don't use expire at the end of the billing cycle (or day, on Free). They don't carry over. Coins of any kind have no cash value and can't be transferred, sold or exchanged for money.</li>
+              <li><b>Running out.</b> The exact cost of a request is only known when the answer is finished, so a request that starts while you have Coins left is always completed and charged in full. If it costs more than your balance, your balance goes below zero by the difference. That amount is taken from the next Coins your account receives (a top-up, a gift or your plan's renewal), and new AI requests wait until your balance is above zero again. You can then continue the interrupted work from the app.</li>
             </ul>
           </li>
           <li><b>Features per plan.</b> The features included in each plan are listed in the comparison table on our <a href="index.html#pricing">pricing page</a>. For example, the High thinking mode and the Version Converter are included from the Pro plan, and the 3D Studio in the Studio plan only. We may add, change or remove features, models and allowances to keep the Service running well. If a change significantly reduces a paid plan you already have, we'll tell you in advance.</li>
-          <li><b>Thinking modes.</b> The assistant offers thinking modes (None, Low, Normal and High) that set how much the AI reasons before it answers. The modes available depend on your plan. Deeper modes usually take longer and use more tokens from your allowance. No mode guarantees a correct or complete answer.</li>
+          <li><b>Thinking modes.</b> The assistant offers thinking modes (None, Low, Normal and High) that set how much the AI reasons before it answers. The modes available depend on your plan. Deeper modes usually take longer and cost more Coins. No mode guarantees a correct or complete answer.</li>
           <li><b>AI output.</b> Answers, code and images are generated automatically and may be incomplete, wrong, insecure or similar to output given to other people. They aren't professional advice. You are responsible for reviewing, testing and deciding how to use anything the Service produces.</li>
-          <li><b>Busy periods and priority.</b> When demand is high or our AI providers ask us to slow down, AI requests may wait in a queue and be retried automatically. The app shows your place in line and an estimated wait, which is only a guide. Plans with priority access are moved ahead in the queue; requests on other plans keep being served and are never pushed back indefinitely. A request that can't start within the maximum waiting time is cancelled and can be sent again. Waiting and retries don't use tokens from your allowance. To keep the Service stable for everyone, we may adjust rate limits, queue rules and how many requests run at once.</li>
+          <li><b>Busy periods and priority.</b> When demand is high or our AI providers ask us to slow down, AI requests may wait in a queue and be retried automatically. The app shows your place in line and an estimated wait, which is only a guide. Plans with priority access are moved ahead in the queue; requests on other plans keep being served and are never pushed back indefinitely. A request that can't start within the maximum waiting time is cancelled and can be sent again. Waiting and retries don't cost Coins. To keep the Service stable for everyone, we may adjust rate limits, queue rules and how many requests run at once.</li>
           <li><b>3D Studio and Texture Studio.</b> The 3D Studio creates models, animations and starter textures for the mobs, weapons, tools, guns and armor in your project. To make them work, the app may add a matching version of the third-party library GeckoLib to your project's build files and mod metadata, and shows you which files it changed. Generated models, animations and textures are AI output as described below.</li>
           <li><b>Sounds, Recipes &amp; Loot and Particles.</b> These editors write data files into your project (sounds.json, recipes, loot tables, particle definitions and sprites). Sounds can refer to Minecraft's own sounds by name; your mod does not contain or distribute Minecraft's sound files. To let you listen to them, the app plays them from the Minecraft installation on your computer or, if a sound isn't there, downloads that sound from Minecraft's official servers for preview only. Sounds you import must be yours or used with permission. Recipes, loot tables and particles you create are your content.</li>
           <li><b>Test server.</b> Server settings change your project's test-server files. A Minecraft server only starts after you agree to Minecraft's own End User License Agreement in that dialog; the app never agrees on your behalf. Running a server reachable from the internet is your responsibility.</li>
-          <li><b>Version Converter.</b> The Version Converter ports a mod you choose to other mod loaders and Minecraft versions. It reads the mod's folder (it never changes it), downloads the official template for each target, sends the mod's source code and data files to the AI to be converted, and saves each result on your computer - as a ZIP and as a project folder you can build and test in the app - with a report of anything to check. Conversion is automated and can't guarantee that every feature works the same, especially across large version gaps (for example 1.12.2 to 1.21.1) where Minecraft's own APIs changed: build and test each version before you use or share it. Templates for old Minecraft versions use the build tools of their time (such as Java 8 and older Gradle versions), which may need extra setup on your computer. The estimated token count is a forecast; the tokens actually used are counted against your allowance.
+          <li><b>Version Converter.</b> The Version Converter ports a mod you choose to other mod loaders and Minecraft versions. It reads the mod's folder (it never changes it), downloads the official template for each target, sends the mod's source code and data files to the AI to be converted, and saves each result on your computer - as a ZIP and as a project folder you can build and test in the app - with a report of anything to check. Conversion is automated and can't guarantee that every feature works the same, especially across large version gaps (for example 1.12.2 to 1.21.1) where Minecraft's own APIs changed: build and test each version before you use or share it. Templates for old Minecraft versions use the build tools of their time (such as Java 8 and older Gradle versions), which may need extra setup on your computer. The estimated Coins are a forecast; the Coins the requests actually cost are taken from your balance.
             <ul>
               <li><b>Your rights.</b> Only convert mods you made or that you have the right to modify and port, and follow the original mod's licence when you share a converted version. Don't use the converter to copy or redistribute other people's work without permission.</li>
-              <li><b>Token estimates.</b> Before a conversion starts, the app shows an estimated number of tokens, with a range, worked out from the size of your code. It is an estimate: the tokens actually used, which the app shows when it's done, are what count against your allowance. Optional compile checks and automatic repairs use more tokens. With a round limit you choose, the estimate's upper end includes them; with "Until it compiles" there is no fixed upper end - repairs continue until the version compiles, you press Cancel, or the same errors keep coming back.</li>
+              <li><b>Coin estimates.</b> Before a conversion starts, the app shows an estimated number of Coins, with a range, worked out from the size of your code. It is an estimate: the Coins the requests actually cost, which the app shows when it's done, are what is taken from your balance. Optional compile checks and automatic repairs cost more Coins. With a round limit you choose, the estimate's upper end includes them; with "Until it compiles" there is no fixed upper end - repairs continue until the version compiles, you press Cancel, or the same errors keep coming back.</li>
               <li><b>Exporting.</b> Export builds the mod on your computer and saves the .jar files or project ZIPs in the folder you choose; nothing is uploaded. When you share an exported mod, the rights and licence rules above apply to it.</li>
             </ul>
           </li>
@@ -117,8 +117,8 @@
         <h3 id="ai-processing">4.1 How AI processing works</h3>
         <ul>
           <li><b>What is sent.</b> To produce an answer, the app sends what that request needs through our servers to the AI model provider: your message, the project files relevant to it, pictures or files you attach or paste, and, for the studios, your descriptions and the structure of the model you're working on. When <b>Auto-fix</b> is on, compile errors, build logs and Minecraft crash reports are sent automatically so the Assistant can repair the mod. You can turn Auto-fix off in the app's settings. The Version Converter sends the source code and data files of the mod you choose to convert.</li>
-          <li><b>Reference material.</b> To keep code accurate for your Minecraft version and mod loader, the app may add matching pages from its built-in Minecraft modding reference library to a request. They count as input tokens like any other context.</li>
-          <li><b>Automatic actions use tokens.</b> Automatic repairs, verification steps and "Always continue" parts are AI requests too, and they use tokens from your allowance. The app shows them as they happen and stops after the number of attempts set in Settings. In the Texture Studio, every texture you generate - including each one in a batch, where up to five are painted at the same time - is its own AI request; higher Detail levels (Max, Ultra Detail) use considerably more tokens and time.</li>
+          <li><b>Reference material.</b> To keep code accurate for your Minecraft version and mod loader, the app may add matching pages from its built-in Minecraft modding reference library to a request. They are part of the request's input like any other context.</li>
+          <li><b>Automatic actions cost Coins.</b> Automatic repairs, verification steps and "Always continue" parts are AI requests too, and they cost Coins. The app shows them as they happen and stops after the number of attempts set in Settings. In the Texture Studio, every texture you generate - including each one in a batch, where up to five are painted at the same time - is its own AI request; higher Detail levels (Max, Ultra Detail) cost considerably more Coins and time.</li>
           <li><b>No training on your work.</b> We don't use your prompts, projects or AI output to train AI models, and we don't keep the content of requests or answers after they're delivered (see the <a href="privacy.html#ai">Privacy Policy</a>). AI providers process requests under their API terms and receive a random identifier for your account, never your name or email address.</li>
           <li><b>No human review.</b> AI answers are generated automatically and aren't checked by a person before you see them. Treat them as a draft: review, build and test before you use or share anything.</li>
           <li><b>What you send is your responsibility.</b> Don't put passwords, keys, other people's personal data or files you aren't allowed to share into requests or attachments.</li>
@@ -134,21 +134,21 @@
 
         <h2 id="payments">5. Plans, payment and renewal</h2>
         <ul>
-          <li><b>Payment provider.</b> Paid plans and token top-ups are sold through Dodo Payments, which acts as the merchant of record and handles payment, invoices and sales tax or VAT. The secure checkout opens on our website in a Dodo Payments window; you aren't sent to another site to pay (your bank may ask you to confirm a payment on its own page). Dodo Payments' buyer terms also apply to your purchase. We never see or store your full card details.</li>
-          <li><b>Automatic renewal.</b> Paid plans are monthly subscriptions. They renew automatically on the same date and time each month as your first payment and are charged in advance at the start of each billing period, at the price shown when you subscribed, until you cancel. Plan prices include the payment provider's processing fee. Each successfully paid renewal starts a new monthly token allowance; while a renewal payment is still being processed, the new month's tokens are added as soon as it goes through.</li>
+          <li><b>Payment provider.</b> Paid plans and Coin top-ups are sold through Dodo Payments, which acts as the merchant of record and handles payment, invoices and sales tax or VAT. The secure checkout opens on our website in a Dodo Payments window; you aren't sent to another site to pay (your bank may ask you to confirm a payment on its own page). Dodo Payments' buyer terms also apply to your purchase. We never see or store your full card details.</li>
+          <li><b>Automatic renewal.</b> Paid plans are subscriptions billed every month or every 12 months. They renew automatically on the same date and time as your first payment (each month, or each year on yearly billing) and are charged in advance at the start of each billing period, at the price shown when you subscribed, until you cancel. Plan prices include the payment provider's processing fee. Yearly billing costs less than 12 monthly payments by the discount shown on the pricing page. Each successfully paid renewal starts a new Coin allowance for that period; while a renewal payment is still being processed, the new period's Coins are added as soon as it goes through.</li>
           <li><b>Price changes.</b> We may change prices. A new price applies to an existing subscription only from the next billing period after we have given you notice, and you can cancel before it applies.</li>
-          <li><b>Changing plans.</b> Upgrades take effect straight away, and your billing cycle date stays the same. The new plan's features and allowance apply from the change; tokens already used in the current cycle still count. How any price difference is handled is shown at checkout and in the customer portal.</li>
-          <li><b>Failed payments.</b> If a renewal payment fails, we'll let you know and Dodo Payments may retry it. While it is on hold, your account uses the Free plan; once the payment goes through, your paid plan and a new monthly allowance come back.</li>
+          <li><b>Changing plans.</b> Upgrades take effect straight away, and your billing cycle date stays the same. The new plan's features and allowance apply from the change; Coins already spent in the current cycle still count. How any price difference is handled is shown at checkout and in the customer portal.</li>
+          <li><b>Failed payments.</b> If a renewal payment fails, we'll let you know and Dodo Payments may retry it. While it is on hold, your account uses the Free plan; once the payment goes through, your paid plan and a new allowance for the period come back.</li>
           <li><b>Taxes.</b> Prices are shown in US dollars. Taxes are added where required by law and shown at checkout.</li>
         </ul>
 
-        <h3 id="topups">5.1 Token top-ups</h3>
+        <h3 id="topups">5.1 Coin top-ups</h3>
         <ul>
-          <li><b>What they are.</b> Top-ups are one-off purchases of extra tokens, available on every plan including Free. They are not a subscription and don't renew.</li>
-          <li><b>Price and fees.</b> Top-ups are priced per million tokens, and preset packages use the same rate unless a discount is shown. A payment processing fee charged by our payment provider (currently 4% of the payment plus $0.40) is added on top, so the total is the token price plus that fee. The price, the fee and the total are shown before you pay; taxes are added at checkout where required.</li>
-          <li><b>When they're used.</b> Top-up tokens are added to your account once the payment is confirmed. They are used only after your plan's allowance for the current day or billing month (and any gifted tokens) has run out, starting with the top-up that expires first.</li>
-          <li><b>Validity.</b> Top-up tokens don't expire when your billing month renews or when you change or cancel your plan. They stay valid for 12 months from purchase (or the period shown at checkout) and then expire. They have no cash value and can't be transferred, sold or exchanged.</li>
-          <li><b>Refunds.</b> Top-ups are covered by the no-refunds rule in section 7. If a payment is reversed, refunded or charged back, the unused tokens from that purchase are removed.</li>
+          <li><b>What they are.</b> Top-ups are one-off purchases of extra Coins, available on every plan including Free. They are not a subscription and don't renew.</li>
+          <li><b>Price and fees.</b> Top-ups are priced per 1,000 Coins, and preset packages use the same rate unless a discount is shown. A payment processing fee charged by our payment provider (currently 4% of the payment plus $0.40) is added on top, so the total is the Coin price plus that fee. The price, the fee and the total are shown before you pay; taxes are added at checkout where required.</li>
+          <li><b>When they're used.</b> Top-up Coins are added to your account once the payment is confirmed. Any negative balance from your last request is paid from them first. They are used only after your plan's Coins for the current day or billing period (and any gifted Coins) have run out, starting with the top-up that expires first.</li>
+          <li><b>Validity.</b> Top-up Coins don't expire when your billing month renews or when you change or cancel your plan. They stay valid for 12 months from purchase (or the period shown at checkout) and then expire. They have no cash value and can't be transferred, sold or exchanged.</li>
+          <li><b>Refunds.</b> Top-ups are covered by the no-refunds rule in section 7. If a payment is reversed, refunded or charged back, the unused Coins from that purchase are removed.</li>
         </ul>
 
         <h2 id="cancel">6. Cancelling</h2>
@@ -161,7 +161,7 @@
         </ul>
 
         <h2 id="refunds">7. No refunds</h2>
-        <p><b>All payments are final and non-refundable.</b> We don't give refunds or credits for partial billing periods, unused time, unused plan or top-up tokens, plan downgrades, accounts you stop using, or accounts suspended or closed for breaking these Terms. Cancelling stops future payments only.</p>
+        <p><b>All payments are final and non-refundable.</b> We don't give refunds or credits for partial billing periods, unused time, unused plan or top-up Coins, plan downgrades, accounts you stop using, or accounts suspended or closed for breaking these Terms. Cancelling stops future payments only.</p>
         <p><b>Immediate access and your right of withdrawal.</b> A paid plan starts immediately and gives you digital content and services right away. Where consumer law (for example in the European Union or the United Kingdom) gives a right to withdraw from a digital purchase, you expressly request that the Service starts immediately when you subscribe, and you acknowledge that you lose that right of withdrawal once it has started, to the extent the law allows.</p>
         <p><b>When the law requires a refund.</b> Nothing in these Terms takes away rights you have under laws that can't be excluded by contract. If such a law entitles you to a refund, we'll provide it only to the extent that law requires.</p>
         <p><b>Chargebacks.</b> If you think a charge is wrong, contact <a href="mailto:billing@mycraftingai.com">billing@mycraftingai.com</a> first; we'll look into it promptly. If you open a chargeback or payment dispute for a valid charge, we may suspend the account while it's resolved.</p>
@@ -273,8 +273,8 @@
   </main>
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/plans.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261204"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
 </body>
 </html>

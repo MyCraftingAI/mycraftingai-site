@@ -103,14 +103,18 @@
 
   function publicUser(user) {
     var plans = (window.MCA_PLANS && window.MCA_PLANS.plans) || [];
-    var plan = plans.filter(function (p) { return p.id === user.plan; })[0] || plans[0] || { id: "free", name: "Free", dailyTokens: 10000 };
-    var usage = user.usage && user.usage.day === today() ? user.usage.used : 0;
+    var plan = plans.filter(function (p) { return p.id === user.plan; })[0] || plans[0] || { id: "free", name: "Free", dailyCoins: 10 };
+    var usage = user.usage && user.usage.day === today() ? user.usage.used : 0;  // milli-coins
     var reset = new Date(); reset.setUTCHours(24, 0, 0, 0);
     var sub = user.subscription || null;
+    var limit = (plan.dailyCoins || 0) * 1000;
     return {
       user: { email: user.email, name: user.name, provider: user.provider || "password", created: user.created },
-      plan: { id: plan.id, name: plan.name, dailyTokens: plan.dailyTokens },
-      usage: { usedToday: usage, dailyLimit: plan.dailyTokens, resetsAt: reset.toISOString() },
+      plan: { id: plan.id, name: plan.name, dailyCoins: plan.dailyCoins },
+      usage: { usedToday: usage, dailyLimit: limit, resetsAt: reset.toISOString(), period: "day",
+               allowance: limit, allowanceLeft: Math.max(0, limit - usage),
+               coins: { balance: (limit - usage) / 1000, allowance: limit / 1000, allowanceLeft: Math.max(0, limit - usage) / 1000,
+                        spent: usage / 1000, topupLeft: 0, giftLeft: 0, debt: 0, bonus: 0, blocked: limit - usage <= 0, unlimited: false } },
       settings: previewSettings(user),
       subscription: sub ? previewSub(sub) : null,
       legal: {
@@ -353,10 +357,12 @@
       get: function () { return request("GET", "/v1/billing"); },
       cancel: function () { return request("POST", "/v1/billing/cancel", {}); },
       resume: function () { return request("POST", "/v1/billing/resume", {}); },
-      /** Monthly plan: a Dodo Payments checkout session ({checkoutUrl}) opened in our own overlay. */
-      subscribe: function (plan) { return request("POST", "/v1/billing/subscribe", { plan: plan }); },
+      /** Plan checkout session ({checkoutUrl}) for our overlay, billed monthly ("month", the default) or yearly ("year"). */
+      subscribe: function (plan, interval) {
+        return request("POST", "/v1/billing/subscribe", { plan: plan, interval: interval === "year" ? "year" : "month" });
+      },
       /** Token top-up: the server prices it and returns a checkout session for the overlay. */
-      topup: function (tokens) { return request("POST", "/v1/billing/topup", { tokens: tokens }); },
+      topup: function (coins) { return request("POST", "/v1/billing/topup", { coins: coins }); },
       topups: function () { return request("GET", "/v1/billing/topups"); },
       /** One-time link to the Dodo Payments customer portal (card, invoices). */
       portal: function () { return request("GET", "/v1/billing/portal"); }
@@ -429,6 +435,9 @@
         resetServerSetting: function (name) { return request("DELETE", "/v1/admin/server-settings/" + encodeURIComponent(name)); },
         pricing: function () { return request("GET", "/v1/admin/pricing"); },
         savePricing: function (catalog) { return request("PUT", "/v1/admin/pricing", { catalog: catalog }); },
+        /** Optional customer email about the last price change / the running promotion ("pricing" | "promotion"). */
+        notice: function (kind) { return request("GET", "/v1/admin/notices/" + kind); },
+        sendNotice: function (kind, d) { return request("POST", "/v1/admin/notices/" + kind, d); },
         resetPricing: function () { return request("DELETE", "/v1/admin/pricing"); },
         topups: function () { return request("GET", "/v1/admin/topups"); },
         grantTopup: function (id, d) { return request("POST", "/v1/admin/users/" + id + "/topup", d); },
@@ -445,9 +454,10 @@
         bulk: function (ids, action, value) { return request("POST", "/v1/admin/users/bulk", { ids: ids, action: action, value: value || null }); },
         user: function (id) { return request("GET", u(id)); },
         update: function (id, changes) { return request("PATCH", u(id), changes); },
-        bonus: function (id, tokens, notify) { return request("POST", u(id) + "/bonus", { tokens: tokens, notify: !!notify }); },
-        /** Take back today's bonus tokens (tokens = null: all of it). */
-        removeBonus: function (id, tokens, notify) { return request("POST", u(id) + "/bonus/remove", { tokens: tokens, notify: !!notify }); },
+        /** Extra Coins for the user's current allowance period. */
+        bonus: function (id, coins, notify) { return request("POST", u(id) + "/bonus", { coins: coins, notify: !!notify }); },
+        /** Take back bonus Coins (coins = null: all of them). */
+        removeBonus: function (id, coins, notify) { return request("POST", u(id) + "/bonus/remove", { coins: coins, notify: !!notify }); },
         emailUser: function (id, d) { return request("POST", u(id) + "/email", d); },
         action: function (id, name) { return request("POST", u(id) + "/" + name, {}); },
         revokeSessions: function (id) { return request("POST", u(id) + "/revoke-sessions", {}); },

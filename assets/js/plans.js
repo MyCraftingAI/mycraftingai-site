@@ -8,9 +8,9 @@ window.MCA_PLANS = {
       "name": "Free",
       "price": 0.0,
       "period": "day",
-      "dailyTokens": 10000,
-      "firstMonthTokens": null,
-      "monthlyTokens": null,
+      "dailyCoins": 10,
+      "firstMonthCoins": null,
+      "monthlyCoins": null,
       "contact": false,
       "maxThinking": "none",
       "features": [
@@ -20,15 +20,14 @@ window.MCA_PLANS = {
       ],
       "tagline": "Try the assistant on a real project.",
       "highlights": [
-        "10,000 new tokens every day",
-        "Cached project context doesn't count",
+        "10 Coins every day",
+        "Pay only for what the AI really uses",
         "Mod Assistant and code editor",
-        "Thinking mode: None (fastest, fewest tokens)",
+        "Thinking mode: None (fastest, fewest Coins)",
         "Build & Run: one short ad per run",
         "Texture Studio: 5 minutes per short ad"
       ],
       "popular": false,
-      "countsCached": false,
       "thinking": [
         "none"
       ],
@@ -42,9 +41,9 @@ window.MCA_PLANS = {
       "name": "Builder",
       "price": 5.63,
       "period": "month",
-      "dailyTokens": null,
-      "firstMonthTokens": 3000000,
-      "monthlyTokens": 2000000,
+      "dailyCoins": null,
+      "firstMonthCoins": 3000,
+      "monthlyCoins": 2000,
       "contact": false,
       "maxThinking": "normal",
       "features": [
@@ -60,14 +59,13 @@ window.MCA_PLANS = {
       ],
       "tagline": "Everything you need for weekend modding.",
       "highlights": [
-        "3,000,000 tokens in your first month",
-        "2,000,000 tokens every month after",
+        "3,000 Coins in your first month",
+        "2,000 Coins every month after",
         "Every tool except 3D Studio, Particles and Version Converter, no ads",
         "Thinking modes: None, Low and Normal",
         "Texture Studio, Sounds, Recipes & Loot and Build & Run"
       ],
       "popular": false,
-      "countsCached": true,
       "thinking": [
         "none",
         "low",
@@ -80,9 +78,9 @@ window.MCA_PLANS = {
       "name": "Pro",
       "price": 10.83,
       "period": "month",
-      "dailyTokens": null,
-      "firstMonthTokens": 7000000,
-      "monthlyTokens": 5000000,
+      "dailyCoins": null,
+      "firstMonthCoins": 7000,
+      "monthlyCoins": 5000,
       "contact": false,
       "maxThinking": "high",
       "features": [
@@ -100,14 +98,13 @@ window.MCA_PLANS = {
       ],
       "tagline": "For people shipping mods every week.",
       "highlights": [
-        "7,000,000 tokens in your first month",
-        "5,000,000 tokens every month after",
+        "7,000 Coins in your first month",
+        "5,000 Coins every month after",
         "Everything in Builder",
         "All thinking modes, including High",
         "3D Studio, Particles and Version Converter are not included"
       ],
       "popular": true,
-      "countsCached": true,
       "thinking": [
         "none",
         "low",
@@ -121,9 +118,9 @@ window.MCA_PLANS = {
       "name": "Studio",
       "price": 26.46,
       "period": "month",
-      "dailyTokens": null,
-      "firstMonthTokens": 16000000,
-      "monthlyTokens": 12000000,
+      "dailyCoins": null,
+      "firstMonthCoins": 16000,
+      "monthlyCoins": 12000,
       "contact": false,
       "maxThinking": "high",
       "features": [
@@ -142,8 +139,8 @@ window.MCA_PLANS = {
       ],
       "tagline": "The whole studio: code, textures and 3D.",
       "highlights": [
-        "16,000,000 tokens in your first month",
-        "12,000,000 tokens every month after",
+        "16,000 Coins in your first month",
+        "12,000 Coins every month after",
         "Everything in Pro",
         "3D Studio: mobs, animations, 3D weapons and armor",
         "Particles: custom particles, trails and effects",
@@ -151,7 +148,6 @@ window.MCA_PLANS = {
         "Room for large multi-mod projects"
       ],
       "popular": true,
-      "countsCached": true,
       "thinking": [
         "none",
         "low",
@@ -165,9 +161,9 @@ window.MCA_PLANS = {
       "name": "Enterprise",
       "price": null,
       "period": "none",
-      "dailyTokens": null,
-      "firstMonthTokens": null,
-      "monthlyTokens": null,
+      "dailyCoins": null,
+      "firstMonthCoins": null,
+      "monthlyCoins": null,
       "contact": true,
       "maxThinking": "high",
       "features": [
@@ -186,13 +182,12 @@ window.MCA_PLANS = {
       ],
       "tagline": "Teams, servers and custom limits.",
       "highlights": [
-        "Custom token allowances",
+        "Custom Coin allowances",
         "Everything in Studio",
         "Team seats and invoicing",
         "Direct support line"
       ],
       "popular": false,
-      "countsCached": true,
       "thinking": [
         "none",
         "low",
@@ -218,35 +213,40 @@ window.MCA_PLANS = {
   },
   "topup": {
     "enabled": true,
-    "pricePerMillion": 2.0,
+    "pricePer1000Coins": 2.0,
     "feePercent": 4.0,
     "feeFixed": 0.4,
-    "minTokens": 500000,
-    "maxTokens": 100000000,
-    "stepTokens": 100000,
+    "minCoins": 500,
+    "maxCoins": 100000,
+    "stepCoins": 100,
     "validityDays": 365,
     "packs": [
       {
-        "tokens": 1000000,
+        "coins": 1000,
         "price": 2.0
       },
       {
-        "tokens": 2500000,
+        "coins": 2500,
         "price": 4.78
       },
       {
-        "tokens": 5000000,
+        "coins": 5000,
         "price": 9.39
       },
       {
-        "tokens": 10000000,
+        "coins": 10000,
         "price": 18.32
       },
       {
-        "tokens": 25000000,
+        "coins": 25000,
         "price": 41.84
       }
     ]
+  },
+  "yearly": {
+    "enabled": true,
+    "discountPercent": 10.0,
+    "bonusCoinsPercent": 10.0
   },
   "resetsAt": "00:00 UTC"
 };

@@ -7,7 +7,7 @@
  */
 (function () {
   "use strict";
-  var api = window.MCA.api, esc = window.MCA.escapeHtml, fmt = window.MCA.formatTokens;
+  var api = window.MCA.api, esc = window.MCA.escapeHtml;
   var A = api.admin;
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -21,7 +21,7 @@
   ];
   var ACTION_COLOR = {
     pause_ai: "#f5b74a", resume_ai: "#3dd68c", email: "#8aa0ff", broadcast: "#8aa0ff", delete_user: "#f2555a",
-    set_active: "#f2555a", set_plan: "#4f63f5", bonus_tokens: "#3dd68c", bonus_removed: "#f5b74a", daily_limit: "#4f63f5"
+    set_active: "#f2555a", set_plan: "#4f63f5", bonus_tokens: "#3dd68c", clear_debt: "#3dd68c", bonus_removed: "#f5b74a", daily_limit: "#4f63f5"
   };
   var TEMPLATES = {
     welcome: ["Welcome to MyCraftingAI, {name}",
@@ -30,8 +30,8 @@
       "Hi {name},\n\nWe just shipped something new: \n\nUpdate the app (it updates itself on the next start) and give it a try.\n\nAs always, tell us what you think - just reply.\n\nThe MyCraftingAI team"],
     maintenance: ["Scheduled maintenance on ",
       "Hi {name},\n\nWe'll be doing planned maintenance on [date] from [time] to [time] UTC. During this window, AI requests and sign-in may be unavailable for a few minutes.\n\nYour projects are stored on your PC and aren't affected.\n\nThanks for your patience,\nThe MyCraftingAI team"],
-    upgrade: ["More tokens for your builds, {name}",
-      "Hi {name},\n\nYou've been building a lot on the {plan} plan - nice work!\n\nIf you're running into the daily limit, Builder, Pro and Studio give you far more tokens every day. Compare plans at https://mycraftingai.com/#pricing\n\nThe MyCraftingAI team"],
+    upgrade: ["More Coins for your builds, {name}",
+      "Hi {name},\n\nYou've been building a lot on the {plan} plan - nice work!\n\nIf you're running into the daily limit, Builder, Pro and Studio give you far more Coins every month. Compare plans at https://mycraftingai.com/#pricing\n\nThe MyCraftingAI team"],
     support: ["Re: your MyCraftingAI question",
       "Hi {name},\n\nThanks for reaching out.\n\n\n\nIf anything else comes up, just reply to this email.\n\nBest,\nMyCraftingAI Support"]
   };
@@ -46,7 +46,14 @@
   /* -------------------------------------------------------------- helpers */
   function num(n) { return n == null ? "-" : Number(n).toLocaleString("en-US"); }
   function money(n, cents) { return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: cents === false ? 0 : 2, maximumFractionDigits: cents === false ? 0 : 2 }); }
-  function tokens(n) { return n == null ? "Unlimited" : fmt(n); }
+  /** ``2,000`` / ``12.5`` / ``0.042`` - an amount of Coins. */
+  function coinText(c) {
+    var v = Number(c || 0), s = Math.abs(v);
+    return v.toLocaleString("en-US", { maximumFractionDigits: s >= 100 ? 1 : s >= 1 ? 2 : 3 });
+  }
+  /** Ledger units (milli-coins - what the server counts usage in) as Coins. */
+  function fmt(units) { return units == null ? "-" : coinText(Number(units) / 1000); }
+  function tokens(n) { return n == null ? "Unlimited" : fmt(n) + " Coins"; }
   function since(iso) {
     if (!iso) return "never";
     var s = (Date.now() - new Date(iso)) / 1000;
@@ -163,14 +170,14 @@
   function loadDashboard() {
     $("[data-today]").textContent = "Live numbers · " + new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) + " · day resets 00:00 UTC";
     A.overview().then(function (o) {
-      var u = o.users, t = o.tokens, keys = o.providerKeys || {};
+      var u = o.users, t = o.tokens, c = o.coins || {}, keys = o.providerKeys || {};
       $("[data-count-users]").textContent = num(u.total);
       $("[data-kpis]").innerHTML = [
         kpi("Users", num(u.total), num(u.verified) + " verified · " + num(u.activeLast7d) + " active 7d"),
         kpi("New sign-ups", num(u.new7d), num(u.newToday) + " today · last 7 days"),
         kpi("Paying", num(u.paying), u.total ? Math.round(u.paying / u.total * 100) + "% of all users" : "-"),
-        kpi("Tokens today", fmt(t.today), num(t.requestsToday) + " requests · " + num(t.aiUsersToday) + " users"),
-        kpi("Tokens 7 days", fmt(t.last7d), num(t.requests7d) + " requests · " + fmt(t.allTime) + " all-time"),
+        kpi("Coins spent today", coinText(c.today != null ? c.today : t.today / 1000), num(t.requestsToday) + " requests · " + num(t.aiUsersToday) + " users"),
+        kpi("Coins spent 7 days", coinText(c.last7d != null ? c.last7d : t.last7d / 1000), num(t.requests7d) + " requests · " + fmt(t.allTime) + " all-time"),
         kpi("AI keys", num(keys.active || 0) + " active", num(keys.degraded || 0) + " need attention · " + num(keys.disabled || 0) + " off", (keys.degraded || 0) > 0 || !(keys.active > 0))
       ].join("");
       var total = 0; PLAN_ORDER.forEach(function (p) { total += o.plans[p] || 0; });
@@ -338,7 +345,7 @@
     A.revenue().then(function (r) {
       var c = r.counts;
       $("[data-rev-kpis]").innerHTML = [
-        kpi("MRR", money(r.mrr), "monthly recurring revenue"),
+        kpi("MRR", money(r.mrr), "monthly recurring revenue · yearly plans count 1/12"),
         kpi("ARR", money(r.arr, false), "MRR × 12"),
         kpi("Paying subscribers", num(c.active + c.pastDue), num(c.cancelling) + " cancelling at period end"),
         kpi("Avg. per subscriber", money(r.arpu), "per month"),
@@ -355,7 +362,7 @@
       $("[data-rev-subs]").innerHTML = r.subscriptions.length ? r.subscriptions.map(function (s) {
         return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag paid">' + esc(s.planName) + "</span></td>" +
           '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(s.status.replace("_", " ")) + "</span></td>" +
-          "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2)) + "</td>" +
+          "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2) + (s.interval === "year" ? ' <span class="ad-tag info">/ year</span>' : '<span class="ad-muted"> / mo</span>')) + "</td>" +
           "<td>" + (s.status === "cancelled" || s.status === "cancelling" ? "ends " + when(s.endsAt) : when(s.renewsAt)) + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
       }).join("") : '<tr><td colspan="6"><div class="ad-empty">No subscriptions yet. They appear here as soon as Dodo Payments reports a payment.</div></td></tr>';
     }, function (e) { toast(errText(e), true); });
@@ -512,14 +519,18 @@
         }).join("") + "</div>" +
         '<div class="ad-row-actions" style="margin-top:-4px"><button class="btn btn-ghost btn-sm" data-promo-same>Use the first plan\'s discount and code for all</button></div>' +
         '<label>Terms (optional)<input class="input" data-promo-terms maxlength="160" value="' + esc(p ? p.terms : "") + '" placeholder="e.g. First 3 months, new subscriptions only"></label>' +
+        '<label class="ad-check"><input type="checkbox" data-promo-yearly' + (!p || p.yearly !== false ? " checked" : "") + '> Also discount yearly billing <small class="ad-hint">same % off the yearly price - the first year when "Discount lasts" is limited, otherwise every year</small></label>' +
         '<div class="ad-hint">Nothing to set up in Dodo Payments: when you start or update the promotion, the server creates the matching Dodo discount for each plan (same percentage, only for that plan, ending when the sale ends) and applies it to every checkout automatically. Ending the promotion removes them. Codes are optional - leave them empty and they are made for you.</div>' +
         '<div class="ad-row-actions"><button class="btn btn-primary" data-promo-save>' + (p ? "Update promotion" : "Start promotion") + "</button>" +
         (p ? '<button class="btn btn-ghost" data-promo-stop>End promotion</button>' : "") + "</div>";
     } else if (p) {
       html += '<div class="ad-row-actions"><button class="btn" data-promo-stop>End the running promotion (' + esc(p.label) + ")</button></div>";
     }
+    if (p) html += "<div data-promo-notice></div>";  // optional email about the running sale
     $("[data-cfg-promo]").innerHTML = html;
     promoPreview();
+    if (p) renderNotice("promotion", $("[data-promo-notice]"), !!state.promoNotify);
+    state.promoNotify = false;
   }
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -593,9 +604,9 @@
       }).join("") + "</div>" : '<p class="ad-muted" style="margin:8px 0 0">No unlocks yet.</p>') + "</div>";
   }
 
-  /* ---------------------------------------------------------- token gifts */
+  /* ----------------------------------------------------------- Coin gifts */
   function giftWhat(g) {
-    return g.mode === "daily" ? "+" + num(g.amount) + " tokens every day" : num(g.amount) + " tokens, once";
+    return g.mode === "daily" ? "+" + fmt(g.amount) + " Coins every day" : fmt(g.amount) + " Coins, once";
   }
   function giftState(g) {
     var tag = g.state === "active" ? "good" : g.state === "expired" ? "warn" : "plan";
@@ -612,7 +623,7 @@
       $("[data-gift-kpis]").innerHTML = [
         kpi("Active gifts", num(active.length), num(list.length) + " in total"),
         kpi("People with an active gift", num(reach), "counted once per gift"),
-        kpi("Gift tokens used", fmt(used), "across every gift"),
+        kpi("Gift Coins used", fmt(used), "across every gift"),
         kpi("People who used gifts", num(list.reduce(function (s, g) { return s + g.usersUsed; }, 0)), "across every gift")
       ].join("");
       $("[data-gift-list]").innerHTML = list.length ? list.map(function (g) {
@@ -643,8 +654,8 @@
       '<label>Name (shown to people)<input class="input" data-gift-name maxlength="80" placeholder="e.g. Christmas gift"></label>' +
       '<div><div class="ad-hint" style="margin-bottom:6px">Type</div><div class="ad-seg" data-gift-mode><button type="button" data-mode="pack" class="on">One-off pack</button><button type="button" data-mode="daily">Extra every day</button></div>' +
         '<div class="ad-hint" data-gift-mode-hint style="margin-top:6px">A pack is used once their normal daily allowance runs out, until it is spent or the gift ends.</div></div>' +
-      '<label>Tokens<input class="input" type="number" min="1" step="1000" data-gift-amount placeholder="e.g. 50000"></label>' +
-      '<div class="ad-chips" style="margin:-4px 0 0">' + [10000, 25000, 50000, 100000, 500000].map(function (n) { return '<button type="button" class="ad-chip" data-gift-pick="' + n + '">' + fmt(n) + "</button>"; }).join("") + "</div>" +
+      '<label>Coins<input class="input" type="number" min="0.001" step="1" data-gift-amount placeholder="e.g. 50"></label>' +
+      '<div class="ad-chips" style="margin:-4px 0 0">' + [10, 25, 50, 100, 500].map(function (n) { return '<button type="button" class="ad-chip" data-gift-pick="' + n + '">' + coinText(n) + "</button>"; }).join("") + "</div>" +
       '<div><div class="ad-hint" style="margin-bottom:6px">Who gets it</div><div class="ad-seg" data-gift-aud><button type="button" data-aud="all"' + (prefill.length ? "" : ' class="on"') + '>Everyone</button><button type="button" data-aud="plans">Plans</button><button type="button" data-aud="users"' + (prefill.length ? ' class="on"' : "") + '>Chosen people</button></div></div>' +
       '<div class="ad-inline" data-gift-plans style="gap:16px" hidden>' + PLAN_ORDER.map(function (p) { return '<label class="ad-check"><input type="checkbox" data-gift-plan="' + p + '"> ' + cap(p) + "</label>"; }).join("") + "</div>" +
       '<label data-gift-users' + (prefill.length ? "" : " hidden") + '>Emails or user IDs (one per line or comma separated)<textarea data-gift-userlist placeholder="alex@example.com&#10;steve@example.com">' + esc(prefill.join("\n")) + "</textarea></label>" +
@@ -652,7 +663,7 @@
       '<label data-gift-until hidden>Ends<input class="input" type="datetime-local" data-gift-until-input></label>' +
       '<label class="ad-check"><input type="checkbox" data-gift-notify checked> Email everyone who gets it (from noreply@)</label>' +
       '<label data-gift-msg>Personal note in the email (optional)<textarea data-gift-message maxlength="2000" placeholder="e.g. Merry Christmas and thanks for building with us!"></textarea></label>' +
-      '<div class="ad-row-actions"><button class="btn btn-ghost" data-gift-count>Count people</button><button class="btn btn-primary" data-gift-create>Give tokens</button><span class="ad-muted" data-gift-info style="font-size:13px"></span></div>';
+      '<div class="ad-row-actions"><button class="btn btn-ghost" data-gift-count>Count people</button><button class="btn btn-primary" data-gift-create>Give Coins</button><span class="ad-muted" data-gift-info style="font-size:13px"></span></div>';
     if (prefill.length) { $("[data-gift-users]").hidden = false; }
   }
 
@@ -729,8 +740,8 @@
   function loadCharts() {
     $$("[data-range] button").forEach(function (b) { b.classList.toggle("on", Number(b.dataset.days) === state.days); });
     A.stats(state.days).then(function (s) {
-      chart($("[data-chart-tokens]"), s.days, "tokens", "aiUsers", function (d) {
-        return "<b>" + d.day + "</b><br>" + num(d.tokens) + " tokens · " + num(d.requests) + " requests<br>" + num(d.aiUsers) + " users used AI";
+      chart($("[data-chart-tokens]"), s.days, "coins", "aiUsers", function (d) {
+        return "<b>" + d.day + "</b><br>" + coinText(d.coins) + " Coins · " + num(d.requests) + " requests<br>" + num(d.aiUsers) + " users used AI";
       });
       chart($("[data-chart-signups]"), s.days, "signups", null, function (d) { return "<b>" + d.day + "</b><br>" + num(d.signups) + " new accounts"; }, "#8a5cf6");
     }, function () {});
@@ -787,6 +798,7 @@
     if (!u.verified) t.push('<span class="ad-tag warn">unverified</span>');
     if (u.twoFactor) t.push('<span class="ad-tag info">2-step</span>');
     if (u.dailyLimitOverride != null) t.push('<span class="ad-tag info">custom limit</span>');
+    if (u.debt) t.push('<span class="ad-tag warn" title="Coins owed after the last request">owes ' + fmt(u.debt) + "</span>");
     if (u.hasNote) t.push('<span class="ad-tag plan">note</span>');
     return t.join("") || '<span class="ad-muted">active</span>';
   }
@@ -913,7 +925,7 @@
         '<div class="ad-quick">' +
           '<button class="btn btn-sm" data-q="email">✉ Email</button>' +
           (u.aiEnabled ? '<button class="btn btn-warn btn-sm" data-q="pause">Pause AI</button>' : '<button class="btn btn-ok btn-sm" data-q="resume">Resume AI</button>') +
-          '<button class="btn btn-sm" data-q="bonus">+ Tokens</button>' +
+          '<button class="btn btn-sm" data-q="bonus">+ Coins</button>' +
           '<button class="btn btn-sm" data-q="signout">Sign out everywhere</button>' +
           '<button class="btn btn-ghost btn-sm" data-q="copy">Copy ID</button>' +
         "</div>" +
@@ -940,10 +952,10 @@
     return '<div class="ad-mini">' +
       "<div><small>Used " + spanOf(u) + "</small><b>" + fmt(u.usedToday) + '</b><span class="ad-muted" style="font-size:12px">of ' + tokens(u.dailyLimit) + "</span></div>" +
       "<div><small>Left " + spanOf(u) + "</small><b>" + left + "</b></div>" +
-      "<div><small>All-time tokens</small><b>" + fmt(u.allTime.tokens) + "</b></div>" +
+      "<div><small>All-time Coins</small><b>" + fmt(u.allTime.tokens) + "</b></div>" +
       "<div><small>AI requests</small><b>" + num(u.allTime.requests) + "</b></div>" +
       "</div>" +
-      '<div class="ad-card" style="margin-top:14px"><h3>Last 30 days</h3><p class="ad-sub">Billable tokens per day</p><div class="ad-chart" data-user-chart style="height:120px"></div></div>' +
+      '<div class="ad-card" style="margin-top:14px"><h3>Last 30 days</h3><p class="ad-sub">Coins spent per day</p><div class="ad-chart" data-user-chart style="height:120px"></div></div>' +
       '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between"><h3>Profile</h3><button class="btn btn-ghost btn-sm" data-edit-profile>Edit</button></div><div class="ad-rows">' +
         '<div class="r"><span>Username</span><b>' + esc(u.username) + "</b></div>" +
         '<div class="r"><span>Email</span><span>' + esc(u.email) + (u.verified ? ' <span class="ad-tag good">verified</span>' : ' <span class="ad-tag warn">unverified</span>') + "</span></div>" +
@@ -968,9 +980,9 @@
     for (var i = 29; i >= 0; i--) {
       var d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
       var h = byDay[d] || {};
-      days.push({ day: d, tokens: h.billable || 0, requests: h.requests || 0, cached: h.cached || 0 });
+      days.push({ day: d, coins: (h.billable || 0) / 1000, requests: h.requests || 0, cached: h.cached || 0 });
     }
-    chart(host, days, "tokens", null, function (d) { return "<b>" + d.day + "</b><br>" + num(d.tokens) + " tokens · " + num(d.requests) + " requests"; });
+    chart(host, days, "coins", null, function (d) { return "<b>" + d.day + "</b><br>" + coinText(d.coins) + " Coins · " + num(d.requests) + " requests"; });
   }
 
   function tabAi(u) {
@@ -990,50 +1002,51 @@
       ? "Billing month from " + when(u.cycleStartedAt) + " · renews " + when(u.periodEndsAt) + (u.firstMonth ? " · first month" : "")
       : "Applies every day until removed. Refills at 00:00 UTC.";
     return '<div class="ad-card"><h3>AI access</h3><p class="ad-sub">Pause only the AI - the rest of MyCraftingAI keeps working for them.</p>' + status + aiForm + "</div>" +
-      '<div class="ad-card"><h3>' + (monthly ? "Monthly token allowance" : "Daily token limit") + '</h3><p class="ad-sub">' + esc(periodLine) + '</p><div class="ad-rows">' +
+      '<div class="ad-card"><h3>' + (monthly ? "Monthly Coin allowance" : "Daily Coin allowance") + '</h3><p class="ad-sub">' + esc(periodLine) + '</p><div class="ad-rows">' +
         '<div class="r"><span>Plan default (' + esc(u.planName) + ")</span><span>" + tokens(u.planDailyLimit) + (monthly ? " / month" : " / day") + "</span></div>" +
-        '<div class="r"><span>Custom allowance</span><span>' + (u.dailyLimitOverride == null ? '<span class="ad-muted">none</span>' : "<b>" + num(u.dailyLimitOverride) + "</b>") + "</span></div>" +
-        '<div class="r"><span>Bonus ' + span + "</span><span>" + (u.bonusToday ? "+" + num(u.bonusToday) : '<span class="ad-muted">none</span>') + "</span></div>" +
-        '<div class="r"><span>Top-up tokens left</span><span>' + (usage.topupLeft ? num(usage.topupLeft) : '<span class="ad-muted">none</span>') + "</span></div>" +
+        '<div class="r"><span>Custom allowance</span><span>' + (u.dailyLimitOverride == null ? '<span class="ad-muted">none</span>' : "<b>" + fmt(u.dailyLimitOverride) + " Coins</b>") + "</span></div>" +
+        '<div class="r"><span>Bonus ' + span + "</span><span>" + (u.bonusToday ? "+" + fmt(u.bonusToday) + " Coins" : '<span class="ad-muted">none</span>') + "</span></div>" +
+        '<div class="r"><span>Top-up Coins left</span><span>' + (usage.topupLeft ? fmt(usage.topupLeft) : '<span class="ad-muted">none</span>') + "</span></div>" +
         '<div class="r"><span>Available ' + span + "</span><b>" + tokens(u.dailyLimit) + "</b></div>" +
-        '<div class="r"><span>Used ' + span + "</span><span>" + num(u.usedToday) + "</span></div></div>" +
-        '<div class="ad-inline" style="margin-top:12px"><input class="input" type="number" min="0" step="1000" data-limit placeholder="' + (monthly ? "Custom tokens per billing month, e.g. 5000000" : "Custom tokens per day, e.g. 500000") + '"><button class="btn" data-limit-save>Set allowance</button>' +
+        '<div class="r"><span>Used ' + span + "</span><span>" + fmt(u.usedToday) + " Coins</span></div>" +
+        (u.debt ? '<div class="r"><span>Owed after the last request</span><span><b style="color:var(--amber, #f5b74a)">' + fmt(u.debt) + " Coins</b> <button class=\"btn btn-ghost btn-sm\" data-debt-clear>Forgive</button></span></div>" : "") + "</div>" +
+        '<div class="ad-inline" style="margin-top:12px"><input class="input" type="number" min="0" step="1" data-limit placeholder="' + (monthly ? "Custom Coins per billing period, e.g. 5000" : "Custom Coins per day, e.g. 50") + '"><button class="btn" data-limit-save>Set allowance</button>' +
         (u.dailyLimitOverride != null ? '<button class="btn btn-ghost" data-limit-clear>Use plan default</button>' : "") + "</div></div>" +
-      ((u.gifts || []).length ? '<div class="ad-card"><h3>Token gifts</h3><p class="ad-sub">Active gifts on this account (manage them in Token gifts).</p><div class="ad-rows">' + u.gifts.map(function (g) {
+      ((u.gifts || []).length ? '<div class="ad-card"><h3>Coin gifts</h3><p class="ad-sub">Active gifts on this account (manage them in Coin gifts).</p><div class="ad-rows">' + u.gifts.map(function (g) {
         return '<div class="r"><span><b style="color:var(--text);display:block">' + esc(g.name) + '</b><span style="font-size:12.5px">' + esc(giftWhat(g)) + (g.endsAt ? " · until " + when(g.endsAt) : " · no end") + "</span></span>" +
           "<span>" + fmt(g.used) + " used<br><span class=\"ad-muted\" style=\"font-size:12px\">" + fmt(g.left) + " left today</span></span></div>";
       }).join("") + "</div></div>" : "") +
       topupCardHtml(u) +
-      '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Bonus tokens for ' + span + '</h3><p class="ad-sub">One-off extra allowance; disappears when the allowance ' + (monthly ? "renews" : "resets") + '. Open apps update within seconds.</p></div>' +
+      '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Bonus Coins for ' + span + '</h3><p class="ad-sub">One-off extra allowance; disappears when the allowance ' + (monthly ? "renews" : "resets") + '. Open apps update within seconds.</p></div>' +
         '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Bonus ' + span + '</div><b style="font:700 20px var(--display);color:' + (u.bonusToday ? "var(--mint)" : "var(--muted)") + '">' + (u.bonusToday ? "+" + num(u.bonusToday) : "0") + "</b></div></div>" +
-        '<div class="ad-chips" style="margin-bottom:10px">' + [1000, 5000, 10000, 50000, 250000, 1000000].map(function (n) { return '<button class="ad-chip" data-bonus-pick="' + n + '">' + fmt(n) + "</button>"; }).join("") + "</div>" +
-        '<div class="ad-inline" style="flex-wrap:wrap;gap:8px"><input class="input" type="number" min="1" step="1000" data-bonus placeholder="Tokens, e.g. 5000" style="flex:1;min-width:150px">' +
+        '<div class="ad-chips" style="margin-bottom:10px">' + [1, 5, 10, 50, 250, 1000].map(function (n) { return '<button class="ad-chip" data-bonus-pick="' + n + '">' + coinText(n) + "</button>"; }).join("") + "</div>" +
+        '<div class="ad-inline" style="flex-wrap:wrap;gap:8px"><input class="input" type="number" min="1" step="1000" data-bonus placeholder="Coins, e.g. 50" style="flex:1;min-width:150px">' +
           '<button class="btn btn-primary" data-bonus-give>+ Add</button>' +
           '<button class="btn btn-warn" data-bonus-remove' + (u.bonusToday ? "" : " disabled title=\"No bonus to remove today\"") + '>&minus; Remove</button>' +
           (u.bonusToday ? '<button class="btn btn-ghost" data-bonus-clear>Remove all bonus</button>' : "") + "</div>" +
         '<label class="ad-check" style="margin-top:10px"><input type="checkbox" data-bonus-notify> Tell the user by email</label>' +
-        '<div class="ad-hint" style="margin-top:6px">Remove takes back bonus tokens (never more than the bonus). To lower their allowance further, set a custom allowance above.</div></div>' +
+        '<div class="ad-hint" style="margin-top:6px">Remove takes back bonus Coins (never more than the bonus). To lower their allowance further, set a custom allowance above.</div></div>' +
       '<div class="ad-card"><h3>' + (monthly ? "This month's usage" : "Today's usage") + '</h3><p class="ad-sub">Set the counter for ' + span + ' back to zero (e.g. after a bug or a failed request). Top-ups already used are not given back.</p><button class="btn" data-reset-usage>Reset usage for ' + span + "</button></div>";
   }
 
-  /** Top-up tokens on one account: what's left, history, add / remove by hand. */
+  /** Top-up Coins on one account: what's left, history, add / remove by hand. */
   function topupCardHtml(u) {
     var list = u.topups || [], left = (u.usage || {}).topupLeft || 0;
     var STATUS = { active: "active", refunded: "refunded", revoked: "removed", expired: "expired" };
-    return '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Top-up tokens</h3>' +
+    return '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Top-up Coins</h3>' +
       '<p class="ad-sub">Bought (or given by support) on top of the plan. Used after the allowance; they don\'t expire with the billing month.</p></div>' +
       '<div style="text-align:right"><div class="ad-muted" style="font-size:12px">Left</div><b style="font:700 20px var(--display);color:' + (left ? "var(--mint)" : "var(--muted)") + '">' + num(left) + "</b></div></div>" +
       (list.length ? '<div class="ad-rows">' + list.map(function (t) {
-        return '<div class="r"><span><b style="color:var(--text);display:block">' + num(t.tokens) + " tokens · " + (t.source === "admin" ? "added by support" : "bought") + "</b>" +
+        return '<div class="r"><span><b style="color:var(--text);display:block">' + fmt(t.tokens) + " Coins · " + (t.source === "admin" ? "added by support" : "bought") + "</b>" +
           '<span style="font-size:12.5px">' + when(t.created) + (t.priceCents ? " · " + usd(t.priceCents) + " + " + usd(t.feeCents) + " fee" : "") +
           (t.note ? " · " + esc(t.note) : "") + " · until " + when(t.expiresAt) + "</span></span>" +
           "<span>" + num(t.left) + ' left<br><span class="ad-tag ' + (t.status === "active" ? "good" : "plan") + '">' + esc(STATUS[t.status] || t.status) + "</span>" +
           (t.status === "active" && t.left ? ' <button class="btn btn-ghost btn-sm" data-topup-revoke="' + esc(t.id) + '" data-topup-left="' + t.left + '">Remove</button>' : "") +
           "</span></div>";
       }).join("") + "</div>" : '<div class="ad-empty" style="padding:10px 0">No top-ups on this account.</div>') +
-      '<div class="ad-inline" style="flex-wrap:wrap;gap:8px;margin-top:12px"><input class="input" type="number" min="1000" step="1000" data-topup-amount placeholder="Tokens, e.g. 1000000" style="flex:1;min-width:150px">' +
+      '<div class="ad-inline" style="flex-wrap:wrap;gap:8px;margin-top:12px"><input class="input" type="number" min="0.001" step="1" data-topup-amount placeholder="Coins, e.g. 1000" style="flex:1;min-width:150px">' +
       '<input class="input" data-topup-note maxlength="200" placeholder="Note (optional)" style="flex:1;min-width:150px">' +
-      '<button class="btn btn-primary" data-topup-give>+ Add top-up tokens</button></div>' +
+      '<button class="btn btn-primary" data-topup-give>+ Add top-up Coins</button></div>' +
       '<label class="ad-check" style="margin-top:10px"><input type="checkbox" data-topup-notify> Tell the user by email</label></div>';
   }
   function usd(cents) { return "$" + (Number(cents || 0) / 100).toFixed(2); }
@@ -1185,49 +1198,54 @@
     if (t.matches("[data-ai-resume]")) return run(t, A.update(u.id, { aiPaused: false, notifyUser: $("[data-ai-notify]").checked }), null, "Resuming").then(function (d) { applied(d, "AI resumed"); });
     if (t.matches("[data-limit-save]")) {
       var lim = $("[data-limit]").value.trim();
-      if (lim === "" || isNaN(Number(lim)) || Number(lim) < 0) return toast("Enter a number of tokens.", true);
-      return run(t, A.update(u.id, { dailyLimit: Math.round(Number(lim)) }), null, "Saving").then(function (d) { applied(d, "Daily limit set"); });
+      if (lim === "" || isNaN(Number(lim)) || Number(lim) < 0) return toast("Enter a number of Coins.", true);
+      return run(t, A.update(u.id, { allowanceCoins: Number(lim) }), null, "Saving").then(function (d) { applied(d, "Custom allowance set"); });
     }
     if (t.matches("[data-limit-clear]")) return run(t, A.update(u.id, { clearDailyLimit: true }), null, "Saving").then(function (d) { applied(d, "Back to the plan's limit"); });
+    if (t.matches("[data-debt-clear]")) {
+      return ask({ title: "Forgive " + fmt(u.debt) + " owed Coins?", text: u.username + "'s last AI request cost more than they had left. Forgiving it brings the balance back up by that amount; it isn't charged anywhere else.", ok: "Forgive" }).then(function (v) {
+        if (v) run(t, A.update(u.id, { clearDebt: true }), null, "Saving").then(function (d) { applied(d, "Owed Coins forgiven"); });
+      });
+    }
     if (t.matches("[data-topup-give]")) {
-      var amount = Math.round(Number($("[data-topup-amount]").value));
-      if (!(amount >= 1000)) return toast("Enter at least 1,000 tokens.", true);
-      return run(t, A.grantTopup(u.id, { tokens: amount, note: $("[data-topup-note]").value.trim(), notify: $("[data-topup-notify]").checked }), null, "Adding")
-        .then(function (d) { applied(d, "+" + fmt(amount) + " top-up tokens"); });
+      var amount = Number($("[data-topup-amount]").value);  // Coins
+      if (!(amount > 0)) return toast("Enter how many Coins to add.", true);
+      return run(t, A.grantTopup(u.id, { coins: amount, note: $("[data-topup-note]").value.trim(), notify: $("[data-topup-notify]").checked }), null, "Adding")
+        .then(function (d) { applied(d, "+" + coinText(amount) + " top-up Coins"); });
     }
     if (t.dataset.topupRevoke) {
       var leftOver = Number(t.dataset.topupLeft || 0);
-      return ask({ title: "Remove " + num(leftOver) + " unused top-up tokens?", text: "The tokens already used stay used. This doesn't refund any payment - refunds are made in the Dodo Payments dashboard (a refunded payment removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
-        if (v) run(t, A.revokeTopup(t.dataset.topupRevoke), null, "Removing").then(function () { openUser(u.id, "ai"); toast(num(leftOver) + " top-up tokens removed"); });
+      return ask({ title: "Remove " + fmt(leftOver) + " unused top-up Coins?", text: "The Coins already used stay used. This doesn't refund any payment - refunds are made in the Dodo Payments dashboard (a refunded payment removes its Coins by itself).", ok: "Remove Coins", danger: true }).then(function (v) {
+        if (v) run(t, A.revokeTopup(t.dataset.topupRevoke), null, "Removing").then(function () { openUser(u.id, "ai"); toast(fmt(leftOver) + " top-up Coins removed"); });
       });
     }
     if (t.dataset.bonusPick) { $("[data-bonus]").value = t.dataset.bonusPick; return; }
     if (t.matches("[data-bonus-give]")) {
-      var n = Math.round(Number($("[data-bonus]").value));
-      if (!(n > 0)) return toast("Enter how many tokens to add.", true);
-      return run(t, A.bonus(u.id, n, $("[data-bonus-notify]").checked), null, "Adding").then(function (d) { applied(d, "+" + fmt(n) + " tokens for today"); });
+      var n = Number($("[data-bonus]").value);  // Coins
+      if (!(n > 0)) return toast("Enter how many Coins to add.", true);
+      return run(t, A.bonus(u.id, n, $("[data-bonus-notify]").checked), null, "Adding").then(function (d) { applied(d, "+" + coinText(n) + " bonus Coins"); });
     }
     if (t.matches("[data-bonus-remove], [data-bonus-clear]")) {
       var all = t.matches("[data-bonus-clear]");
-      var want = all ? null : Math.round(Number($("[data-bonus]").value));
-      if (!all && !(want > 0)) return toast("Enter how many tokens to remove.", true);
-      var take = all ? u.bonusToday : Math.min(want, u.bonusToday || 0);
+      var want = all ? null : Number($("[data-bonus]").value);  // Coins
+      if (!all && !(want > 0)) return toast("Enter how many Coins to remove.", true);
+      var take = all ? u.bonusToday : Math.min(Math.round(want * 1000), u.bonusToday || 0);  // milli-coins
       return ask({
-        title: "Remove " + num(take) + " bonus tokens from " + u.username + "?",
-        text: ((all ? "All of today's bonus is taken back. " : (want > (u.bonusToday || 0)
-          ? "They only have +" + num(u.bonusToday) + " bonus today, so that much is removed. "
+        title: "Remove " + fmt(take) + " bonus Coins from " + u.username + "?",
+        text: ((all ? "All of this period's bonus is taken back. " : (want * 1000 > (u.bonusToday || 0)
+          ? "They only have +" + fmt(u.bonusToday) + " bonus Coins, so that much is removed. "
           : "")) + "Their allowance today becomes " + tokens(u.dailyLimit == null ? null : u.dailyLimit - take) + ".").trim(),
-        ok: "Remove tokens", danger: true
+        ok: "Remove Coins", danger: true
       }).then(function (v) {
         if (!v) return;
         run(t, A.removeBonus(u.id, all ? null : want, $("[data-bonus-notify]").checked), null, "Removing").then(function (d) {
-          applied(d, "-" + fmt(d.bonusRemoved) + " bonus tokens · bonus now " + (d.bonusToday ? "+" + fmt(d.bonusToday) : "0"));
+          applied(d, "-" + fmt(d.bonusRemoved) + " bonus Coins · bonus now " + (d.bonusToday ? "+" + fmt(d.bonusToday) : "0"));
         });
       });
     }
     if (t.matches("[data-reset-usage]")) {
       var spanText = u.period === "month" ? "this billing month" : u.period === "none" ? "this month" : "today";
-      return ask({ title: "Reset usage for " + spanText + "?", text: u.username + " has used " + num(u.usedToday) + " tokens " + spanText + ". This gives them their whole allowance back.", ok: "Reset" }).then(function (v) {
+      return ask({ title: "Reset usage for " + spanText + "?", text: u.username + " has used " + fmt(u.usedToday) + " Coins " + spanText + ". This gives them their whole allowance back.", ok: "Reset" }).then(function (v) {
         if (v) run(t, A.update(u.id, { resetUsageToday: true }), null, "Resetting").then(function (d) { applied(d, "Usage reset"); });
       });
     }
@@ -1789,9 +1807,11 @@
     target[last] = value;
   }
   function prDirty() { return PR.data && JSON.stringify(PR.draft) !== JSON.stringify(PR.data.catalog); }
-  function prQuote(tokens) {
-    var t = PR.draft.topup, base = Math.round(tokens / 1e6 * Math.round(t.pricePerMillion * 100));
-    var pack = (t.packs || []).filter(function (p) { return Number(p.tokens) === tokens; })[0];
+  /** USD of AI cost one Coin stands for (draft value). */
+  PR.coinValue = function () { return Number(((PR.draft || {}).coins || {}).usdPer1000Coins || 0.3) / 1000; };
+  function prQuote(coins) {
+    var t = PR.draft.topup, base = Math.round(coins / 1000 * Math.round(t.pricePer1000Coins * 100));
+    var pack = (t.packs || []).filter(function (p) { return Number(p.coins) === coins; })[0];
     var price = pack ? Math.round(pack.price * 100) : base;
     var fee = prGross(price, t) - price;
     return { base: base, price: price, fee: fee, total: price + fee, off: base && base > price ? Math.round((base - price) * 100 / base) : 0 };
@@ -1811,17 +1831,19 @@
   function prNum(path, label, opts) {
     opts = opts || {};
     var v = prGet(path);
-    return "<label>" + esc(label) + '<span class="ad-unit"><input class="input" type="number" data-pr="' + path + '" data-pr-type="' + (opts.money ? "money" : "int") + '"' +
-      ' step="' + (opts.money ? "0.01" : (opts.step || 1)) + '" min="0" value="' + (v == null ? "" : esc(v)) + '"' + (opts.placeholder ? ' placeholder="' + esc(opts.placeholder) + '"' : "") +
+    var type = opts.rate ? "rate" : opts.money ? "money" : "int";
+    return "<label>" + esc(label) + '<span class="ad-unit"><input class="input" type="number" data-pr="' + path + '" data-pr-type="' + type + '"' +
+      ' step="' + (opts.rate ? "0.001" : opts.money ? "0.01" : (opts.step || 1)) + '" min="0" value="' + (v == null ? "" : esc(v)) + '"' + (opts.placeholder ? ' placeholder="' + esc(opts.placeholder) + '"' : "") +
       "><i>" + esc(opts.unit || "") + "</i></span>" + (opts.hint ? '<small class="ad-hint">' + esc(opts.hint) + "</small>" : "") + "</label>";
   }
   function prPlanCard(id) {
     var p = PR.draft.plans[id], base = "plans." + id, features = PR.data.features;
     var allowance;
-    if (p.period === "day") allowance = prNum(base + ".dailyTokens", "Tokens per day", { unit: "tokens", step: 1000, hint: p.countsCached === false ? "Only new (uncached) tokens count on this plan." : "" });
-    else if (p.period === "month") allowance = '<div class="ad-pr-two">' + prNum(base + ".firstMonthTokens", "First month", { unit: "tokens", step: 100000, hint: "Once per account" }) +
-      prNum(base + ".monthlyTokens", "Every month after", { unit: "tokens", step: 100000 }) + "</div>";
-    else allowance = '<p class="ad-hint">No plan allowance - set a custom allowance per account (Users → AI &amp; tokens).</p>';
+    if (p.period === "day") allowance = prNum(base + ".dailyCoins", "Coins per day", { unit: "Coins", step: 1, hint: "Refills at 00:00 UTC" });
+    else if (p.period === "month") allowance = '<div class="ad-pr-two">' + prNum(base + ".firstMonthCoins", "First month", { unit: "Coins", step: 100, hint: "Once per account" }) +
+      prNum(base + ".monthlyCoins", "Every month after", { unit: "Coins", step: 100,
+        hint: p.monthlyCoins ? "≈ " + usd(Math.round(p.monthlyCoins * PR.coinValue() * 100)) + " of AI cost" : "" }) + "</div>";
+    else allowance = '<p class="ad-hint">No plan allowance - set a custom allowance per account (Users → AI &amp; Coins).</p>';
     return '<div class="ad-card ad-pr-plan" data-pr-plan="' + id + '"><div class="ad-pr-top"><input class="input ad-pr-name" data-pr="' + base + '.name" data-pr-type="text" maxlength="40" value="' + esc(p.name) + '">' +
       '<span class="ad-tag plan">' + esc(id) + "</span>" + (p.period === "month" ? '<span class="ad-tag info">monthly</span>' : p.period === "day" ? '<span class="ad-tag plan">daily</span>' : "") + "</div>" +
       '<div class="ad-form">' +
@@ -1843,39 +1865,98 @@
   function prTopupCard() {
     var t = PR.draft.topup;
     var packs = (t.packs || []).map(function (p, i) {
-      var q = prQuote(Number(p.tokens));
+      var q = prQuote(Number(p.coins));
       var exactOff = q.base ? Math.round((q.base - q.price) * 1000 / q.base) / 10 : 0;
-      return '<div class="ad-pr-pack"><span class="ad-unit"><input class="input" type="number" min="1000" step="100000" data-pr-pack="' + i + '" data-pr-field="tokens" value="' + esc(p.tokens) + '"><i>tokens</i></span>' +
+      return '<div class="ad-pr-pack"><span class="ad-unit"><input class="input" type="number" min="1" step="100" data-pr-pack="' + i + '" data-pr-field="coins" value="' + esc(p.coins) + '"><i>Coins</i></span>' +
         '<span class="ad-unit" title="Discount off the base rate - sets the price"><input class="input" type="number" min="0" max="95" step="0.5" data-pr-pack="' + i + '" data-pr-field="discount" value="' + esc(Math.max(0, exactOff)) + '"><i>% off</i></span>' +
         '<span class="ad-unit"><input class="input" type="number" min="0.01" step="0.01" data-pr-pack="' + i + '" data-pr-field="price" value="' + esc(p.price) + '"><i>USD</i></span>' +
         '<span class="ad-pr-q">' + (q.off ? '<span class="ad-tag good">shown as ' + q.off + "% off</span> " : '<span class="ad-tag plan">base rate</span> ') + "+" + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span>" +
         '<button class="btn btn-ghost btn-sm" type="button" data-pr-pack-remove="' + i + '" aria-label="Remove package">✕</button></div>';
     }).join("");
-    var examples = [500000, 1000000, 3000000].map(function (n) {
+    var examples = [500, 1000, 3000].map(function (n) {
       var q = prQuote(n);
-      return '<div class="r"><span>' + num(n) + " tokens</span><span>" + usd(q.price) + " + " + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span></div>";
+      return '<div class="r"><span>' + num(n) + " Coins</span><span>" + usd(q.price) + " + " + usd(q.fee) + " fee = <b>" + usd(q.total) + "</b></span></div>";
     }).join("");
-    return '<div class="ad-card ad-pr-topup"><div class="ad-inline" style="justify-content:space-between"><div><h3>Token top-ups</h3><p class="ad-sub" style="margin:0">One-off token purchases on any plan. Used after the plan allowance; valid for the days set below.</p></div>' +
+    var margin = Number(t.pricePer1000Coins) / Math.max(0.0001, PR.coinValue() * 1000);
+    return '<div class="ad-card ad-pr-topup"><div class="ad-inline" style="justify-content:space-between"><div><h3>Coin top-ups</h3><p class="ad-sub" style="margin:0">One-off Coin purchases on any plan. Used after the plan Coins (and pay off any owed Coins first); valid for the days set below.</p></div>' +
       '<label class="ad-toggle"><input type="checkbox" data-pr="topup.enabled" data-pr-type="bool"' + (t.enabled ? " checked" : "") + "><i></i></label></div>" +
       '<div class="ad-form ad-pr-grid">' +
-      prNum("topup.pricePerMillion", "Price per 1,000,000 tokens", { money: true, unit: "USD", hint: "What you keep after Dodo's fee" }) +
+      prNum("topup.pricePer1000Coins", "Price per 1,000 Coins", { money: true, unit: "USD",
+        hint: "What you keep after Dodo's fee - " + (Math.round(margin * 10) / 10) + "× the AI cost of those Coins" }) +
       prNum("topup.feePercent", "Dodo Payments fee", { money: true, unit: "%", hint: "Percent of the total - added on top: total = (price + fixed) / (1 − %)" }) +
       prNum("topup.feeFixed", "Fixed fee per payment", { money: true, unit: "USD", hint: "Dodo's fixed part ($0.40)" }) +
       prNum("topup.validityDays", "Valid for", { unit: "days" }) +
-      prNum("topup.minTokens", "Smallest custom top-up", { unit: "tokens", step: 100000 }) +
-      prNum("topup.maxTokens", "Largest custom top-up", { unit: "tokens", step: 1000000 }) +
-      prNum("topup.stepTokens", "Custom amounts in steps of", { unit: "tokens", step: 100000 }) +
+      prNum("topup.minCoins", "Smallest custom top-up", { unit: "Coins", step: 100 }) +
+      prNum("topup.maxCoins", "Largest custom top-up", { unit: "Coins", step: 1000 }) +
+      prNum("topup.stepCoins", "Custom amounts in steps of", { unit: "Coins", step: 100 }) +
       "</div>" +
       '<h4 class="ad-pr-h4">Preset packages <small class="ad-hint">priced below the base rate = shown as a discount</small></h4>' +
       '<div class="ad-pr-packs">' + (packs || '<p class="ad-hint">No packages - only custom amounts.</p>') + "</div>" +
       '<button class="btn btn-sm" type="button" data-pr-pack-add' + ((t.packs || []).length >= 8 ? " disabled" : "") + ">+ Add package</button>" +
       '<h4 class="ad-pr-h4">Custom amount examples</h4><div class="ad-rows">' + examples + "</div></div>";
   }
+  /** Yearly terms for a plan from the draft - same rule as the server (app/core/plans.py yearly_terms). */
+  function prYearly(id) {
+    var p = PR.draft.plans[id], y = PR.draft.yearly || {};
+    if (!p || p.period !== "month" || !p.price || y.enabled === false) return null;
+    var full = Math.round(p.price * 100) * 12;
+    var price = Math.round(full * (100 - Number(y.discountPercent || 0)) / 100);
+    var base = (p.monthlyCoins || 0) * 12, coins = Math.round(base * (100 + Number(y.bonusCoinsPercent || 0)) / 100);
+    return { full: full, price: price, perMonth: Math.round(price / 12), coins: coins, bonus: coins - base };
+  }
+  /** The Coin value and the AI provider's rates (catalogue "coins"): what each request is charged. */
+  function prCoinsCard() {
+    var c = PR.draft.coins || {};
+    var rates = (c.rates || {});
+    function perK(rate) { return Number(rate || 0) * 1000 / Math.max(0.0001, Number(c.usdPer1000Coins || 0.3)); }
+    function rateRows(period, label) {
+      var r = rates[period] || {};
+      return '<h4 class="ad-pr-h4">' + label + ' rates <small class="ad-hint">USD per 1M tokens · what that is in Coins per 1M</small></h4>' +
+        '<div class="ad-form ad-pr-grid">' +
+        prNum("coins.rates." + period + ".cacheHit", "Cached input", { rate: true, unit: "USD", hint: coinText(perK(r.cacheHit)) + " Coins per 1M" }) +
+        prNum("coins.rates." + period + ".cacheMiss", "Uncached input", { rate: true, unit: "USD", hint: coinText(perK(r.cacheMiss)) + " Coins per 1M" }) +
+        prNum("coins.rates." + period + ".output", "Output and reasoning", { rate: true, unit: "USD", hint: coinText(perK(r.output)) + " Coins per 1M" }) +
+        "</div>";
+    }
+    // A typical request: 12,000 input tokens (65% cached) and 4,000 output tokens.
+    var off = rates.offPeak || {};
+    var sample = (4200 * Number(off.cacheMiss || 0) + 7800 * Number(off.cacheHit || 0) + 4000 * Number(off.output || 0)) / 1e6;
+    var windows = (c.peakHoursUtc || []).map(function (w) { return ("0" + w[0]).slice(-2) + ":00-" + ("0" + w[1]).slice(-2) + ":00"; }).join(", ");
+    return '<div class="ad-card ad-pr-coins"><h3>Coins &amp; AI cost</h3>' +
+      '<p class="ad-sub">Every AI request is charged its real provider cost in Coins: (uncached input × rate + cached input × rate + output × rate) ÷ 1M, at the value below. ' +
+      "Keep the rates equal to the provider's published prices; changes apply to the next request.</p>" +
+      '<div class="ad-form ad-pr-grid">' +
+      prNum("coins.usdPer1000Coins", "1,000 Coins are worth", { rate: true, unit: "USD", hint: "of AI provider cost (the plan and top-up prices sit on top)" }) +
+      "</div>" + rateRows("offPeak", "Off-peak") + rateRows("peak", "Peak") +
+      '<div class="ad-rows" style="margin-top:10px"><div class="r"><span>Peak hours (weekdays, UTC)</span><span>' + esc(windows || "none") + "</span></div>" +
+      '<div class="r"><span>A typical request (12k in, 65% cached, 4k out), off-peak</span><b>' + coinText(sample / Math.max(0.0001, Number(c.usdPer1000Coins || 0.3)) * 1000) + " Coins</b></div></div></div>";
+  }
+  function prYearlyCard() {
+    var y = PR.draft.yearly || {}, products = PR.data.yearlyProductIds || {};
+    var rows = PR.data.planIds.filter(function (id) { return PR.draft.plans[id].period === "month" && PR.draft.plans[id].price; }).map(function (id) {
+      var t = prYearly(id), p = PR.draft.plans[id];
+      if (!t) return '<div class="r"><span>' + esc(p.name) + '</span><span class="ad-muted">Monthly only</span></div>';
+      return '<div class="r"><span>' + esc(p.name) + ' <span class="ad-muted" style="font-size:12px">' +
+        (products[id] ? '<span class="ad-tag good" title="' + esc(products[id]) + '">Dodo product ready</span>' : '<span class="ad-tag plan">created on first checkout</span>') + "</span></span>" +
+        "<span><s class=\"ad-muted\">" + usd(t.full) + "</s> <b>" + usd(t.price) + "</b> / year · " + usd(t.perMonth) + "/mo · save " + usd(t.full - t.price) +
+        " · <b>" + coinText(t.coins) + "</b> Coins (+" + coinText(t.bonus) + " bonus) · you keep ~" + usd(prNet(t.price / 100, PR.draft.topup)) + "</span></div>";
+    }).join("");
+    return '<div class="ad-card ad-pr-yearly"><div class="ad-inline" style="justify-content:space-between"><div><h3>Yearly billing</h3>' +
+      '<p class="ad-sub" style="margin:0">A 12-month option next to every monthly plan: price = monthly × 12 − the discount; Coins = monthly × 12 + the bonus, all available from day one. ' +
+      "The yearly products in Dodo Payments are created and re-priced by the server - new prices apply to new yearly checkouts.</p></div>" +
+      '<label class="ad-toggle" title="Offer yearly billing"><input type="checkbox" data-pr="yearly.enabled" data-pr-type="bool"' + (y.enabled !== false ? " checked" : "") + "><i></i></label></div>" +
+      '<div class="ad-form ad-pr-grid">' +
+      prNum("yearly.discountPercent", "Yearly discount", { money: true, unit: "%", hint: "Off 12 monthly payments (0 - 50)" }) +
+      prNum("yearly.bonusCoinsPercent", "Bonus Coins", { money: true, unit: "%", hint: "On top of 12 months of Coins (0 - 100)" }) +
+      "</div>" +
+      '<h4 class="ad-pr-h4">What customers see</h4><div class="ad-rows">' + (y.enabled === false ? '<p class="ad-hint">Yearly billing is off - the website shows monthly prices only.</p>' : rows) + "</div></div>";
+  }
   function renderPricing() {
     if (!PR.draft) return;
     var focus = document.activeElement, keep = focus && (focus.dataset.pr || (focus.dataset.prPack ? "pack" + focus.dataset.prPack + focus.dataset.prField : ""));
     var caret = focus && typeof focus.selectionStart === "number" ? focus.selectionStart : null;
-    $("[data-pr]").innerHTML = '<div class="ad-pr-plans">' + PR.data.planIds.map(prPlanCard).join("") + "</div>" + prTopupCard();
+    $("[data-pr]").innerHTML = '<div class="ad-pr-plans">' + PR.data.planIds.map(prPlanCard).join("") + "</div>" +
+      (PR.draft.yearly ? prYearlyCard() : "") + prTopupCard() + (PR.draft.coins ? prCoinsCard() : "");
     var dirty = prDirty();
     $("[data-pr-save]").disabled = !dirty;
     var badge = $("[data-pricing-badge]");
@@ -1888,6 +1969,7 @@
   function loadPricing() {
     if (!PR.data) $("[data-pr]").innerHTML = '<div class="ad-skel"></div>';
     loadTopupSales();
+    renderNotice("pricing", $("[data-pr-notice]"), false);
     return A.pricing().then(function (d) {
       if (PR.data && prDirty()) { PR.data = d; return renderPricing(); }  // keep unsaved edits
       PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
@@ -1897,12 +1979,12 @@
     var host = $("[data-pr-sales-body]");
     A.topups().then(function (d) {
       var t = d.totals || {};
-      host.innerHTML = '<div class="ad-grid ad-kpis" style="margin-bottom:14px">' + kpi("Orders", num(t.orders), "paid top-ups") + kpi("Tokens sold", fmt(t.tokens), fmt(t.used) + " used so far") +
+      host.innerHTML = '<div class="ad-grid ad-kpis" style="margin-bottom:14px">' + kpi("Orders", num(t.orders), "paid top-ups") + kpi("Coins sold", fmt(t.tokens), fmt(t.used) + " used so far") +
         kpi("Revenue", usd(t.revenueCents), "before the processing fee") + kpi("Processing fees", usd(t.feeCents), "passed on to buyers") + "</div>" +
-        ((d.topups || []).length ? '<div class="ad-tablewrap"><table class="ad-table ad-sales"><thead><tr><th>When</th><th>Account</th><th>Tokens</th><th>Left</th><th>Paid</th><th>Status</th><th></th></tr></thead><tbody>' +
+        ((d.topups || []).length ? '<div class="ad-tablewrap"><table class="ad-table ad-sales"><thead><tr><th>When</th><th>Account</th><th>Coins</th><th>Left</th><th>Paid</th><th>Status</th><th></th></tr></thead><tbody>' +
           d.topups.map(function (r) {
             return "<tr><td>" + when(r.created) + '</td><td><a href="#users/' + esc(r.userId) + '">' + esc(r.username || r.email) + '</a><br><span class="ad-muted" style="font-size:12px">' + esc(r.email) + "</span></td>" +
-              "<td>" + num(r.tokens) + (r.source === "admin" ? ' <span class="ad-tag plan">support</span>' : "") + "</td><td>" + num(r.left) + "</td>" +
+              "<td>" + fmt(r.tokens) + (r.source === "admin" ? ' <span class="ad-tag plan">support</span>' : "") + "</td><td>" + fmt(r.left) + "</td>" +
               "<td>" + (r.priceCents ? usd(r.priceCents) + ' <span class="ad-muted">+ ' + usd(r.feeCents) + "</span>" : '<span class="ad-muted">-</span>') + "</td>" +
               '<td><span class="ad-tag ' + (r.status === "active" ? "good" : "plan") + '">' + esc(r.status) + "</span></td>" +
               "<td>" + (r.status === "active" && r.left ? '<button class="btn btn-ghost btn-sm" data-sale-revoke="' + esc(r.id) + '" data-sale-left="' + r.left + '">Remove</button>' : "") + "</td></tr>";
@@ -1910,6 +1992,96 @@
           : '<div class="ad-empty">No top-ups yet. They appear here as soon as Dodo Payments confirms a payment.</div>');
     }, function (e) { host.innerHTML = '<p class="ad-muted">' + esc(errText(e)) + "</p>"; });
   }
+  /* ----------------------------------------- optional customer emails (notices)
+   * After a price change or when a promotion starts, the admin may email customers
+   * about it. Nothing is sent automatically: this card shows a ready-written email
+   * (editable), who would get it (live counts, opt-outs respected), a preview, and
+   * sends only after a confirmation. Each change is emailed once unless resent. */
+  var NT = {};  // kind -> last loaded notice
+  function ntDismissed(kind, ref) {
+    try { return localStorage.getItem("mca_admin_nt_" + kind) === ref; } catch (e) { return false; }
+  }
+  function ntDismiss(kind, ref) {
+    try { localStorage.setItem("mca_admin_nt_" + kind, ref); } catch (e) { /* private mode */ }
+  }
+  /** Load and show the notice card for ``kind`` in ``host``. open: show the full form, not just the button. */
+  function renderNotice(kind, host, open) {
+    if (!host) return Promise.resolve();
+    return A.notice(kind).then(function (n) {
+      NT[kind] = n;
+      if (!n.available) { host.innerHTML = ""; return; }
+      var what = kind === "pricing" ? "this price change" : "this promotion";
+      if (!open && (n.sent || ntDismissed(kind, n.ref))) {
+        host.innerHTML = '<div class="ad-row-actions" style="margin-top:10px"><button class="btn btn-ghost btn-sm" type="button" data-nt-open="' + kind + '">✉ Email customers about ' + what + "</button>" +
+          (n.sent ? '<span class="ad-muted" style="font-size:12.5px;align-self:center">Emailed ' + num(n.sent.recipients) + " people on " + when(n.sent.at) + "</span>" : "") + "</div>";
+        return;
+      }
+      var first = n.audiences[0] || {};
+      host.innerHTML = '<div class="ad-card ad-notice" data-nt-card="' + kind + '" style="margin-top:14px;border-color:rgba(79,99,245,.45)">' +
+        '<div class="ad-inline" style="justify-content:space-between;align-items:flex-start"><div><h3>Email customers about ' + what + '?</h3>' +
+        '<p class="ad-sub">Optional - nothing is sent unless you press Send and confirm. People who switched these emails off never get them.</p></div>' +
+        '<button class="btn btn-ghost btn-sm" type="button" data-nt-dismiss="' + kind + '">Not now</button></div>' +
+        (n.sent ? '<div class="ad-status on" style="margin-bottom:12px"><span class="ic">✓</span><div><b>Already emailed</b><span>' + num(n.sent.recipients) + " people (" + esc(n.sent.audience) + ") on " + when(n.sent.at) + "</span></div></div>" : "") +
+        (n.summary && n.summary.length ? '<div class="ad-rows" style="margin-bottom:12px">' + n.summary.map(function (l) { return '<div class="r"><span>' + esc(l) + "</span></div>"; }).join("") + "</div>" : "") +
+        '<div class="ad-form">' +
+          '<fieldset class="ad-pr-feats"><legend>Send to</legend>' + n.audiences.map(function (a, i) {
+            return '<label class="ad-check" title="' + esc(a.description) + '"><input type="radio" name="nt-aud-' + kind + '" value="' + esc(a.id) + '"' + (i === 0 ? " checked" : "") + "> " +
+              esc(a.label) + ' <span class="ad-tag plan">' + num(a.recipients) + "</span></label>";
+          }).join("") + '<small class="ad-hint" data-nt-desc>' + esc(first.description || "") + " Sent from " + esc(first.sender || "") + ".</small></fieldset>" +
+          '<label>Subject<input class="input" data-nt-subject maxlength="200" value="' + esc(n.draft.subject) + '"></label>' +
+          '<label>Message <small class="ad-hint">{name} becomes each person\'s name. Lines starting with "- " stay a list.</small><textarea data-nt-body rows="12">' + esc(n.draft.body) + "</textarea></label>" +
+          (n.sent ? '<label class="ad-check"><input type="checkbox" data-nt-resend> Send again (people get a second copy)</label>' : "") +
+          '<div class="ad-row-actions"><button class="btn" type="button" data-nt-preview="' + kind + '">Preview recipients</button>' +
+          '<button class="btn btn-primary" type="button" data-nt-send="' + kind + '">Send email…</button></div>' +
+          '<div class="ad-hint" data-nt-result></div>' +
+        "</div></div>";
+    }, function (e) { host.innerHTML = '<p class="ad-muted">' + esc(errText(e)) + "</p>"; });
+  }
+  function ntPayload(card, dryRun) {
+    var kind = card.dataset.ntCard, picked = $('input[name="nt-aud-' + kind + '"]:checked', card);
+    var resend = $("[data-nt-resend]", card);
+    return { audience: picked ? picked.value : "", subject: $("[data-nt-subject]", card).value.trim(),
+             body: $("[data-nt-body]", card).value, dryRun: dryRun, resend: !!(resend && resend.checked) };
+  }
+  function ntHost(kind) { return kind === "pricing" ? $("[data-pr-notice]") : $("[data-promo-notice]"); }
+  /** One click handler for both cards (pricing view and Live settings). */
+  document.addEventListener("change", function (e) {
+    var radio = e.target.closest && e.target.closest('input[type="radio"][name^="nt-aud-"]');
+    if (!radio) return;
+    var kind = radio.name.slice(7), n = NT[kind], a = n && n.audiences.filter(function (x) { return x.id === radio.value; })[0];
+    var desc = radio.closest("[data-nt-card]") && $("[data-nt-desc]", radio.closest("[data-nt-card]"));
+    if (a && desc) desc.textContent = a.description + " Sent from " + a.sender + ".";
+  });
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-nt-open],[data-nt-dismiss],[data-nt-preview],[data-nt-send]");
+    if (!t) return;
+    var kind = t.dataset.ntOpen || t.dataset.ntDismiss || t.dataset.ntPreview || t.dataset.ntSend;
+    if (t.dataset.ntOpen) return renderNotice(kind, ntHost(kind), true);
+    if (t.dataset.ntDismiss) {
+      if (NT[kind] && NT[kind].ref) ntDismiss(kind, NT[kind].ref);
+      return renderNotice(kind, ntHost(kind), false);
+    }
+    var card = t.closest("[data-nt-card]"), body = ntPayload(card, true), out = $("[data-nt-result]", card);
+    if (!body.subject || !body.body.trim()) return toast("Write a subject and a message.", true);
+    if (t.dataset.ntPreview) {
+      return run(t, A.sendNotice(kind, body), null, "Counting").then(function (p) {
+        out.textContent = num(p.recipients) + " people would get it from " + p.sender + (p.sample && p.sample.length ? " - e.g. " + p.sample.slice(0, 3).join(", ") : "") + ".";
+      });
+    }
+    return run(t, A.sendNotice(kind, body), null, "Checking").then(function (p) {
+      if (!p.recipients) return toast("No one in this audience can receive the email.", true);
+      return ask({ title: "Email " + num(p.recipients) + (p.recipients === 1 ? " person?" : " people?"),
+                   text: "“" + body.subject + "” goes to " + p.audience.toLowerCase() + " from " + p.sender + ". Each person gets their own copy over the next few minutes. This can't be undone.",
+                   ok: "Send " + num(p.recipients) + " emails" }).then(function (v) {
+        if (!v) return;
+        var send = ntPayload(card, false);
+        run(t, A.sendNotice(kind, send), "Sending to " + num(p.recipients) + " people", "Sending").then(function () {
+          renderNotice(kind, ntHost(kind), false);
+        });
+      });
+    });
+  });
+
   function prRead(input) {
     var type = input.dataset.prType;
     if (type === "bool") return input.checked;
@@ -1917,6 +2089,7 @@
     if (type === "text") return input.value;
     var raw = input.value.trim();
     if (raw === "") return null;
+    if (type === "rate") return Math.round(Number(raw) * 1e6) / 1e6;
     return type === "money" ? Math.round(Number(raw) * 100) / 100 : Math.round(Number(raw));
   }
   function wirePricing() {
@@ -1929,9 +2102,9 @@
       else if (t.dataset.prPack) {
         var pack = PR.draft.topup.packs[Number(t.dataset.prPack)];
         if (t.dataset.prField === "discount") {
-          // "% off" sets the price from the base rate (price per million x tokens).
+          // "% off" sets the price from the base rate (price per 1,000 Coins x Coins).
           var pct = Math.max(0, Math.min(95, Number(t.value) || 0));
-          var base = pack.tokens / 1e6 * PR.draft.topup.pricePerMillion;
+          var base = pack.coins / 1000 * PR.draft.topup.pricePer1000Coins;
           pack.price = Math.max(0.01, Math.round(base * (100 - pct)) / 100);
         } else {
           pack[t.dataset.prField] = t.dataset.prField === "price" ? Math.round(Number(t.value) * 100) / 100 : Math.round(Number(t.value));
@@ -1958,16 +2131,26 @@
       if (!t || !PR.draft) return;
       if (t.matches("[data-pr-pack-add]")) {
         var packs = PR.draft.topup.packs, last = packs[packs.length - 1];
-        packs.push({ tokens: last ? last.tokens * 2 : 1000000, price: last ? Math.round(last.price * 1.8 * 100) / 100 : PR.draft.topup.pricePerMillion });
+        packs.push({ coins: last ? last.coins * 2 : 1000, price: last ? Math.round(last.price * 1.8 * 100) / 100 : PR.draft.topup.pricePer1000Coins });
         return renderPricing();
       }
       if (t.dataset.prPackRemove != null) { PR.draft.topup.packs.splice(Number(t.dataset.prPackRemove), 1); return renderPricing(); }
       if (t.matches("[data-pr-save]")) {
-        return ask({ title: "Save plans & pricing?", text: "The website, the server and every open app use the new values within seconds. If you changed a monthly price, also change the product's price in Dodo Payments.", ok: "Save changes" }).then(function (v) {
+        return ask({ title: "Save plans & pricing?", text: "The website, the server and every open app use the new values within seconds. If you changed a monthly price, also change the product's price in Dodo Payments (yearly products are re-priced automatically).", ok: "Save changes" }).then(function (v) {
           if (!v) return;
           run(t, A.savePricing(PR.draft), null, "Saving").then(function (d) {
             PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
             toast(d.changed && d.changed.length ? "Saved: " + d.changed.slice(0, 3).join("; ") + (d.changed.length > 3 ? " (+" + (d.changed.length - 3) + " more)" : "") : "Nothing changed");
+            var failed = (d.yearlyProducts || []).filter(function (r) { return r.status !== "ready"; });
+            if (failed.length) {
+              toast("Yearly price not updated in Dodo for " + failed.map(function (r) { return r.plan + (r.message ? " (" + r.message + ")" : ""); }).join(", ") +
+                    " - it's retried on the next yearly checkout.", true);
+            }
+            // Prices customers see changed: offer (never send) an email about it.
+            if (d.priceNotice) renderNotice("pricing", $("[data-pr-notice]"), true).then(function () {
+              var card = $("[data-nt-card]", $("[data-pr-notice]"));
+              if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
           });
         });
       }
@@ -1979,8 +2162,8 @@
       }
       if (t.dataset.saleRevoke) {
         var left = Number(t.dataset.saleLeft || 0);
-        return ask({ title: "Remove " + num(left) + " unused top-up tokens?", text: "This doesn't refund the payment - refunds are made in the Dodo Payments dashboard (a refunded payment removes its tokens by itself).", ok: "Remove tokens", danger: true }).then(function (v) {
-          if (v) run(t, A.revokeTopup(t.dataset.saleRevoke), num(left) + " top-up tokens removed", "Removing").then(loadTopupSales);
+        return ask({ title: "Remove " + fmt(left) + " unused top-up Coins?", text: "This doesn't refund the payment - refunds are made in the Dodo Payments dashboard (a refunded payment removes its Coins by itself).", ok: "Remove Coins", danger: true }).then(function (v) {
+          if (v) run(t, A.revokeTopup(t.dataset.saleRevoke), fmt(left) + " top-up Coins removed", "Removing").then(loadTopupSales);
         });
       }
     });
@@ -1990,10 +2173,10 @@
   var FIND = { items: [], sel: 0, users: [], userQuery: "", timer: null };
   var VIEW_WORDS = {
     dashboard: "overview kpi tokens today plans sign-ups attention", insights: "downloads active app versions thinking top users charts export csv",
-    ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr dodo payments billing", gifts: "token gifts bonus free tokens",
+    ads: "ads adsense unlock rewarded funnel", revenue: "subscriptions money revenue mrr dodo payments billing", gifts: "coin gifts bonus free coins tokens",
     users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
     server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
-    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly first month tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee dodo payments sales",
+    pricing: "plans prices price subscription builder pro studio enterprise allowance monthly yearly annual 12 months bonus first month coins tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee dodo payments sales",
     activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek release notes what's new changelog app version reference library minecraft versions guides loaders"
   };
   function findActions() {
@@ -2003,9 +2186,9 @@
       { group: "Actions", icon: "§", title: "Publish new Terms & Privacy version", sub: "Live settings · everyone agrees again", words: "legal terms privacy policy consent", run: function () { go("settings"); flashWhenReady("[data-cfg-legal]", true); } },
       { group: "Actions", icon: "!", title: "Pause AI for everyone (maintenance)", sub: "Live settings · service switches", words: "maintenance emergency stop", run: function () { go("settings"); flashWhenReady("[data-cfg-switches]", true); } },
       { group: "Actions", icon: "$", title: "Check AI provider balance", sub: "System · remaining credit", words: "balance credit top up money", run: function () { go("system"); flashWhenReady("[data-balance-keys]", true); loadBalance(true); } },
-      { group: "Actions", icon: "★", title: "Give tokens", sub: "Token gifts · new gift", words: "gift bonus free tokens", run: function () { go("gifts"); } },
-      { group: "Actions", icon: "$", title: "Change plan prices & allowances", sub: "Plans & pricing · prices, monthly tokens, features", words: "price plan builder pro studio monthly tokens features 3d sounds recipes particles thinking", run: function () { go("pricing"); } },
-      { group: "Actions", icon: "+", title: "Edit token top-up prices", sub: "Plans & pricing · price per million, fee, packages", words: "top-up topup packs fee processing buy tokens", run: function () { go("pricing"); flashWhenReady(".ad-pr-topup"); } },
+      { group: "Actions", icon: "★", title: "Give Coins", sub: "Coin gifts · new gift", words: "gift bonus free coins tokens", run: function () { go("gifts"); } },
+      { group: "Actions", icon: "$", title: "Change plan prices & allowances", sub: "Plans & pricing · prices, monthly Coins, features", words: "price plan builder pro studio monthly tokens features 3d sounds recipes particles thinking", run: function () { go("pricing"); } },
+      { group: "Actions", icon: "+", title: "Edit Coin top-up prices", sub: "Plans & pricing · price per 1,000 Coins, fee, packages", words: "top-up topup packs fee processing buy tokens", run: function () { go("pricing"); flashWhenReady(".ad-pr-topup"); } },
       { group: "Actions", icon: "✉", title: "Email users", sub: "Messages · direct or broadcast", words: "email send message broadcast", run: function () { go("messages"); } },
       { group: "Actions", icon: "↓", title: "Export users as CSV", sub: "Users · current filter", words: "export download csv", run: function () { go("users"); setTimeout(function () { exportCsv($("[data-export]")); }, 80); } }
     ];
@@ -2157,7 +2340,7 @@
           '<span data-mb="' + esc(m.address) + '">' + (m.ready ? '<span class="ad-tag good">configured</span>' : '<span class="ad-tag bad">no password</span>') + "</span></div>";
       }).join("");
       $("[data-plans-table]").innerHTML = s.plans.map(function (p) {
-        var allowance = p.period === "month" ? fmt(p.firstMonthTokens) + " first month · " + fmt(p.monthlyTokens) + " / month" : p.period === "day" ? tokens(p.dailyTokens) + " / day" : "Custom";
+        var allowance = p.period === "month" ? coinText(p.firstMonthCoins) + " Coins first month · " + coinText(p.monthlyCoins) + " / month" : p.period === "day" ? coinText(p.dailyCoins) + " Coins / day" : "Custom";
         return '<div class="r"><span><span class="ad-dot" style="display:inline-block;margin-right:8px;background:' + (PLAN_COLOR[p.id] || "#888") + '"></span>' + esc(p.name) + "</span><span class=\"ad-mono\">" + allowance + "</span></div>";
       }).join("");
     }, function (e) { toast(errText(e), true); });
@@ -2363,17 +2546,17 @@
       var gbtn = t.closest("[data-gift-create]");
       var gift = {
         name: $("[data-gift-name]").value.trim(), mode: $("[data-gift-mode] .on").dataset.mode,
-        amount: Math.round(Number($("[data-gift-amount]").value)), audience: giftAudience(), endsAt: giftEnds(),
+        amount: Math.round(Number($("[data-gift-amount]").value) * 1000), audience: giftAudience(),  // Coins -> milli-coins endsAt: giftEnds(),
         notify: $("[data-gift-notify]").checked, message: $("[data-gift-message]").value.trim()
       };
       if (!gift.name) return toast("Give the gift a name.", true);
-      if (!(gift.amount > 0)) return toast("Enter how many tokens to give.", true);
+      if (!(gift.amount > 0)) return toast("Enter how many Coins to give.", true);
       if (gift.endsAt === "") return toast("Pick when the gift ends.", true);
       return run(gbtn, A.giftPreview(gift.audience), null, "Checking").then(function (r) {
         return ask({
-          title: "Give " + (gift.mode === "daily" ? "+" + num(gift.amount) + " tokens a day" : num(gift.amount) + " tokens") + " to " + num(r.recipients) + " people?",
+          title: "Give " + (gift.mode === "daily" ? "+" + fmt(gift.amount) + " Coins a day" : fmt(gift.amount) + " Coins") + " to " + num(r.recipients) + " people?",
           text: "'" + gift.name + "' " + (gift.endsAt ? "runs until " + when(gift.endsAt) : "has no end date") + "." + (gift.notify ? " Everyone gets an email." : " No email is sent."),
-          ok: "Give tokens"
+          ok: "Give Coins"
         });
       }).then(function (v) {
         if (!v) return;
@@ -2386,7 +2569,7 @@
     var gopen = t.closest("[data-gift-open]"); if (gopen) return showGiftPeople(gopen.dataset.giftOpen);
     var gend = t.closest("[data-gift-end]");
     if (gend) {
-      return ask({ title: "End this gift now?", text: "Unused tokens from it stop working right away. Its history stays here.", ok: "End gift", danger: true }).then(function (v) {
+      return ask({ title: "End this gift now?", text: "Unused Coins from it stop working right away. Its history stays here.", ok: "End gift", danger: true }).then(function (v) {
         if (v) run(gend, A.endGift(gend.dataset.giftEnd), "Gift ended", "Ending").then(loadGifts);
       });
     }
@@ -2454,14 +2637,17 @@
       if (badCode) return toast(badCode + ": a code must be 3-16 letters and numbers - or leave it empty for an automatic one.", true);
       var monthsP = $("[data-promo-months]").value;
       var promo = { label: $("[data-promo-label]").value.trim(), terms: $("[data-promo-terms]").value.trim(),
-        plans: perPlan, until: untilP ? new Date(untilP).toISOString() : null, months: monthsP ? Number(monthsP) : null };
+        plans: perPlan, until: untilP ? new Date(untilP).toISOString() : null, months: monthsP ? Number(monthsP) : null,
+        yearly: !!($("[data-promo-yearly]") && $("[data-promo-yearly]").checked) };
       var summary = Object.keys(perPlan).map(function (id) { return cap(id) + " " + perPlan[id].percent + "% off"; }).join(", ") +
-        (promo.months ? " for the first " + promo.months + (promo.months === 1 ? " month" : " months") : " every month");
+        (promo.months ? " for the first " + promo.months + (promo.months === 1 ? " month" : " months") : " every month") +
+        (promo.yearly ? (promo.months ? ", and the first year of yearly billing" : ", also on yearly billing") : ", monthly billing only");
       var btnP = t.closest("[data-promo-save]");
       return ask({ title: "Start " + (promo.label || "the promotion") + "?",
                    text: summary + ". The matching Dodo Payments discounts are created now, and the website shows the sale prices right away.",
                    ok: "Go live" }).then(function (v) {
-        if (v) saveConfig(btnP, { promotion: promo }, "Promotion is live - discounts ready in Dodo Payments");
+        // Once it's live, the optional "email customers about this promotion" card opens.
+        if (v) { state.promoNotify = true; saveConfig(btnP, { promotion: promo }, "Promotion is live - discounts ready in Dodo Payments"); }
       });
     }
     if (t.closest("[data-promo-stop]")) {

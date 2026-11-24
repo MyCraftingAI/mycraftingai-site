@@ -35,7 +35,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261201">
 </head>
 <body>
   <header data-site-header></header>
@@ -50,7 +50,7 @@
           <p class="lede">Type what you want in plain English. MyCraftingAI writes the Java, paints the textures and starts Minecraft with your mod already loaded.</p>
           <div class="hero-cta">
             <a class="btn btn-primary btn-lg" href="download.html">Download for Windows</a>
-            <a class="btn btn-lg" href="signup.html">Start free <span class="kbd">10K new tokens / day</span></a>
+            <a class="btn btn-lg" href="signup.html">Start free <span class="kbd">10 Coins / day</span></a>
           </div>
           <div class="hero-meta">
             <span class="chip"><span class="dot"></span>NeoForge</span>
@@ -169,11 +169,11 @@
             </button>
             <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/build-run.png?v=20261130" data-alt="Build and Run page with the compile pipeline and game log">
               <h3>Build &amp; Run <span class="k">Ctrl 8</span></h3>
-              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the Auto-Healer fixes common errors first - without tokens - and the rest goes straight back to the assistant. Run a test server with its addresses, admins and offline players. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
+              <p>Compile with Gradle and launch the dev client in one click. If the build fails, the Auto-Healer fixes common errors first - without spending Coins - and the rest goes straight back to the assistant. Run a test server with its addresses, admins and offline players. <b>Export</b> saves the ready-to-play .jar or the project files as a ZIP.</p>
             </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png?v=20261130" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a token estimate">
+            <button class="tour-tab" role="tab" aria-selected="false" data-shot="assets/img/version-converter.png?v=20261130" data-alt="Version Converter converting a NeoForge 1.21.1 mod to Fabric, Forge and NeoForge versions with a Coin estimate">
               <h3>Version Converter <span class="lock" title="Included in the Studio plan.">Studio</span> <span class="k">Ctrl 9</span></h3>
-              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to 26.x, each with verified guides - and hands you a ready-to-build ZIP for each, with the token cost shown first. Then pick each version next to Run Mod to build and test it, one by one.</p>
+              <p>Point it at any Forge, NeoForge, Fabric or Quilt mod: it detects the loader and version, ports it to as many loaders and Minecraft versions as you pick - from 1.7.10 to 26.x, each with verified guides - and hands you a ready-to-build ZIP for each, with the Coin cost shown first. Then pick each version next to Run Mod to build and test it, one by one.</p>
             </button>
           </div>
           <figure class="shot" style="margin:0">
@@ -202,7 +202,7 @@
           </div>
           <div class="step-card reveal">
             <h3>Run it</h3>
-            <p>Press <code>Run Mod</code>. It checks and compiles your mod, repairs common errors without spending tokens, has the assistant fix the rest as many times as you allow, and opens Minecraft with your mod loaded.</p>
+            <p>Press <code>Run Mod</code>. It checks and compiles your mod, repairs common errors without spending Coins, has the assistant fix the rest as many times as you allow, and opens Minecraft with your mod loaded.</p>
           </div>
         </div>
         <div class="facts reveal">
@@ -218,9 +218,9 @@
     <section class="section" id="calculator">
       <div class="wrap">
         <div class="section-head reveal">
-          <span class="eyebrow">Monthly tokens</span>
-          <h2>How many tokens do you actually need?</h2>
-          <p>Paid plans come with a monthly allowance that renews on your billing date. Move the sliders to see which one fits the way you work.</p>
+          <span class="eyebrow">Coins</span>
+          <h2>How many Coins do you actually need?</h2>
+          <p>Every request costs Coins for what the AI really uses: cached project context is cheap, long answers cost more. Paid plans come with a monthly Coin allowance that renews on your billing date. Move the sliders to see which one fits the way you work.</p>
         </div>
         <div class="calc reveal">
           <div>
@@ -248,7 +248,7 @@
           <div class="calc-result" aria-live="polite">
             <span class="dim mono" style="font-size:13px">ESTIMATED USE</span>
             <div class="big" id="c-total">0</div>
-            <div class="unit">tokens per month</div>
+            <div class="unit">Coins per month</div>
             <div class="meter"><i id="c-meter"></i></div>
             <div class="dim" style="font-size:14px" id="c-meter-label"></div>
             <div class="rec">
@@ -257,7 +257,7 @@
             </div>
           </div>
         </div>
-        <p class="price-note">Estimates from typical requests in our own test projects. Your numbers depend on how big your mod gets.</p>
+        <p class="price-note">Estimates from typical requests in our own test projects, at off-peak rates (requests on weekdays 01:00-04:00 and 06:00-10:00 UTC cost twice as much). Your numbers depend on how big your mod gets.</p>
       </div>
     </section>
 
@@ -267,14 +267,21 @@
         <div class="section-head center reveal">
           <span class="eyebrow">Pricing</span>
           <h2>Start free. Upgrade when you outgrow it.</h2>
-          <p>Monthly plans. Cancel any time. Your projects and files are yours on every plan.</p>
+          <p>Pay monthly or yearly. Cancel any time. Your projects and files are yours on every plan.</p>
+        </div>
+        <div class="billing-toggle reveal" id="billing-toggle" role="radiogroup" aria-label="Billing period">
+          <button type="button" role="radio" aria-checked="true" data-billing="month">Monthly</button>
+          <button type="button" role="radio" aria-checked="false" data-billing="year">Yearly <span class="save" id="billing-save">Save 10%</span></button>
         </div>
         <div class="pricing" id="pricing-cards"></div>
-        <div class="billing-facts reveal">
-          <div><b>Billed monthly</b><span>Your plan renews every month on the date and time you subscribed.</span></div>
-          <div><b>Bigger first month</b><span>Your first month comes with extra tokens to get your project going.</span></div>
-          <div><b>One token pool</b><span>Input and output tokens both count against the same allowance.</span></div>
-          <div><b>No rollover</b><span>Unused plan tokens expire when the month renews. Top-ups don't.</span></div>
+        <div class="billing-facts reveal" id="billing-facts">
+          <div data-for="month"><b>Billed monthly</b><span>Your plan renews every month on the date and time you subscribed.</span></div>
+          <div data-for="month"><b>Bigger first month</b><span>Your first month comes with extra Coins to get your project going.</span></div>
+          <div data-for="year" hidden><b>Billed once a year</b><span>One payment covers 12 months and renews on the same date next year.</span></div>
+          <div data-for="year" hidden><b>The whole year up front</b><span>Your 12 months of Coins, plus the yearly bonus, are ready from day one.</span></div>
+          <div><b>Pay for what you use</b><span>Each request costs what the AI really used. The app shows the cost under every answer.</span></div>
+          <div data-for="month"><b>No rollover</b><span>Unused plan Coins expire when the month renews. Top-ups don't.</span></div>
+          <div data-for="year" hidden><b>No rollover</b><span>Unused plan Coins expire when the year renews. Top-ups don't.</span></div>
         </div>
 
         <div class="compare-head reveal">
@@ -282,7 +289,7 @@
           <p>Exactly what each plan includes - and what it doesn't.</p>
         </div>
         <div class="compare open" id="compare" role="region" aria-label="Plan comparison" tabindex="0"></div>
-        <p class="price-note">Prices in USD, payment processing included. Taxes may apply depending on where you live. Checkout opens right on this page (Dodo Payments). Cancel any time from your account page - your plan runs to the end of the paid month. Payments are non-refundable (<a href="terms.html#refunds">Terms</a>).</p>
+        <p class="price-note">Prices in USD, payment processing included. Taxes may apply depending on where you live. Checkout opens right on this page (Dodo Payments). Cancel any time from your account page - your plan runs to the end of the period you paid for (month or year). Payments are non-refundable (<a href="terms.html#refunds">Terms</a>).</p>
       </div>
     </section>
 
@@ -290,27 +297,27 @@
     <section class="section" id="topup">
       <div class="wrap">
         <div class="section-head center reveal">
-          <span class="eyebrow">Token top-ups</span>
-          <h2>Need more tokens? Top up any time.</h2>
-          <p>Buy exactly what you need, on any plan. Top-up tokens are used after your plan's allowance, and they don't expire when your month renews.</p>
+          <span class="eyebrow">Buy Coins</span>
+          <h2>Need more Coins? Top up any time.</h2>
+          <p>Buy exactly what you need, on any plan. Top-up Coins are used after your plan's Coins, and they don't expire when your month renews.</p>
         </div>
         <div class="topup-packs" id="topup-packs"></div>
         <div class="topup-custom reveal" id="topup-custom">
           <div class="topup-custom-input">
             <label for="topup-amount">Custom amount</label>
-            <span class="hint" id="topup-hint">Any amount from 500,000 tokens.</span>
+            <span class="hint" id="topup-hint">Any amount from 500 Coins.</span>
             <div class="topup-field">
-              <input id="topup-amount" type="number" inputmode="decimal" min="0.5" step="0.1" value="1.5" aria-describedby="topup-hint">
-              <span>million tokens</span>
+              <input id="topup-amount" type="number" inputmode="numeric" min="500" step="100" value="1500" aria-describedby="topup-hint">
+              <span>Coins</span>
             </div>
-            <input id="topup-range" type="range" min="0.5" max="50" step="0.1" value="1.5" aria-label="Custom amount in millions of tokens">
+            <input id="topup-range" type="range" min="500" max="50000" step="100" value="1500" aria-label="Custom amount in Coins">
           </div>
           <div class="topup-bill" aria-live="polite">
-            <div class="row"><span>Tokens</span><b id="topup-tokens">1,500,000</b></div>
-            <div class="row"><span id="topup-rate">Price ($2.00 per million)</span><b id="topup-price">$3.00</b></div>
-            <div class="row"><span>Payment processing fee <i class="fee-why" title="Charged by our payment provider, Dodo Payments: 4% of the payment plus $0.40. It's added on top so the token price stays the same.">?</i></span><b id="topup-fee">$0.54</b></div>
+            <div class="row"><span>Coins</span><b id="topup-tokens">1,500</b></div>
+            <div class="row"><span id="topup-rate">Price ($2.00 per 1,000 Coins)</span><b id="topup-price">$3.00</b></div>
+            <div class="row"><span>Payment processing fee <i class="fee-why" title="Charged by our payment provider, Dodo Payments: 4% of the payment plus $0.40. It's added on top so the Coin price stays the same.">?</i></span><b id="topup-fee">$0.54</b></div>
             <div class="row total"><span>Total</span><b id="topup-total">$3.54</b></div>
-            <button class="btn btn-primary btn-block" type="button" id="topup-buy">Buy 1,500,000 tokens</button>
+            <button class="btn btn-primary btn-block" type="button" id="topup-buy">Buy 1,500 Coins</button>
             <p class="fine" id="topup-note">Valid for 12 months. Added to your account as soon as the payment goes through.</p>
           </div>
         </div>
@@ -335,28 +342,28 @@
             <div class="answer">Forge from 1.7.10, NeoForge from 1.20.2 and Fabric from 1.14.3 - up to the newest 26.x releases - plus plain datapacks. Every version you can pick has its own guides in the app's built-in reference library, checked against that version's real game and loader files, so a 1.12.2 Forge mod, a 1.20.1 Fabric mod and a 26.3 NeoForge mod each get the right names and APIs. The new-project screen shows only those versions, matched with the loader's live list of builds. <a href="about.html#versions">See every supported version</a>.</div>
           </details>
           <details>
-            <summary>What is a token, and what happens when I run out?</summary>
-            <div class="answer">Tokens measure how much text the AI reads and writes - what you send and what it answers both come out of the same allowance. Paid plans get a monthly allowance that renews on the date and time you subscribed; Free gets a small daily allowance that refills at 00:00 UTC. The app checks before every request and stops before it would go over, so nothing breaks half-way. Ran out early? Buy a top-up and keep going straight away.</div>
+            <summary>What are Coins, and what happens when I run out?</summary>
+            <div class="answer">Coins pay for the AI. Every request costs what the AI really used: the new text it reads, the project context it already has cached (much cheaper), and the answer it writes, including its reasoning - 1,000 Coins buy about $0.30 of AI work. The app shows an estimate before you send and the exact cost under every answer. Paid plans get a monthly Coin allowance that renews on the date and time you subscribed; Free gets 10 Coins a day that refill at 00:00 UTC. A request is never cut off half-way: if it costs a little more than you had left, your balance goes slightly below zero and that is paid from your next Coins. Then press Continue after a top-up or your renewal and the work picks up where it stopped.</div>
           </details>
           <details>
             <summary>How does the monthly allowance work?</summary>
-            <div class="answer">Your billing month starts the moment you subscribe and renews on the same date and time every month. Your first month comes with extra tokens (for example 3,000,000 on Builder instead of 2,000,000) - once per account. Each month after, the new allowance is added as soon as the renewal payment goes through. Unused plan tokens expire when the month renews and don't carry over.</div>
+            <div class="answer">Your billing month starts the moment you subscribe and renews on the same date and time every month. Your first month comes with extra Coins (for example 3,000 on Builder instead of 2,000) - once per account. Each month after, the new allowance is added as soon as the renewal payment goes through. Unused plan Coins expire when the month renews and don't carry over.</div>
           </details>
           <details>
-            <summary>How do token top-ups work?</summary>
-            <div class="answer">Pick a package or type any amount, and you'll see the price, the payment processing fee and the total before you pay. Top-up tokens are added to your account as soon as the payment goes through, are used only after your plan's allowance runs out, and stay valid for 12 months - they don't expire when your month renews. Every amount uses the same $2.00-per-million rate; the payment fee is 4% plus $0.40, so it's a smaller share of bigger top-ups.</div>
+            <summary>How do I buy more Coins?</summary>
+            <div class="answer">Pick a package or type any amount, and you'll see the price, the payment processing fee and the total before you pay. Top-up Coins are added to your account as soon as the payment goes through, are used only after your plan's Coins run out, and stay valid for 12 months - they don't expire when your month renews. Every amount uses the same $2.00 per 1,000 Coins rate; the payment fee is 4% plus $0.40, so it's a smaller share of bigger top-ups.</div>
           </details>
           <details>
             <summary>What can I do on the Free plan?</summary>
-            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10,000 new tokens a day, in the fast None thinking mode. Build &amp; Run, Texture Studio, Sounds and Recipes &amp; Loot are included from Builder up, Particles and the Version Converter from Pro, and 3D Studio with Studio. On Free you can still use Build &amp; Run and Texture Studio: watch one short ad on our website for one Build &amp; Run, or for five minutes of Texture Studio. The app itself never shows ads.</div>
+            <div class="answer">Use the Mod Assistant, the code editor and project setup with 10 Coins a day, in the fast None thinking mode. Build &amp; Run, Texture Studio, Sounds and Recipes &amp; Loot are included from Builder up, Particles and the Version Converter from Pro, and 3D Studio with Studio. On Free you can still use Build &amp; Run and Texture Studio: watch one short ad on our website for one Build &amp; Run, or for five minutes of Texture Studio. The app itself never shows ads.</div>
           </details>
           <details>
             <summary>What are thinking modes?</summary>
-            <div class="answer">They set how much the AI reasons before it answers. <b>None</b> answers straight away and uses the fewest tokens, great for questions and small edits. <b>Low</b> takes a quick think, <b>Normal</b> plans the change first, and <b>High</b> thinks it through and double-checks every file, for big systems and stubborn bugs. Free includes None, Builder adds Low and Normal, and Pro and Studio include all four, including High. Deeper modes use more tokens.</div>
+            <div class="answer">They set how much the AI reasons before it answers. <b>None</b> answers straight away and costs the fewest Coins, great for questions and small edits. <b>Low</b> takes a quick think, <b>Normal</b> plans the change first, and <b>High</b> thinks it through and double-checks every file, for big systems and stubborn bugs. Free includes None, Builder adds Low and Normal, and Pro and Studio include all four, including High. Deeper modes cost more Coins.</div>
           </details>
           <details>
             <summary>Can it move my mod to another loader or Minecraft version?</summary>
-            <div class="answer">Yes - with the Version Converter, included from the Pro plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.2 or newer and Fabric 1.14.3 or newer, up to the latest 26.x releases - every target version has verified guides the conversion is written from (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated tokens for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you - up to the number of repair rounds you choose, or until it compiles. Every converted version is also kept as a project: pick it in the Version list next to Run Mod to build and test it in the app, and use Export to save its .jar or project ZIP. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
+            <div class="answer">Yes - with the Version Converter, included from the Pro plan. Pick your mod's folder and it detects the loader and Minecraft version (you can correct them). It reads Forge, NeoForge, Fabric and Quilt mods of any version - including classics such as Forge 1.12.2 or 1.16.5 - and converts them to Forge 1.7.10 or newer, NeoForge 1.20.2 or newer and Fabric 1.14.3 or newer, up to the latest 26.x releases - every target version has verified guides the conversion is written from (Fabric builds also run on Quilt). Choose one or more targets, for example NeoForge 1.21.1 and Fabric 1.20.1, and you'll see the estimated Coins for each before anything is sent. Each version comes out as a ready-to-build ZIP made from the official template, with your code ported by the AI, your assets and data moved to the right places for that version, and a report of anything to check by hand. It can also compile each version and fix compile errors for you - up to the number of repair rounds you choose, or until it compiles. Every converted version is also kept as a project: pick it in the Version list next to Run Mod to build and test it in the app, and use Export to save its .jar or project ZIP. Your original folder is never changed. Only convert mods you own or whose licence allows it.</div>
           </details>
           <details>
             <summary>How do I get my mod file (.jar) to play or share?</summary>
@@ -375,12 +382,12 @@
             <div class="answer">Yes. On <b>Build &amp; Run</b>, open <b>Server settings</b>: you see the address for this PC and for your local network, and you can set the port, allow offline players (needed for the development client), add admins, and choose game mode, difficulty, PvP and more. Minecraft's own EULA is asked once - you agree to it yourself - and then <b>Run server</b> starts it. To let friends join over the internet, forward the port on your router.</div>
           </details>
           <details>
-            <summary>What does "new tokens" mean on Free?</summary>
-            <div class="answer">Every request re-sends your project's context, and most of it is text the AI read a moment ago - that part is cached. On Free, cached context doesn't count: only the new part of your request and the AI's answer use your 10,000 daily tokens. That's usually enough for a handful of real requests a day. Paid plans count everything - input and output tokens from one pool - which is why their allowances are much larger.</div>
+            <summary>Why do some requests cost more Coins than others?</summary>
+            <div class="answer">Every request re-sends your project's context, and most of it is text the AI read a moment ago - that part is cached and costs very little. New text costs more, and the answer the AI writes (and its thinking) costs the most, so a long new feature costs more than a quick question. Requests on weekdays between 01:00-04:00 and 06:00-10:00 UTC cost twice as much, because our AI provider charges more then. The app shows the estimate before you send and the exact Coins under every answer.</div>
           </details>
           <details>
             <summary>How many times does it try to fix a failing build?</summary>
-            <div class="answer">First the <b>Auto-Healer</b> tries, for free: before every build it checks your JSON files and mod id, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - up to 3 times without using any tokens, keeping a backup of each file it changes - it also fixes known crashes, like a mob's attributes registered twice. You always see who is working: a green <b>Auto-Healer</b> card and status bar (free) or an indigo <b>AI repair</b> one (uses tokens). Whatever is left goes to the assistant with the exact error lines and the real names from your Minecraft version. How many AI rounds it gets is up to you: in Settings &rarr; Assistant, set any number of attempts or switch on Unlimited, which keeps going until the build passes or your tokens run out. The Auto-Healer can be switched off there too.</div>
+            <div class="answer">First the <b>Auto-Healer</b> tries, for free: before every build it checks your JSON files and mod id, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - up to 3 times without using any Coins, keeping a backup of each file it changes - it also fixes known crashes, like a mob's attributes registered twice. You always see who is working: a green <b>Auto-Healer</b> card and status bar (free) or an indigo <b>AI repair</b> one (costs Coins). Whatever is left goes to the assistant with the exact error lines and the real names from your Minecraft version. How many AI rounds it gets is up to you: in Settings &rarr; Assistant, set any number of attempts or switch on Unlimited, which keeps going until the build passes or your Coins run out. The Auto-Healer can be switched off there too.</div>
           </details>
           <details>
             <summary>Who owns the mods I make?</summary>
@@ -419,10 +426,10 @@
   <footer data-site-footer></footer>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js?v=20261129"></script>
-  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/plans.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261204"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
-  <script src="assets/js/checkout.js?v=20261118b"></script>
-  <script src="assets/js/home.js?v=20261130"></script>
+  <script src="assets/js/checkout.js?v=20261204"></script>
+  <script src="assets/js/home.js?v=20261204"></script>
 </body>
 </html>

@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261201">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -114,11 +114,11 @@
           { "@type": "Question", "name": "Which mod loaders and Minecraft versions does MyCraftingAI support?",
             "acceptedAnswer": { "@type": "Answer", "text": "Forge (1.7.10 to 26.x), NeoForge (1.20.2 to 26.x) and Fabric (1.14.3 to 26.x) projects, plus datapacks. Every Minecraft version the app offers has its own verified, version-exact guides in the app's built-in reference library, so the AI writes code with the right names and APIs for that exact version. The Version Converter reads Forge, NeoForge, Fabric and Quilt mods of any version and converts them to any of those versions." } },
           { "@type": "Question", "name": "What happens when my mod doesn't compile?",
-            "acceptedAnswer": { "@type": "Answer", "text": "MyCraftingAI's Auto-Healer checks the mod's JSON files and mod id before every build, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - and known crashes by itself, without AI tokens. Only what is left goes to the AI, together with the exact error lines and the real class and method names of the project's Minecraft version. A green Auto-Healer card or an indigo AI repair card always shows who is fixing the mod." } },
+            "acceptedAnswer": { "@type": "Answer", "text": "MyCraftingAI's Auto-Healer checks the mod's JSON files and mod id before every build, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - and known crashes by itself, without spending Coins. Only what is left goes to the AI, together with the exact error lines and the real class and method names of the project's Minecraft version. A green Auto-Healer card or an indigo AI repair card always shows who is fixing the mod." } },
           { "@type": "Question", "name": "Can MyCraftingAI convert a 1.12.2 or 1.16.5 mod to 1.21.1?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Version Converter detects the mod's loader and version, ports the code and resources (including the 1.13 Flattening and the 1.21 data changes) to each target you choose and saves every version as a ready-to-build ZIP with a report. The token estimate is shown before it starts." } },
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Version Converter detects the mod's loader and version, ports the code and resources (including the 1.13 Flattening and the 1.21 data changes) to each target you choose and saves every version as a ready-to-build ZIP with a report. The Coin estimate is shown before it starts." } },
           { "@type": "Question", "name": "Is MyCraftingAI free?",
-            "acceptedAnswer": { "@type": "Answer", "text": "There is a free plan with 10,000 new tokens a day. Paid plans (Builder, Pro and Studio) add monthly token allowances and more tools; the Version Converter is included from Pro and 3D Studio with Studio." } }
+            "acceptedAnswer": { "@type": "Answer", "text": "There is a free plan with 10 Coins a day. Paid plans (Builder, Pro and Studio) add monthly Coin allowances and more tools; the Version Converter is included from Pro and 3D Studio with Studio." } }
         ]
       }
     ]
@@ -154,7 +154,7 @@
           <span class="eyebrow">What is MyCraftingAI?</span>
           <h2>A complete mod studio, driven by plain English.</h2>
           <p><b>MyCraftingAI is an advanced desktop application for Minecraft modders.</b> You describe what you want - "a ruby ore between Y -16 and 32 that drops one or two rubies", "a dragon that flaps its wings while flying" - and the app turns it into working mod code and assets for <b>Forge, NeoForge or Fabric</b>, with <b>GeckoLib</b> added automatically when your mod uses animated 3D entities.</p>
-          <p>It is built around real Minecraft development: projects start from the <b>official MDK and example-mod templates</b> and are renamed to your mod (smart project scaffolding), code is compiled with <b>Gradle</b>, and the right <b>Java</b> version is picked or downloaded for you. When a build fails, the built-in <b>Auto-Healer</b> repairs the common errors first - missing imports, renamed classes, known API changes between versions - without spending tokens, and only what is left goes to the AI. The app also tells setup problems (wrong Java, no internet) apart from code problems, so tokens are never spent "fixing" code that is fine.</p>
+          <p>It is built around real Minecraft development: projects start from the <b>official MDK and example-mod templates</b> and are renamed to your mod (smart project scaffolding), code is compiled with <b>Gradle</b>, and the right <b>Java</b> version is picked or downloaded for you. When a build fails, the built-in <b>Auto-Healer</b> repairs the common errors first - missing imports, renamed classes, known API changes between versions - without spending Coins, and only what is left goes to the AI. The app also tells setup problems (wrong Java, no internet) apart from code problems, so Coins are never spent "fixing" code that is fine.</p>
           <p>Every answer is grounded in a <b>version-exact reference library</b> that ships with the app: modding guides for each Forge, NeoForge, Fabric and Quilt release, checked against the real game and loader files of that version. The AI reads the guides for your project's exact version before it writes, and looks up any class it is unsure about in the middle of its answer.</p>
           <p>Beyond writing code, MyCraftingAI includes a <b>3D Studio</b> for GeckoLib models and animations, a <b>Texture Studio</b> with a pixel-art AI, and a <b>Version Converter</b> that ports existing mods across loaders and Minecraft versions - from classics such as <b>1.12.2 and 1.16.5 up to 1.21.1 and newer</b> - saving each result as a ready-to-build ZIP.</p>
         </div>
@@ -191,8 +191,8 @@
           <article class="ws-card">
             <div class="ws-top"><h3>Version Converter</h3><span class="tag studio">Studio plan</span></div>
             <p>Point it at a mod folder: it detects the loader and Minecraft version, ports the mod to every loader and version you pick, and saves each one as a ready-to-build ZIP with a conversion report.</p>
-            <ul><li>From Forge, NeoForge, Fabric and Quilt mods of any version</li><li>To Forge 1.7.10+, NeoForge 1.20.2+ and Fabric 1.14.3+ up to 26.x - every target with verified guides</li><li>Predictable token estimate before it starts; compile check with 1 to unlimited repair rounds</li><li>Every version kept as a project: pick it next to Run Mod and test it one by one</li></ul>
-            <img src="assets/img/version-converter.png?v=20261130" alt="MyCraftingAI Version Converter converting a mod to several loaders and Minecraft versions with a token estimate" loading="lazy" width="1920" height="1080">
+            <ul><li>From Forge, NeoForge, Fabric and Quilt mods of any version</li><li>To Forge 1.7.10+, NeoForge 1.20.2+ and Fabric 1.14.3+ up to 26.x - every target with verified guides</li><li>Predictable Coin estimate before it starts; compile check with 1 to unlimited repair rounds</li><li>Every version kept as a project: pick it next to Run Mod and test it one by one</li></ul>
+            <img src="assets/img/version-converter.png?v=20261130" alt="MyCraftingAI Version Converter converting a mod to several loaders and Minecraft versions with a Coin estimate" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Project Manager</h3><span class="tag">All plans</span></div>
@@ -202,8 +202,8 @@
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Build &amp; Run</h3><span class="tag">All plans</span></div>
-            <p>Compile with Gradle and launch the Minecraft development client in one click. The Auto-Healer fixes common errors first without tokens; what's left goes to the assistant, as many rounds as you allow, and a load check confirms the game really starts with your mod.</p>
-            <ul><li>Auto-Healer: JSON files, mod id, imports, version API changes and known crashes repaired before the AI is asked</li><li>Always clear who is fixing: green Auto-Healer (free) or indigo AI repair (uses tokens)</li><li>Right Java (8, 17, 21 or 25) chosen or downloaded automatically</li><li>Setup problems explained instead of sent to the AI</li><li>Test server with its addresses, port, admins and offline players</li><li>Export: the ready-to-play .jar or the project as a ZIP - one version or all</li></ul>
+            <p>Compile with Gradle and launch the Minecraft development client in one click. The Auto-Healer fixes common errors first without spending Coins; what's left goes to the assistant, as many rounds as you allow, and a load check confirms the game really starts with your mod.</p>
+            <ul><li>Auto-Healer: JSON files, mod id, imports, version API changes and known crashes repaired before the AI is asked</li><li>Always clear who is fixing: green Auto-Healer (free) or indigo AI repair (costs Coins)</li><li>Right Java (8, 17, 21 or 25) chosen or downloaded automatically</li><li>Setup problems explained instead of sent to the AI</li><li>Test server with its addresses, port, admins and offline players</li><li>Export: the ready-to-play .jar or the project as a ZIP - one version or all</li></ul>
             <img src="assets/img/build-run.png?v=20261130" alt="MyCraftingAI Build and Run page with the compile pipeline and game log" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
@@ -215,13 +215,13 @@
           <article class="ws-card">
             <div class="ws-top"><h3>Recipes &amp; Loot</h3><span class="tag">Builder and up</span></div>
             <p>A visual crafting table and loot-table builder. Pick your mod's items or any Minecraft item, click the slots, save - the files are written in the exact format of your Minecraft version.</p>
-            <ul><li>Shaped, shapeless, furnace, blast furnace, smoker, campfire and stonecutter recipes</li><li>Block drops with Silk Touch and Fortune, mob drops with Looting and chances</li><li>No code and no AI tokens needed</li></ul>
+            <ul><li>Shaped, shapeless, furnace, blast furnace, smoker, campfire and stonecutter recipes</li><li>Block drops with Silk Touch and Fortune, mob drops with Looting and chances</li><li>No code and no Coins needed</li></ul>
             <img src="assets/img/recipes.png?v=20261130" alt="MyCraftingAI Recipes and Loot page with a ruby sword crafting recipe" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Particles</h3><span class="tag studio">Studio plan</span></div>
             <p>Design particles, sword trails, shockwave rings, spirals, auras and explosions with a live preview, then attach them to an item, a mob or a projectile.</p>
-            <ul><li>Shape, sprite, colour and opacity fades, size, lifetime, physics and glow</li><li>Preview in real time without spending tokens</li><li>Connect to code registers the particle and spawns it for every player</li></ul>
+            <ul><li>Shape, sprite, colour and opacity fades, size, lifetime, physics and glow</li><li>Preview in real time without spending Coins</li><li>Connect to code registers the particle and spawns it for every player</li></ul>
             <img src="assets/img/particles.png?v=20261130" alt="MyCraftingAI Particles page with a glowing sword-swing trail in the live preview" loading="lazy" width="1920" height="1080">
           </article>
         </div>
@@ -289,7 +289,7 @@
         <div class="cta-box">
           <div>
             <h2>Start building your mod today.</h2>
-            <p style="margin-top:12px;color:var(--muted)">Free plan with 10,000 new tokens every day. The Version Converter is included from Pro, and 3D Studio with Studio.</p>
+            <p style="margin-top:12px;color:var(--muted)">Free plan with 10 Coins every day. The Version Converter is included from Pro, and 3D Studio with Studio.</p>
           </div>
           <div class="hero-cta" style="margin-top:22px">
             <a class="btn btn-primary btn-lg" href="download.html">Download for Windows</a>
@@ -304,8 +304,8 @@
   <footer data-site-footer></footer>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/plans.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261204"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
   <script src="assets/js/versions.js?v=20261127"></script>
 </body>

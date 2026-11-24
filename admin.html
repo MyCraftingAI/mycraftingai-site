@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261201">
   <link rel="stylesheet" href="assets/css/admin.css?v=20261118b">
 </head>
 <body data-page="admin">
@@ -35,7 +35,7 @@
       <button class="ad-nav" data-nav="ads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9 5 3-5 3z"/></svg>Ads &amp; unlocks</button>
       <button class="ad-nav" data-nav="revenue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 6.5c-.8-1.5-2.7-2.5-5-2.5-2.8 0-5 1.5-5 3.6 0 4.9 10 2.5 10 7.4 0 2.1-2.2 3.6-5 3.6-2.4 0-4.5-1.1-5.2-2.8"/></svg>Revenue</button>
       <button class="ad-nav" data-nav="pricing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Plans &amp; pricing<span class="ad-count" data-pricing-badge hidden></span></button>
-      <button class="ad-nav" data-nav="gifts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v7h14v-7M12 8v12"/><path d="M12 8c-1.5-3-5-3.5-5-1.2C7 8.5 10 8 12 8c2 0 5 .5 5-1.2C17 4.5 13.5 5 12 8z"/></svg>Token gifts</button>
+      <button class="ad-nav" data-nav="gifts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v7h14v-7M12 8v12"/><path d="M12 8c-1.5-3-5-3.5-5-1.2C7 8.5 10 8 12 8c2 0 5 .5 5-1.2C17 4.5 13.5 5 12 8z"/></svg>Coin gifts</button>
       <button class="ad-nav" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.4.2 4 1.8 4.6 4.5"/></svg>Users<span class="ad-count" data-count-users>–</span></button>
       <button class="ad-nav" data-nav="messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Messages</button>
       <button class="ad-nav" data-nav="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>Community<span class="ad-count warn" data-cm-badge hidden></span></button>
@@ -72,11 +72,11 @@
         <div class="ad-grid ad-two">
           <div class="ad-card">
             <div class="ad-inline" style="justify-content:space-between">
-              <div><h3>Token usage</h3><p class="ad-sub" style="margin:0">Billable tokens and requests per day (UTC)</p></div>
+              <div><h3>Coins spent</h3><p class="ad-sub" style="margin:0">Coins charged for AI and requests per day (UTC)</p></div>
               <div class="ad-seg" data-range><button data-days="7">7d</button><button data-days="30" class="on">30d</button><button data-days="90">90d</button></div>
             </div>
             <div class="ad-chart" data-chart-tokens></div>
-            <div class="ad-legend"><span><i style="background:#4f63f5"></i>Tokens</span><span><i style="background:#3dd68c"></i>Users who used AI</span></div>
+            <div class="ad-legend"><span><i style="background:#4f63f5"></i>Coins</span><span><i style="background:#3dd68c"></i>Users who used AI</span></div>
           </div>
           <div class="ad-card">
             <h3>Plans</h3><p class="ad-sub">Who's on what right now</p>
@@ -134,7 +134,7 @@
             <div class="ad-rows" data-ins-features style="margin-top:12px"></div>
           </div>
           <div class="ad-card">
-            <h3>Top AI users (7 days)</h3><p class="ad-sub">Most billable tokens · click to open</p>
+            <h3>Top AI users (7 days)</h3><p class="ad-sub">Most Coins spent · click to open</p>
             <div class="ad-rows" data-ins-top></div>
           </div>
         </div>
@@ -188,11 +188,11 @@
         <div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Price</th><th>Renews / ends</th><th>Started</th></tr></thead><tbody data-rev-subs></tbody></table></div>
       </section>
 
-      <!-- Token gifts -->
+      <!-- Coin gifts -->
       <section class="ad-view" data-view="gifts" hidden>
         <div class="ad-head">
           <button class="ad-menu" data-menu aria-label="Menu">☰</button>
-          <div><h1>Token gifts</h1><p>Give extra AI tokens to everyone, to plans or to chosen people - for a while or with no end.</p></div>
+          <div><h1>Coin gifts</h1><p>Give extra Coins to everyone, to plans or to chosen people - for a while or with no end.</p></div>
         </div>
         <div class="ad-grid ad-kpis" data-gift-kpis></div>
         <div class="ad-grid ad-cols2" style="margin-top:14px">
@@ -283,7 +283,7 @@
       <section class="ad-view" data-view="pricing" hidden>
         <div class="ad-head">
           <button class="ad-menu" data-menu aria-label="Menu">☰</button>
-          <div><h1>Plans &amp; pricing</h1><p>Prices, token allowances, features, thinking limits and token top-ups. Saved changes reach the website, the server and every open app within seconds.</p></div>
+          <div><h1>Plans &amp; pricing</h1><p>Prices, Coin allowances, features, thinking limits, Coin top-ups and the AI cost of a Coin. Saved changes reach the website, the server and every open app within seconds.</p></div>
           <div class="ad-grow"></div>
           <button class="btn btn-ghost btn-sm" data-pr-reset>Reset to built-in</button>
           <button class="btn btn-primary btn-sm" data-pr-save disabled>Save changes</button>
@@ -293,9 +293,10 @@
           product in the Dodo Payments dashboard too - this page changes what the website and app show, Dodo changes what is charged.
           Top-up prices are charged exactly as computed here: total = (base price + fixed fee) / (1 − fee %), so the base price is what you keep.
         </div>
+        <div data-pr-notice></div>
         <div data-pr><div class="ad-skel"></div></div>
         <div class="ad-card" data-pr-sales>
-          <h3>Top-up sales</h3><p class="ad-sub">Token top-ups bought on the website (refunded orders excluded).</p>
+          <h3>Top-up sales</h3><p class="ad-sub">Coin top-ups bought on the website (refunded orders excluded).</p>
           <div data-pr-sales-body><div class="ad-skel"></div></div>
         </div>
       </section>
@@ -317,7 +318,7 @@
           <select class="ad-select" data-sort>
             <option value="new">Newest first</option>
             <option value="active">Recently active</option>
-            <option value="usage">Most tokens today</option>
+            <option value="usage">Most Coins spent today</option>
             <option value="old">Oldest first</option>
             <option value="email">Email A–Z</option>
           </select>
@@ -343,7 +344,7 @@
           <button class="btn btn-sm" data-bulk-act="set_plan">Change plan</button>
           <button class="btn btn-sm" data-bulk-act="sign_out">Sign out everywhere</button>
           <button class="btn btn-sm" data-bulk-act="email">Email them</button>
-          <button class="btn btn-sm" data-bulk-act="gift">Give tokens</button>
+          <button class="btn btn-sm" data-bulk-act="gift">Give Coins</button>
           <span class="ad-grow" style="flex:1"></span>
           <button class="btn btn-ghost btn-sm" data-bulk-clear>Clear</button>
         </div>
@@ -421,11 +422,12 @@
             <option value="pause_ai">AI paused</option>
             <option value="resume_ai">AI resumed</option>
             <option value="set_plan">Plan changes</option>
-            <option value="bonus_tokens">Bonus tokens</option>
-            <option value="bonus_removed">Bonus tokens removed</option>
-            <option value="token_gift">Token gifts</option>
-            <option value="token_gift_end">Token gifts ended</option>
-            <option value="token_gift_delete">Token gifts removed</option>
+            <option value="bonus_tokens">Bonus Coins</option>
+            <option value="bonus_removed">Bonus Coins removed</option>
+              <option value="clear_debt">Owed Coins forgiven</option>
+            <option value="token_gift">Coin gifts</option>
+            <option value="token_gift_end">Coin gifts ended</option>
+            <option value="token_gift_delete">Coin gifts removed</option>
             <option value="daily_limit">Daily limits</option>
             <option value="set_active">Account enable/disable</option>
             <option value="delete_user">Deletions</option>
@@ -524,10 +526,10 @@
   </div>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/plans.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261204"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
-  <script src="assets/js/admin.js?v=20261118b"></script>
+  <script src="assets/js/admin.js?v=20261205"></script>
   <script src="assets/js/admin-community.js?v=20261118b"></script>
 </body>
 </html>

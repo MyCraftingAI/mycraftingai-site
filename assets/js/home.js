@@ -1,4 +1,4 @@
-/* Home page interactions: pixel workbench, example runs, app tour, token calculator, pricing. */
+/* Home page interactions: pixel workbench, example runs, app tour, Coin calculator, pricing. */
 (function () {
   "use strict";
 
@@ -484,7 +484,7 @@
         "Wrote block/CopperLampBlock.java",
         "Wrote blockstates/copper_lamp.json",
         "Painted lamp textures: off and lit",
-        "Auto-Healer added a missing import - no tokens used",
+        "Auto-Healer added a missing import - no Coins used",
         "Compiled with Gradle",
         "Launched the game - mod loaded"
       ],
@@ -612,13 +612,94 @@
     if (!Array.isArray(features)) {
       features = Object.keys(features).map(function (id) { return { id: id, label: features[id] }; });
     }
-    return { plans: data.plans || [], features: features, topup: data.topup || {} };
+    return { plans: data.plans || [], features: features, topup: data.topup || {}, yearly: data.yearly || null,
+             coins: data.coins || null };
   }
   DATA = normalise(DATA);
   function planById(id) { return DATA.plans.filter(function (p) { return p.id === id; })[0]; }
   function money(cents) { return "$" + (Math.round(cents) / 100).toFixed(2); }
   function esc(text) { return window.MCA.escapeHtml(String(text == null ? "" : text)); }
-  function monthlyOf(plan) { return plan.period === "month" ? plan.monthlyTokens : null; }
+  function monthlyOf(plan) { return plan.period === "month" ? plan.monthlyCoins : null; }
+  function dollars(value) { return "$" + Number(value).toFixed(2); }
+  /** ``2,000`` / ``26,400`` / ``12.5`` - an amount of Coins. */
+  function coinsFmt(n) { return Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+
+  /* ================================================== yearly billing */
+  /* Yearly = monthly price x 12, minus the yearly discount (10%), with the 12
+     months of Coins plus a bonus (10%). The live catalogue sends the server's
+     own terms per plan (``plan.yearly``, null when it's off); the built-in
+     plans.js copy is priced here with the same rule. */
+  var BILLING = "month";
+  try {
+    if (/[?&]billing=year/.test(location.search) || localStorage.getItem("mca.billing") === "year") BILLING = "year";
+  } catch (e) { /* storage blocked: monthly */ }
+
+  function yearlyConfig() {
+    var y = DATA.yearly || {};
+    return { enabled: y.enabled !== false,
+             discountPercent: y.discountPercent != null ? Number(y.discountPercent) : 10,
+             bonusCoinsPercent: y.bonusCoinsPercent != null ? Number(y.bonusCoinsPercent) : 10 };
+  }
+  function yearlyOf(plan) {
+    if (!plan || plan.period !== "month" || !plan.price) return null;
+    if (plan.yearly !== undefined) return plan.yearly;
+    var y = yearlyConfig();
+    if (!y.enabled) return null;
+    var fullCents = Math.round(plan.price * 100) * 12;
+    var priceCents = Math.round(fullCents * (100 - y.discountPercent) / 100);
+    var baseCoins = plan.monthlyCoins * 12;
+    var coins = Math.round(baseCoins * (100 + y.bonusCoinsPercent) / 100);
+    return { price: priceCents / 100, priceCents: priceCents, fullPriceCents: fullCents,
+             savingsCents: fullCents - priceCents, discountPercent: y.discountPercent,
+             perMonthCents: Math.round(priceCents / 12), coins: coins, baseCoins: baseCoins,
+             bonusCoins: coins - baseCoins, bonusCoinsPercent: y.bonusCoinsPercent };
+  }
+  function yearlyAvailable() { return DATA.plans.some(function (p) { return !!yearlyOf(p); }); }
+  /** The billing period the visitor is looking at: "month" or "year". */
+  function billing() { return BILLING === "year" && yearlyAvailable() ? "year" : "month"; }
+  /** The plan's yearly terms while yearly billing is shown, else null. */
+  function shownYearly(plan) { return billing() === "year" ? yearlyOf(plan) : null; }
+  function pct(n) { return String(Math.round(Number(n) * 10) / 10); }
+
+  function syncBillingToggle() {
+    var box = $("#billing-toggle");
+    var current = billing();
+    if (box) {
+      box.hidden = !yearlyAvailable();
+      $$("[data-billing]", box).forEach(function (b) {
+        var on = b.dataset.billing === current;
+        b.setAttribute("aria-checked", on ? "true" : "false");
+        b.tabIndex = on ? 0 : -1;
+      });
+      var first = DATA.plans.map(yearlyOf).filter(Boolean)[0];
+      var save = $("#billing-save");
+      if (save && first) save.textContent = "Save " + pct(first.discountPercent) + "%";
+    }
+    $$("#billing-facts [data-for]").forEach(function (el) { el.hidden = el.dataset.for !== current; });
+  }
+  function setBilling(value) {
+    BILLING = value === "year" ? "year" : "month";
+    try { localStorage.setItem("mca.billing", BILLING); } catch (e) { /* not remembered */ }
+    renderPlans();
+    renderCompare();
+    applyPromo();
+    if (calcUpdate) calcUpdate();
+  }
+  function billingToggle() {
+    var box = $("#billing-toggle");
+    if (!box) return;
+    box.addEventListener("click", function (e) {
+      var button = e.target.closest("[data-billing]");
+      if (button) setBilling(button.dataset.billing);
+    });
+    box.addEventListener("keydown", function (e) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].indexOf(e.key) < 0) return;
+      e.preventDefault();
+      setBilling(billing() === "year" ? "month" : "year");
+      var on = $('[aria-checked="true"]', box);
+      if (on) on.focus();
+    });
+  }
 
   /** Customer price that leaves ``priceCents`` after Dodo's fee: (base + fixed) / (1 - percent), half-up. */
   function grossCents(priceCents, t) {
@@ -630,60 +711,69 @@
   }
 
   /** Same formula as the server (app/core/plans.py quote): pack price if it matches, else the base rate. */
-  function quote(tokens) {
+  function quote(coins) {
     var t = DATA.topup;
-    var baseCents = Math.round(tokens / 1e6 * Math.round(t.pricePerMillion * 100));
-    var pack = (t.packs || []).filter(function (p) { return Number(p.tokens) === tokens; })[0];
+    var baseCents = Math.round(coins / 1000 * Math.round(t.pricePer1000Coins * 100));
+    var pack = (t.packs || []).filter(function (p) { return Number(p.coins) === coins; })[0];
     if (pack && pack.totalCents != null) {  // the live catalogue sends the server's own quote
-      return { tokens: tokens, baseCents: pack.baseCents, priceCents: pack.priceCents, feeCents: pack.feeCents,
+      return { coins: coins, baseCents: pack.baseCents, priceCents: pack.priceCents, feeCents: pack.feeCents,
                totalCents: pack.totalCents, discount: pack.discountPercent || 0 };
     }
     var priceCents = pack ? (pack.priceCents != null ? pack.priceCents : Math.round(pack.price * 100)) : baseCents;
     var feeCents = grossCents(priceCents, t) - priceCents;
     var saved = Math.max(0, baseCents - priceCents);
-    return { tokens: tokens, baseCents: baseCents, priceCents: priceCents, feeCents: feeCents,
+    return { coins: coins, baseCents: baseCents, priceCents: priceCents, feeCents: feeCents,
              totalCents: priceCents + feeCents, discount: baseCents && saved ? Math.round(saved * 100 / baseCents) : 0 };
   }
 
   /* ====================================================== calculator */
+  /* Coins a request costs: its real AI cost (server rates, off-peak) for a typical
+     request of each size - most of the project context is cached (cheap); the
+     answer is what costs. */
   var calcUpdate = null;
+  function requestCoins(inputTokens, outputTokens) {
+    var rates = (DATA.coins && DATA.coins.coinsPerMillionTokens && DATA.coins.coinsPerMillionTokens.offPeak) ||
+      { cacheHit: 10, cacheMiss: 500, output: 2000 };
+    var cached = inputTokens * 0.65;
+    return ((inputTokens - cached) * rates.cacheMiss + cached * rates.cacheHit + outputTokens * rates.output) / 1e6;
+  }
   function calculator() {
     var req = $("#c-requests");
     if (!req) return;
     var tex = $("#c-textures"), size = $("#c-size"), days = $("#c-days");
-    var PER_REQUEST = { 1: 9000, 2: 16000, 3: 28000 };
+    // Typical requests in our test projects: [input tokens, output tokens].
+    var PER_REQUEST = { 1: [7000, 2000], 2: [12000, 4000], 3: [20000, 8000] };
     var SIZE_NAMES = { 1: "Small", 2: "Medium", 3: "Large" };
-    var PER_TEXTURE = 7000;
-    var UNCACHED = 0.35; // share of a request that is new (not cached) in our test runs
+    var PER_TEXTURE = [2000, 5000];
 
     function update() {
       req.nextElementSibling.textContent = req.value;
       tex.nextElementSibling.textContent = tex.value;
       size.nextElementSibling.textContent = SIZE_NAMES[size.value];
       if (days) days.nextElementSibling.textContent = days.value;
-      var perDay = Number(req.value) * PER_REQUEST[size.value] + Number(tex.value) * PER_TEXTURE;
-      perDay = Math.round(perDay * 1.15 / 1000) * 1000; // + room for automatic build fixes
-      var month = perDay * Number(days ? days.value : 10);
-      $("#c-total").textContent = month.toLocaleString("en-US");
+      var r = PER_REQUEST[size.value];
+      var perDay = Number(req.value) * requestCoins(r[0], r[1]) + Number(tex.value) * requestCoins(PER_TEXTURE[0], PER_TEXTURE[1]);
+      perDay = Math.round(perDay * 1.15 * 10) / 10; // + room for automatic build fixes
+      var month = Math.round(perDay * Number(days ? days.value : 10));
+      $("#c-total").textContent = coinsFmt(month);
       var needsTextures = Number(tex.value) > 0;
       var free = planById("free");
       var paid = DATA.plans.filter(function (p) { return p.period === "month" && p.price; })
         .sort(function (a, b) { return a.price - b.price; });
       var meter = $("#c-meter"), fit = null, share = 0, label = "";
-      var freeDaily = free && free.dailyTokens ? Math.round(perDay * UNCACHED / 1000) * 1000 : Infinity;
-      if (free && free.dailyTokens && !needsTextures && freeDaily <= free.dailyTokens) {
+      if (free && free.dailyCoins && !needsTextures && perDay <= free.dailyCoins) {
         fit = free;
-        share = freeDaily / free.dailyTokens * 100;
-        label = "~" + freeDaily.toLocaleString("en-US") + " new tokens a modding day - " + Math.round(share) +
-          "% of Free's " + fmt(free.dailyTokens) + " (cached context is free)";
+        share = perDay / free.dailyCoins * 100;
+        label = "~" + coinsFmt(perDay) + " Coins a modding day - " + Math.round(share) +
+          "% of Free's " + coinsFmt(free.dailyCoins) + " Coins a day";
       } else {
         fit = paid.filter(function (p) {
           return monthlyOf(p) >= month && (!needsTextures || p.features.indexOf("textures") !== -1);
         })[0] || null;
         if (fit) {
           share = month / monthlyOf(fit) * 100;
-          label = Math.round(share) + "% of " + fit.name + "'s " + fmt(monthlyOf(fit)) + " monthly tokens" +
-            (fit.firstMonthTokens ? " (" + fmt(fit.firstMonthTokens) + " in your first month)" : "");
+          label = Math.round(share) + "% of " + fit.name + "'s " + coinsFmt(monthlyOf(fit)) + " monthly Coins" +
+            (fit.firstMonthCoins ? " (" + coinsFmt(fit.firstMonthCoins) + " in your first month)" : "");
         }
       }
       if (fit) {
@@ -691,13 +781,15 @@
         meter.style.width = share + "%";
         meter.style.background = share > 85 ? "var(--amber)" : "var(--accent)";
         $("#c-meter-label").textContent = label;
-        $("#c-plan").textContent = fit.name + (fit.price ? " · $" + fit.price.toFixed(2) : "");
+        var fitYear = shownYearly(fit);
+        $("#c-plan").textContent = fit.name + (fitYear ? " · " + dollars(fitYear.price) + "/yr"
+          : fit.price ? " · " + dollars(fit.price) : "");
         $("#c-cta").textContent = fit.price ? "See " + fit.name : "Start free";
         $("#c-cta").href = fit.price ? "#plan-" + fit.id : "signup.html";
       } else {
         meter.style.width = "100%";
         meter.style.background = "var(--ruby)";
-        $("#c-meter-label").textContent = "More than our biggest standard plan - add a top-up, or talk to us";
+        $("#c-meter-label").textContent = "More than our biggest standard plan - add Coins, or talk to us";
         $("#c-plan").textContent = "Enterprise";
         $("#c-cta").textContent = "Talk to us";
         $("#c-cta").href = "#plan-enterprise";
@@ -710,9 +802,10 @@
 
   /* ===================================================== promotions */
   /** The admin's running promotion for ``planId`` (Live settings), or null. */
-  function activePromo(planId) {
+  function activePromo(planId, yearly) {
     var promo = window.MCA && window.MCA.look && window.MCA.look.promotion;
     if (!promo || !promo.plans) return null;
+    if (yearly && promo.yearly === false) return null;  // this sale is for monthly billing only
     var spec = Array.isArray(promo.plans)  // older one-discount shape
       ? (promo.plans.indexOf(planId) >= 0 && promo.code ? { percent: promo.percent, code: promo.code } : null)
       : promo.plans[planId];
@@ -722,28 +815,32 @@
   }
   function salePrice(price, promo) { return Math.round(price * (100 - promo.percent)) / 100; }
 
-  /** Show sale prices on the cards and in the table (or restore normal prices). */
+  /** Show sale prices on the cards and in the table (or restore normal prices) for the shown billing period. */
   function applyPromo() {
+    syncBillingToggle();
     DATA.plans.forEach(function (plan) {
       var card = document.getElementById("plan-" + plan.id);
       if (!card || !plan.price) return;
-      var promo = activePromo(plan.id);
+      var year = shownYearly(plan);
+      var price = year ? year.price : plan.price, unit = year ? "/ year" : "/ month";
+      var promo = activePromo(plan.id, !!year);
       var priceBox = card.querySelector(".price");
       var badge = card.querySelector(".sale"), note = card.querySelector(".promo-note");
       if (badge) badge.remove();
       if (note) note.remove();
       if (!promo) {
-        priceBox.innerHTML = "<b>$" + plan.price.toFixed(2) + "</b><span>/ month</span>";
+        priceBox.innerHTML = "<b>" + dollars(price) + "</b><span>" + unit + "</span>";
         return;
       }
-      priceBox.innerHTML = "<s>$" + plan.price.toFixed(2) + "</s><b>$" + salePrice(plan.price, promo).toFixed(2) + "</b><span>/ month</span>";
+      priceBox.innerHTML = "<s>" + dollars(price) + "</s><b>" + dollars(salePrice(price, promo)) + "</b><span>" + unit + "</span>";
       badge = document.createElement("span");
       badge.className = "sale";
       badge.textContent = promo.percent + "% off";
       card.appendChild(badge);
       note = document.createElement("p");
       note.className = "promo-note";
-      var span = promo.months ? (promo.months === 1 ? " for your first month" : " for your first " + promo.months + " months") : "";
+      var span = year ? (promo.months ? " on your first year" : "")
+        : promo.months ? (promo.months === 1 ? " for your first month" : " for your first " + promo.months + " months") : "";
       note.innerHTML = esc(promo.label) + " &middot; " + promo.percent + "% off" + esc(span) +
         ", applied automatically at checkout" + (promo.terms ? " &middot; " + esc(promo.terms) : "");
       card.querySelector(".tokens").insertAdjacentElement("afterend", note);
@@ -751,42 +848,60 @@
     $$("[data-compare-price]").forEach(function (td) {
       var plan = planById(td.dataset.comparePrice);
       if (!plan || !plan.price) return;
-      var promo = activePromo(plan.id);
-      td.innerHTML = promo ? "<s>$" + plan.price.toFixed(2) + "</s> $" + salePrice(plan.price, promo).toFixed(2)
-        : "$" + plan.price.toFixed(2);
+      var year = shownYearly(plan);
+      var price = year ? year.price : plan.price, unit = year ? "/yr" : "/mo";
+      var promo = activePromo(plan.id, !!year);
+      td.innerHTML = promo ? "<s>" + dollars(price) + "</s> " + dollars(salePrice(price, promo)) + unit
+        : dollars(price) + unit;
     });
   }
   document.addEventListener("mca:look", applyPromo);
 
   /* ========================================================= pricing */
   function tokenLine(plan) {
+    var year = shownYearly(plan);
+    if (year) {
+      return "<b>" + coinsFmt(year.coins) + "</b> Coins for 12 months<br><span class=\"bonus\">incl. +" +
+        pct(year.bonusCoinsPercent) + "% yearly bonus (" + coinsFmt(year.bonusCoins) + " extra)</span>";
+    }
     if (plan.period === "month") {
-      return "<b>" + fmt(plan.firstMonthTokens) + "</b> tokens first month<br><b>" + fmt(plan.monthlyTokens) +
+      return "<b>" + coinsFmt(plan.firstMonthCoins) + "</b> Coins first month<br><b>" + coinsFmt(plan.monthlyCoins) +
         "</b> / month after";
     }
-    if (plan.period === "day" && plan.dailyTokens) return "<b>" + fmt(plan.dailyTokens) + "</b> new tokens / day";
-    return "Allowances set with you";
+    if (plan.period === "day" && plan.dailyCoins) return "<b>" + coinsFmt(plan.dailyCoins) + "</b> Coins / day";
+    return "Coin allowances set with you";
   }
 
   function renderPlans() {
     var host = $("#pricing-cards");
     if (!host) return;
     host.innerHTML = DATA.plans.map(function (plan) {
+      var year = shownYearly(plan);
       var price = plan.price === null || plan.price === undefined ? "<b>Custom</b>"
+        : year ? "<b>" + dollars(year.price) + "</b><span>/ year</span>"
         : "<b>$" + (plan.price ? plan.price.toFixed(2) : "0") + "</b><span>/ month</span>";
+      var billed = year ? '<div class="billed">' + money(year.perMonthCents) + " / month, billed " + dollars(year.price) +
+        ' every 12 months<br><span class="saving">Save ' + money(year.savingsCents) + " (" + pct(year.discountPercent) +
+        "%) vs monthly</span></div>" : "";
       var cta;
       if (plan.id === "free") cta = '<a class="btn btn-block" href="signup.html">Start free</a>';
       else if (plan.contact || plan.price === null) cta = '<a class="btn btn-block" href="#" data-contact>Contact sales</a>';
       else cta = '<button class="btn btn-block ' + (plan.popular ? "btn-primary" : "") + '" type="button" data-checkout="' +
-        esc(plan.id) + '">Choose ' + esc(plan.name) + "</button>";
-      var items = (plan.highlights || []).map(function (h) {
+        esc(plan.id) + '" data-interval="' + (year ? "year" : "month") + '">Choose ' + esc(plan.name) +
+        (year ? " yearly" : "") + "</button>";
+      var highlights = plan.highlights || [];
+      if (year) {  // the monthly allowance lines don't apply: one allowance for the whole year
+        highlights = [coinsFmt(year.coins) + " Coins for the year, ready from day one"]
+          .concat(highlights.filter(function (h) { return !/\b(first month|every month|per month|a month)\b/i.test(h); }));
+      }
+      var items = highlights.map(function (h) {
         var no = /\b(locked|not included)\b/i.test(h);
         return "<li" + (no ? ' class="no"' : "") + ">" + esc(h) + "</li>";
       }).join("");
       return '<article class="plan reveal' + (plan.popular ? " popular" : "") + '" id="plan-' + esc(plan.id) + '">' +
         (plan.popular ? '<span class="tag">MOST PICKED</span>' : "") +
         "<h3>" + esc(plan.name) + '</h3><p class="tagline">' + esc(plan.tagline) + "</p>" +
-        '<div class="price">' + price + '</div><div class="tokens">' + tokenLine(plan) + "</div>" +
+        '<div class="price">' + price + "</div>" + billed + '<div class="tokens">' + tokenLine(plan) + "</div>" +
         "<ul>" + items + "</ul>" + cta + "</article>";
     }).join("");
     $$(".plan.reveal", host).forEach(function (el, i) { setTimeout(function () { el.classList.add("in"); }, 80 * i); });
@@ -826,30 +941,48 @@
         cells.join("") + "</tr>";
     }
     function group(title) { return '<tr class="grp"><th colspan="' + (plans.length + 1) + '" scope="colgroup">' + esc(title) + "</th></tr>"; }
+    var yearly = billing() === "year";
     var head = "<thead><tr><th scope=\"col\"><span class=\"sr\">Feature</span></th>" + plans.map(function (p) {
-      var price = p.price === null || p.price === undefined ? "Custom" : (p.price ? "$" + p.price.toFixed(2) + "/mo" : "Free");
+      var year = shownYearly(p);
+      var price = p.price === null || p.price === undefined ? "Custom"
+        : year ? dollars(year.price) + "/yr" : (p.price ? "$" + p.price.toFixed(2) + "/mo" : "Free");
       return '<th scope="col"' + (p.popular ? ' class="pop"' : "") + "><b>" + esc(p.name) + "</b><span" +
         (p.price ? ' data-compare-price="' + esc(p.id) + '"' : "") + ">" + price + "</span></th>";
     }).join("") + "</tr></thead>";
 
-    var body = group("Tokens");
-    body += row("Tokens in your first month", plans.map(function (p) {
-      if (p.period === "month") return '<td class="mono">' + fmt(p.firstMonthTokens) + "</td>";
-      if (p.period === "day") return '<td class="mono">' + fmt(p.dailyTokens) + " / day</td>";
-      return "<td>Custom</td>";
-    }), "Once per account");
-    body += row("Tokens every month after", plans.map(function (p) {
-      if (p.period === "month") return '<td class="mono">' + fmt(p.monthlyTokens) + "</td>";
-      if (p.period === "day") return '<td class="mono">' + fmt(p.dailyTokens) + " / day</td>";
-      return "<td>Custom</td>";
-    }));
+    var body = group("Coins");
+    if (yearly) {
+      var bonus = (DATA.plans.map(yearlyOf).filter(Boolean)[0] || {}).bonusCoinsPercent;
+      body += row("Coins for 12 months", plans.map(function (p) {
+        var year = yearlyOf(p);
+        if (year) return '<td class="mono">' + coinsFmt(year.coins) + "</td>";
+        if (p.period === "day") return '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>";
+        return "<td>Custom</td>";
+      }), "Ready from day one");
+      body += row("Yearly bonus", plans.map(function (p) {
+        var year = yearlyOf(p);
+        return year ? '<td class="mono">+' + coinsFmt(year.bonusCoins) + "</td>" : NO;
+      }), bonus != null ? "+" + pct(bonus) + "% on top of 12 months" : "");
+    } else {
+      body += row("Coins in your first month", plans.map(function (p) {
+        if (p.period === "month") return '<td class="mono">' + coinsFmt(p.firstMonthCoins) + "</td>";
+        if (p.period === "day") return '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>";
+        return "<td>Custom</td>";
+      }), "Once per account");
+      body += row("Coins every month after", plans.map(function (p) {
+        if (p.period === "month") return '<td class="mono">' + coinsFmt(p.monthlyCoins) + "</td>";
+        if (p.period === "day") return '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>";
+        return "<td>Custom</td>";
+      }));
+    }
     body += row("Allowance renews", plans.map(function (p) {
-      return "<td>" + (p.period === "month" ? "Monthly, on your billing date" : p.period === "day" ? "Daily, 00:00 UTC" : "As agreed") + "</td>";
+      var monthly = yearly && yearlyOf(p) ? "Yearly, on your billing date" : "Monthly, on your billing date";
+      return "<td>" + (p.period === "month" ? monthly : p.period === "day" ? "Daily, 00:00 UTC" : "As agreed") + "</td>";
     }));
-    body += row("Input & output share one pool", plans.map(function () { return YES; }));
-    body += row("Cached project context counts", plans.map(function (p) { return p.countsCached === false ? "<td>Free (not counted)</td>" : YES; }));
-    body += row("Unused tokens roll over", plans.map(function () { return NO; }));
-    body += row("Token top-ups", plans.map(function () { return DATA.topup.enabled === false ? NO : YES; }), "Never expire with the month");
+    body += row("Pay only for what the AI uses", plans.map(function () { return YES; }),
+      "Cached project context costs a fraction of new input");
+    body += row("Unused Coins roll over", plans.map(function () { return NO; }));
+    body += row("Coin top-ups", plans.map(function () { return DATA.topup.enabled === false ? NO : YES; }), "Never expire with the month");
 
     body += group("AI");
     body += row("Thinking modes", plans.map(function (p) {
@@ -883,9 +1016,12 @@
       if (!button) return;
       var id = button.dataset.checkout;
       var plan = planById(id);
+      var interval = button.dataset.interval === "year" ? "year" : "month";
       if (!window.MCA.checkout) return;
-      window.MCA.checkout.plan(id, { label: plan ? plan.name : "", back: "index.html#plan-" + id });
+      window.MCA.checkout.plan(id, { label: plan ? plan.name + (interval === "year" ? " (yearly)" : "") : "",
+                                     back: "index.html#plan-" + id, interval: interval });
     });
+    billingToggle();
     applyPromo();  // a promotion that was already known before the cards existed
   }
 
@@ -898,26 +1034,26 @@
 
     function limits() {
       var t = DATA.topup;
-      return { min: (t.minTokens || 500000) / 1e6, max: (t.maxTokens || 1e8) / 1e6, step: (t.stepTokens || 100000) / 1e6 };
+      return { min: t.minCoins || 500, max: t.maxCoins || 100000, step: t.stepCoins || 100 };
     }
-    function tokensFromInput() {
+    function coinsFromInput() {
       var l = limits();
-      var millions = Number(String(amount.value).replace(",", "."));
-      if (!isFinite(millions) || millions <= 0) millions = l.min;
-      millions = Math.min(l.max, Math.max(l.min, Math.round(millions / l.step) * l.step));
-      return Math.round(millions * 1e6);
+      var value = Number(String(amount.value).replace(/[,\s]/g, ""));
+      if (!isFinite(value) || value <= 0) value = l.min;
+      value = Math.min(l.max, Math.max(l.min, Math.round(value / l.step) * l.step));
+      return Math.round(value);
     }
     function renderBill() {
-      var tokens = tokensFromInput();
-      var q = quote(tokens);
+      var coins = coinsFromInput();
+      var q = quote(coins);
       var t = DATA.topup;
-      $("#topup-tokens").textContent = tokens.toLocaleString("en-US");
-      $("#topup-rate").textContent = q.discount ? "Package price (" + q.discount + "% off)" : "Price (" + money(t.pricePerMillion * 100) + " per million)";
+      $("#topup-tokens").textContent = coinsFmt(coins);
+      $("#topup-rate").textContent = q.discount ? "Package price (" + q.discount + "% off)" : "Price (" + money(t.pricePer1000Coins * 100) + " per 1,000 Coins)";
       $("#topup-price").textContent = money(q.priceCents);
       $("#topup-fee").textContent = money(q.feeCents);
       $("#topup-total").textContent = money(q.totalCents);
-      buyButton.textContent = "Buy " + tokens.toLocaleString("en-US") + " tokens";
-      buyButton.dataset.tokens = String(tokens);
+      buyButton.textContent = "Buy " + coinsFmt(coins) + " Coins";
+      buyButton.dataset.coins = String(coins);
       $("#topup-note").textContent = "Valid for " + (t.validityDays % 365 === 0 ? (t.validityDays / 365 === 1 ? "12 months" : t.validityDays / 365 + " years") : t.validityDays + " days") +
         ". Added to your account as soon as the payment goes through.";
     }
@@ -927,28 +1063,29 @@
       if (section) section.hidden = t.enabled === false;
       var l = limits();
       amount.min = range.min = l.min; amount.max = range.max = l.max; amount.step = range.step = l.step;
-      $("#topup-hint").textContent = "Any amount from " + Math.round(t.minTokens).toLocaleString("en-US") + " to " +
-        Math.round(t.maxTokens).toLocaleString("en-US") + " tokens.";
+      $("#topup-hint").textContent = "Any amount from " + coinsFmt(l.min) + " to " + coinsFmt(l.max) +
+        " Coins, in steps of " + coinsFmt(l.step) + ".";
+      if (Number(amount.value) < l.min || Number(amount.value) > l.max) { amount.value = range.value = String(Math.max(l.min, 1000)); }
       packsHost.innerHTML = (t.packs || []).map(function (p) {
-        var q = quote(Number(p.tokens));
+        var q = quote(Number(p.coins));
         return '<article class="pack reveal in">' + (q.discount ? '<span class="save">Save ' + q.discount + "%</span>" : "") +
-          '<div class="pack-tokens">' + fmt(q.tokens) + "<span>tokens</span></div>" +
+          '<div class="pack-tokens">' + coinsFmt(q.coins) + "<span>Coins</span></div>" +
           '<div class="pack-price">' + (q.discount ? "<s>" + money(q.baseCents) + "</s>" : "") + money(q.priceCents) + "</div>" +
           '<div class="pack-fee">+ ' + money(q.feeCents) + " processing fee &middot; <b>" + money(q.totalCents) + " total</b></div>" +
-          '<button class="btn btn-block" type="button" data-topup="' + q.tokens + '">Buy</button></article>';
+          '<button class="btn btn-block" type="button" data-topup="' + q.coins + '">Buy</button></article>';
       }).join("");
       renderBill();
     }
 
     amount.addEventListener("input", function () { range.value = amount.value; renderBill(); });
-    amount.addEventListener("change", function () { amount.value = (tokensFromInput() / 1e6).toString(); range.value = amount.value; renderBill(); });
+    amount.addEventListener("change", function () { amount.value = String(coinsFromInput()); range.value = amount.value; renderBill(); });
     range.addEventListener("input", function () { amount.value = range.value; renderBill(); });
 
-    function buy(tokens) {
-      // Checkout opens in an overlay on this page; the server prices the tokens.
-      if (window.MCA.checkout) window.MCA.checkout.tokens(tokens, { back: "index.html#topup" });
+    function buy(coins) {
+      // Checkout opens in an overlay on this page; the server prices the Coins.
+      if (window.MCA.checkout) window.MCA.checkout.coins(coins, { back: "index.html#topup" });
     }
-    buyButton.addEventListener("click", function () { buy(Number(buyButton.dataset.tokens)); });
+    buyButton.addEventListener("click", function () { buy(Number(buyButton.dataset.coins)); });
     packsHost.addEventListener("click", function (e) {
       var button = e.target.closest("[data-topup]");
       if (button) buy(Number(button.dataset.topup));

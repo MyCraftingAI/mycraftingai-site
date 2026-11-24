@@ -1,10 +1,10 @@
 {
-  "version": "1.1.11",
+  "version": "1.1.12",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 60899124,
-  "sha256": "510c9320cd349604bcd9a64fd64352a2fea6b1a950984f5d662e5da734870da2",
-  "published": "2026-11-19T07:01:43Z",
+  "size": 60939896,
+  "sha256": "65f643622adfe1c5221531b670e9cb6dbf4a65ec2a4147db9c51cfd0afc7d6b7",
+  "published": "2026-11-24T18:01:57Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **Block sides when you generate**: choose how a block is painted - **Same on every side** (one texture for the whole block, like stone) or **Different on each side** (its own top, bottom, front, back and sides, like a furnace or a machine). The choice is on the Generate card for any block, and in the batch dialog whenever the selection contains blocks. Your last choice is remembered."
+  "notes": "- **Run Server for plugins and datapacks**: plugin and datapack projects now show **Run Server** instead of Run Mod. The app builds your plugin, starts a local Paper test server with it installed (a vanilla server for datapacks), and tells you where to join. Missing Gradle files are set up automatically from Gradle's official, checksum-verified download. Stop saves the world before closing the server.\n- **Datapack Check**: datapacks get a **Check** button that validates pack.mcmeta, every JSON file (with line and column), resource names and the 1.21+ folder renames. Problems go straight to the Assistant to fix.\n- **Plugin and datapack errors are caught**: \"Error occurred while enabling\", invalid plugin.yml, datapack load errors and similar are detected and repaired like mod crashes.\n- **Disconnects are noticed**: \"Connection Lost / Network Protocol Error\" and other disconnects are read from the game's disconnect report and sent to the Assistant for a fix.\n- **Coins**: AI usage is now shown in Coins, with an estimate before each request and the exact cost after it. Yearly plans are available on the website.\n- **Smarter Assistant**: the Assistant now knows which page you are on and what is open in the Texture and 3D Studios, so requests like \"write the description for this item\" just work, and new descriptions appear in the studios right away.\n- **Texture Studio**: \"Describe the texture\" is always filled in from the asset's description. Textures use the project's palette and related assets for a consistent look. New setting under Settings > Textures for how block sides are painted.\n- **3D Studio**: every model is checked for floating parts, ground contact, hitbox and pivots, and improved automatically. Requested animations are always made, and every animation loops cleanly.\n- **Deleting a project** now also removes everything the app stored for it (chat history, version history, studio state), and the dialog lists exactly what is deleted."
 }

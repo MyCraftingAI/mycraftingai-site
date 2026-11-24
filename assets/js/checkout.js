@@ -10,10 +10,11 @@
  * someone clicks Buy. It runs with manualRedirect, so it never navigates the
  * page by itself. When the payment succeeds (the "checkout.status" event) we
  * close the overlay and open the account page, which waits for the payment
- * webhook to add the plan or tokens and then shows them.
+ * webhook to add the plan or Coins and then shows them.
  *
  *   MCA.checkout.plan("pro")          subscribe to a monthly plan
- *   MCA.checkout.tokens(1000000)      buy a token top-up
+ *   MCA.checkout.plan("pro", {interval: "year"})   ... billed yearly
+ *   MCA.checkout.coins(1000)          buy 1,000 Coins
  *   MCA.checkout.open(checkoutUrl)    open an existing session URL
  */
 (function () {
@@ -261,10 +262,10 @@
   function needSignIn(err, back, plan) {
     if (!(err && (err.status === 401 || err.code === "unauthorized" || err.code === "not_live"))) return false;
     var next = encodeURIComponent(back || "index.html#pricing");
-    modal(plan ? "Create your account first" : "Sign in to buy tokens",
+    modal(plan ? "Create your account first" : "Sign in to buy Coins",
       plan
         ? "Your plan is added to your MyCraftingAI account, so sign in (or create a free account) first. You'll come straight back here to pay."
-        : "Top-up tokens are added to your MyCraftingAI account, so sign in (or create a free account) first. You'll come straight back here.",
+        : "Coins are added to your MyCraftingAI account, so sign in (or create a free account) first. You'll come straight back here.",
       [{ label: "Not now" },
        { label: "Create account", href: "signup.html?" + (plan ? "plan=" + encodeURIComponent(plan) + "&" : "") + "next=" + next },
        { label: "Sign in", primary: true, href: "login.html?next=" + next }]);
@@ -285,16 +286,18 @@
     modal("Couldn't start the payment", (err && err.message) || "Please try again in a minute.", [{ label: "OK", primary: true }]);
   }
 
-  /** Subscribe to a monthly plan. */
+  /** Subscribe to a plan, billed monthly or yearly (``opts.interval`` "year"). */
   function plan(planId, opts) {
     opts = opts || {};
+    var interval = opts.interval === "year" ? "year" : "month";
     var api = MCA().api;
     if (!api || !api.billing) return Promise.resolve();
     busy(true, "Preparing your " + (opts.label || "plan") + " checkout…");
     return api.me().then(function (me) {
       if (!me || !me.user) throw new api.ApiError("unauthorized", "", 401);
-      return api.billing.subscribe(planId).then(function (session) {
-        return open(session.checkoutUrl, { kind: "plan", plan: planId, label: session.planName || opts.label, before: me,
+      return api.billing.subscribe(planId, interval).then(function (session) {
+        var label = session.planName ? session.planName + (interval === "year" ? " (yearly)" : "") : opts.label;
+        return open(session.checkoutUrl, { kind: "plan", plan: planId, label: label, before: me,
                                            busyText: "Opening secure checkout…" });
       });
     }).catch(function (err) {
@@ -303,8 +306,8 @@
     });
   }
 
-  /** Buy ``tokens`` top-up tokens. */
-  function tokens(amount, opts) {
+  /** Buy ``amount`` top-up Coins. */
+  function coins(amount, opts) {
     opts = opts || {};
     var api = MCA().api;
     if (!api || !api.billing) return Promise.resolve();
@@ -333,5 +336,5 @@
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && state) close(); });
 
   window.MCA = window.MCA || {};
-  window.MCA.checkout = { plan: plan, tokens: tokens, open: open, close: close, loadSdk: loadSdk };
+  window.MCA.checkout = { plan: plan, coins: coins, open: open, close: close, loadSdk: loadSdk };
 })();

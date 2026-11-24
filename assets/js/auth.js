@@ -112,8 +112,8 @@
       '<a class="brand" href="index.html" style="position:relative;z-index:1">' +
       '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4F63F5"/><g fill="#fff"><rect x="14" y="6" width="4" height="4"/><rect x="14" y="10" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="10" y="14" width="4" height="4"/><rect x="18" y="14" width="4" height="4"/><rect x="22" y="14" width="4" height="4"/><rect x="14" y="18" width="4" height="4"/><rect x="14" y="22" width="4" height="4"/></g><rect x="14" y="14" width="4" height="4" fill="#fff" opacity=".5"/></svg>' +
       "MyCraftingAI</a>" +
-      "<blockquote><p>Your mods live in normal folders on your PC. The account only keeps your plan and today's tokens.</p>" +
-      '<div class="quote-meta">Free: 10K new tokens a day &middot; cached context doesn\'t count &middot; refills 00:00 UTC</div></blockquote>';
+      "<blockquote><p>Your mods live in normal folders on your PC. The account only keeps your plan and your Coin balance.</p>" +
+      '<div class="quote-meta">Free: 10 Coins a day &middot; pay only for what the AI uses &middot; refills 00:00 UTC</div></blockquote>';
   }
 
   /** On the public site with no server yet: say so and switch the form off. */
@@ -416,33 +416,56 @@
     });
   }
 
+  /** ``2,000`` / ``12.5`` / ``0.042`` - an amount of Coins. */
+  function coinText(n) {
+    var value = Number(n || 0), size = Math.abs(value);
+    return value.toLocaleString("en-US", { maximumFractionDigits: size >= 100 ? 1 : size >= 1 ? 2 : 3 });
+  }
+
   function accountPage() {
     var root = document.body;
     if (api.mode === "offline") { notice(root, "info", api.messages.not_live); return; }
     var resetsAt = null, monthly = false;
     api.me().then(function (me) {
       var usage = me.usage || {};
-      var used = usage.usedToday || 0, limit = usage.dailyLimit;
+      // Coins (servers from before Coins sent only milli-coin counts: 1,000 = 1 Coin).
+      var c = usage.coins || {
+        balance: usage.dailyLimit == null ? null : (usage.dailyLimit - (usage.usedToday || 0)) / 1000,
+        allowance: usage.allowance == null ? null : usage.allowance / 1000, spent: (usage.usedToday || 0) / 1000,
+        allowanceLeft: (usage.allowanceLeft || 0) / 1000, topupLeft: (usage.topupLeft || 0) / 1000,
+        giftLeft: (usage.giftLeft || 0) / 1000, debt: 0, unlimited: usage.dailyLimit == null };
       monthly = usage.period === "month";
+      var yearly = monthly && usage.interval === "year";  // yearly billing: one allowance for 12 months
       $("[data-account]").hidden = false;
       $("[data-greeting]").textContent = "Hi, " + (me.user.name || me.user.email.split("@")[0]);
-      $("[data-usage-title]").textContent = monthly ? "This month's tokens" : "Today's tokens";
-      $("[data-used]").textContent = used.toLocaleString("en-US");
-      $("[data-limit]").textContent = limit ? limit.toLocaleString("en-US") : "custom";
-      var share = limit ? Math.min(100, used / limit * 100) : 0;
+      $("[data-usage-title]").textContent = "Coin balance";
+      var total = c.unlimited ? null : (c.balance || 0) + (c.spent || 0);  // everything this period
+      if (c.unlimited) {
+        $("[data-used]").textContent = coinText(c.spent);
+        $("[data-limit-line]").textContent = "Coins spent - no limit";
+      } else {
+        $("[data-used]").textContent = coinText(c.balance);
+        $("[data-limit-line]").innerHTML = (c.balance < 0 ? "Coins owed" : "Coins left") + " of <span>" + coinText(total) + "</span>";
+      }
+      var share = total ? Math.min(100, (c.spent || 0) / total * 100) : 0;
+      if (c.balance != null && c.balance <= 0) share = 100;
       $("[data-meter]").style.width = Math.max(1, share) + "%";
       $("[data-meter]").style.background = share >= 100 ? "var(--ruby)" : (share > 80 ? "var(--amber)" : "var(--accent)");
       $("[data-plan-chip]").textContent = me.plan.name;
-      var allowance = usage.allowance;
-      $("[data-plan]").textContent = me.plan.name + (allowance ? " · " + window.MCA.formatTokens(allowance) +
-        (monthly ? " / month" + (usage.firstMonth ? " (first month)" : "") : " / day") : "");
+      var allowance = c.allowance;
+      $("[data-plan]").textContent = me.plan.name + (allowance ? " · " + coinText(allowance) + " Coins" +
+        (yearly ? " / year (incl. yearly bonus)" : monthly ? " / month" + (usage.firstMonth ? " (first month)" : "") : " / day") : "");
       var split = $("[data-usage-split]");
       if (split && allowance != null) {
-        var parts = [["Plan allowance", (usage.allowanceLeft || 0).toLocaleString("en-US") + " of " + allowance.toLocaleString("en-US") + " left"]];
-        if (usage.topupLeft) parts.push(["Top-up tokens", usage.topupLeft.toLocaleString("en-US") + " left"]);
-        if (usage.giftLeft) parts.push(["Gift tokens", usage.giftLeft.toLocaleString("en-US") + " left"]);
+        var parts = [["Plan Coins", coinText(c.allowanceLeft) + " of " + coinText(allowance) + " left"]];
+        if (c.topupLeft) parts.push(["Top-up Coins", coinText(c.topupLeft) + " left"]);
+        if (c.giftLeft) parts.push(["Gift Coins", coinText(c.giftLeft) + " left"]);
+        if (c.debt) parts.push(["Owed after your last request", "-" + coinText(c.debt)]);
         split.innerHTML = parts.map(function (p) { return '<div class="row"><span>' + p[0] + "</span><span>" + p[1] + "</span></div>"; }).join("");
         split.hidden = false;
+      }
+      if (c.debt) {
+        notice(root, "warn", "Your last AI request cost " + coinText(c.debt) + " Coins more than you had left. That's paid from your next Coins (a top-up, a gift or your plan's renewal); new requests wait until your balance is above 0.");
       }
       topupCard();
       if (/[?&]checkout=applied\b/.test(location.search)) {
@@ -450,7 +473,9 @@
       } else if (/[?&](topup=thanks|checkout=done|checkout=processing)\b/.test(location.search)) {
         watchPurchase(me);
       } else if (usage.renewalPending) {
-        notice(root, "warn", "Your plan's monthly renewal is being processed. This month's tokens are added as soon as the payment goes through.");
+        notice(root, "warn", yearly
+          ? "Your plan's yearly renewal is being processed. This year's Coins are added as soon as the payment goes through."
+          : "Your plan's monthly renewal is being processed. This month's Coins are added as soon as the payment goes through.");
       }
       $("[data-name]").textContent = me.user.name || "-";
       $("[data-email]").textContent = me.user.email;
@@ -480,7 +505,7 @@
       var wantPlan = params.get("plan") || "";
       var kind = params.get("kind") || (wantPlan ? "plan" : "topup");
       var hash = location.hash || (kind === "plan" ? "#subscription" : "#topups");
-      notice(root, "ok", "Payment received - adding your " + (kind === "plan" ? "plan" : "tokens") +
+      notice(root, "ok", "Payment received - adding your " + (kind === "plan" ? "plan" : "Coins") +
         " to your account. This usually takes a few seconds…");
       var tries = 0;
       /** A purchased top-up credited in the last 10 minutes (the webhook may beat this page). */
@@ -599,7 +624,14 @@
           if (sub.cancelled && status === "active") label = "Ends soon";
           var colour = sub.cancelled ? "var(--amber)" : status === "active" ? "var(--mint)" : "var(--ruby)";
           setChip(label, colour);
+          var yearlySub = sub.interval === "year";
           html += row("Plan", esc(sub.planName || plan.name || "-"));
+          html += row("Billing", (yearlySub ? "Yearly" : "Monthly") +
+            (sub.price ? " · $" + Number(sub.price).toFixed(2) + (yearlySub ? " every 12 months" : " a month") : ""));
+          if (sub.periodCoins) {
+            html += row(yearlySub ? "Coins per year" : "Coins per month",
+              esc(coinText(sub.periodCoins)) + (yearlySub ? " (12 months + yearly bonus)" : ""));
+          }
           html += row("Status", esc(label));
           if (sub.renewsAt) html += row("Renews on", esc(day(sub.renewsAt)));
           if (sub.cancelled && sub.endsAt) html += row("Access until", esc(day(sub.endsAt)));
@@ -744,7 +776,7 @@
         line.innerHTML = "Your allowance renews on <b style=\"color:var(--text)\">" +
           resetsAt.toLocaleString(undefined, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) +
           "</b> (" + (days >= 1 ? "in " + days + (days === 1 ? " day" : " days") : "today") +
-          "). Unused plan tokens don't carry over; top-ups do.";
+          "). Unused plan Coins don't carry over; top-ups do.";
         return;
       }
       var h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
@@ -757,14 +789,15 @@
       if (!card || !api.billing.topups) return;
       topupPrice(card);
       api.billing.topups().then(function (data) {
-        var left = data.balance || 0;
-        $("[data-topup-chip]", card).textContent = left.toLocaleString("en-US") + " left";
+        var left = data.balanceCoins != null ? data.balanceCoins : (data.balance || 0) / 1000;
+        $("[data-topup-chip]", card).textContent = coinText(left) + " Coins left";
         var rows = (data.topups || []).slice(0, 6).map(function (t) {
           var when = t.created ? new Date(t.created).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
-          var status = t.status === "active" ? (t.left ? t.left.toLocaleString("en-US") + " left · until " +
+          var amount = t.coins != null ? t.coins : t.tokens / 1000, rest = t.leftCoins != null ? t.leftCoins : t.left / 1000;
+          var status = t.status === "active" ? (rest ? coinText(rest) + " left · until " +
             new Date(t.expiresAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "Used up")
             : (t.status === "refunded" ? "Refunded" : t.status === "expired" ? "Expired" : "Removed");
-          return '<div class="row"><span>' + t.tokens.toLocaleString("en-US") + " tokens · " + when +
+          return '<div class="row"><span>' + coinText(amount) + " Coins · " + when +
             (t.source === "admin" ? " · from support" : "") + "</span><span>" + status + "</span></div>";
         });
         $("[data-topup-rows]", card).innerHTML = rows.length ? rows.join("") :
@@ -774,19 +807,19 @@
       });
     }
 
-    /** "1,000,000 tokens for $2.50": the gross price (Dodo's fee included), live catalogue first. */
+    /** "1,000 Coins for $2.50": the gross price (Dodo's fee included), live catalogue first. */
     function topupPrice(card) {
       var line = $("[data-topup-price]", card);
       if (!line) return;
       function show(topup) {
-        if (!topup || topup.enabled === false) { line.textContent = ""; return; }
-        var pack = (topup.packs || []).filter(function (p) { return Number(p.tokens) === 1000000; })[0];
+        if (!topup || topup.enabled === false || topup.pricePer1000Coins == null) { line.textContent = ""; return; }
+        var pack = (topup.packs || []).filter(function (p) { return Number(p.coins) === 1000; })[0];
         var cents = pack && pack.totalCents != null ? pack.totalCents : (function () {
-          var base = Math.round(Number(topup.pricePerMillion) * 100);
+          var base = Math.round(Number(topup.pricePer1000Coins) * 100);
           var exact = (base + Math.round(Number(topup.feeFixed) * 100)) / (1 - Number(topup.feePercent) / 100);
           return Math.floor(Math.round(exact * 100) / 100 + 0.5);
         })();
-        line.textContent = "1,000,000 tokens cost $" + (cents / 100).toFixed(2) +
+        line.textContent = "1,000 Coins cost $" + (cents / 100).toFixed(2) +
           ", payment fee included. Paid securely on this site with Dodo Payments.";
       }
       show(window.MCA_PLANS && window.MCA_PLANS.topup);

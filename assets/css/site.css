@@ -783,6 +783,19 @@ html[data-theme]:not([data-theme="classic"]) body::before {
 .plan .promo-note code { font: 600 12px var(--mono); }
 #compare td s { color: var(--faint); margin-right: 4px; }
 
+/* Monthly / yearly billing switch and the yearly price lines */
+.billing-toggle { display: flex; width: max-content; max-width: 100%; margin: 0 auto 26px; padding: 4px; gap: 4px; border: 1px solid var(--rim); border-radius: 999px; background: var(--surface); }
+.billing-toggle[hidden] { display: none; }
+.billing-toggle button { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 18px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 600 14px var(--font); cursor: pointer; transition: background .2s, color .2s; }
+.billing-toggle button:hover { color: var(--text); }
+.billing-toggle button[aria-checked="true"] { background: var(--accent); color: #fff; }
+.billing-toggle button:focus-visible { outline: 2px solid var(--azure); outline-offset: 2px; }
+.billing-toggle .save { padding: 2px 8px; border-radius: 999px; background: rgba(61,214,140,.14); color: var(--mint); font: 700 11px var(--mono); letter-spacing: .03em; }
+.billing-toggle button[aria-checked="true"] .save { background: rgba(255,255,255,.2); color: #fff; }
+.plan .billed { margin-top: 2px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.plan .billed .saving { color: var(--mint); font-weight: 600; }
+.plan .tokens .bonus { color: var(--mint); }
+
 /* Welcome step (after Google sign-up) and the updated-Terms prompt */
 .signed-as { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--rim); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--muted); }
 .signed-as:empty { display: none; }

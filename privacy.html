@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261118b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261201">
 </head>
 <body>
   <header data-site-header></header>
@@ -39,7 +39,7 @@
       <article class="prose">
         <span class="eyebrow">Legal</span>
         <h1>Privacy Policy</h1>
-        <p class="updated">Effective 17 November 2026</p>
+        <p class="updated">Effective 24 November 2026</p>
 
         <div class="legal-summary">
           <b>The short version</b>
@@ -47,7 +47,7 @@
             <li>We collect what's needed to run your account and the AI features.</li>
             <li>The desktop app has no ads or ad trackers. Google shows ads only on our download and unlock pages, personalised only if you allow it.</li>
             <li>Your projects stay on your computer. The app sends only the files a request needs.</li>
-            <li>We don't keep the text of your AI requests or the answers after they're delivered, and we never use them to train AI models. We keep only token counts, per day and per billing month. AI providers get a random identifier, never your name or email address.</li>
+            <li>We don't keep the text of your AI requests or the answers after they're delivered, and we never use them to train AI models. We keep only usage figures (Coins spent, the number of tokens processed and requests), per day and per billing period. AI providers get a random identifier, never your name or email address.</li>
             <li>Payments go through Dodo Payments, our merchant of record. Your card details go straight to them, never to us.</li>
             <li>When the AI is busy, your request may wait in a short line. Its place in line is kept for a few minutes at most.</li>
             <li>What you post in The Workshop, our community, is public, and every uploaded file is virus-scanned on our own servers. Private messages are seen only by the people in the conversation, and by moderators only if someone reports a message.</li>
@@ -63,11 +63,11 @@
         <ul>
           <li><b>Account details:</b> your email address, username, a securely hashed password (never the password itself), and your Google account ID if you sign in with Google. We also keep your plan, whether your email is verified, your 2-step verification setting, your email preferences, and which version of the Terms of Service and this Privacy Policy you agreed to and when.</li>
           <li><b>Sign-in and security data:</b> for each active session, the type of device or app, the IP address and when it was last used. We also keep short-lived records of failed sign-ins and sign-in codes to stop abuse and lock out attackers.</li>
-          <li><b>Usage counts:</b> how many tokens and requests your account uses each day and in each billing month, to apply your plan's allowance, track your top-up tokens and show your usage.</li>
+          <li><b>Usage counts:</b> how many Coins, tokens and requests your account uses each day and in each billing period, and any Coins owed after your last request, to apply your plan's allowance, track your top-up Coins and show your balance.</li>
           <li><b>AI requests:</b> the instructions you type and the project context the app attaches, such as file names and the source files relevant to that request. In the 3D Studio and Texture Studio this includes your description of a mob or texture and the structure of its model (bone names, sizes and positions). When you use the Version Converter, the source code and data files of the mod you choose are sent in batches to be converted (its folder is read on your computer and never changed; assets such as textures are copied locally and not sent). These pass through our servers to our AI model provider to produce the answer. We don't store the content of requests or answers afterwards.</li>
           <li><b>AI queue records:</b> when many people use the AI at once, a request can wait in line before it starts. While it waits or runs, we keep a short-lived record of it: a random request ID, your account ID and plan, its place in line, how long it has waited and how often it was retried. The app uses this to show you your place in line. The record contains no request content and is deleted when the request finishes, within 15 minutes at most. We also keep overall counters (for example how many requests waited) that are not linked to anyone.</li>
-          <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, the date and time your subscription started (which sets your billing cycle), renewal and end dates, each paid billing month and the tokens it gave, and the IDs needed to open your customer portal. We keep whether your account has already received its first-month allowance. We never receive your full card number.</li>
-          <li><b>Token top-ups:</b> when you buy tokens, we keep the order number, the number of tokens, the price and processing fee, when you bought them, when they expire and how many you have used. Top-ups our support team adds for you are recorded the same way, with a short note.</li>
+          <li><b>Billing status:</b> from our payment provider we receive your plan, subscription status, the date and time your subscription started (which sets your billing cycle), renewal and end dates, each paid billing period and the Coins it gave, and the IDs needed to open your customer portal. We keep whether your account has already received its first-month allowance. We never receive your full card number.</li>
+          <li><b>Coin top-ups:</b> when you buy Coins, we keep the order number, the number of Coins, the price and processing fee, when you bought them, when they expire and how many you have used. Top-ups our support team adds for you are recorded the same way, with a short note.</li>
           <li><b>Ad unlocks (Free plan):</b> when you unlock a tool by watching an ad, we keep a short-lived record linked to your account: a random single-use ticket, its status and timing, how many seconds the unlock page was open in front (sent every two seconds while it is visible), how many unlocks you used today and when your unlock ends. These records delete themselves within 48 hours.</li>
           <li><b>Messages you send us:</b> support requests and the messages you send with the sales and support forms on our <a href="contact.html">contact page</a>: your email address, your message and, if you choose to give them, your name and company. They are delivered to our contact@ or support@ inbox, used only to answer you, and kept for as long as needed to handle your request (normally no longer than 24 months). The forms are protected against abuse by counting messages per IP address and email address for a short time.</li>
           <li><b>The Workshop (community):</b> if you take part, we store what you publish - posts, comments, votes, saved and followed posts, the images and files you upload (with their file name, size and a SHA-256 fingerprint), your profile picture and bio - plus the reports you send, blocks you set, your notifications, and moderation records about your account (for example a mute and its reason). Posts, comments, files, your username, profile picture, bio, plan badge and karma are <b>public</b>. Your email address is never shown to other members.</li>
@@ -88,7 +88,7 @@
             </ul>
             The app may also add pages from its built-in Minecraft modding reference library; those come from the app itself, not from your computer's other files.</li>
           <li><b>What isn't sent.</b> Your name, email address, username, password and payment details are never sent to AI providers. Each request carries only a random identifier derived one-way from your account ID, so providers can detect abuse without knowing who you are. Your project folder isn't uploaded as a whole.</li>
-          <li><b>How long it's kept.</b> Requests pass through our servers to the provider, and the answer comes back to your app. We don't store the content of requests or answers afterwards; we keep only token counts and short-lived queue records (section 2). AI providers process requests under their API terms and may keep them for a limited time for security and abuse monitoring, as those terms allow.</li>
+          <li><b>How long it's kept.</b> Requests pass through our servers to the provider, and the answer comes back to your app. We don't store the content of requests or answers afterwards; we keep only usage figures and short-lived queue records (section 2). AI providers process requests under their API terms and may keep them for a limited time for security and abuse monitoring, as those terms allow.</li>
           <li><b>No training on your data.</b> We don't use your prompts, projects, pictures or AI output to train or improve AI models, and we don't sell them or share them with advertisers.</li>
           <li><b>Where it happens.</b> AI processing may take place outside your country, including in the United States and China (see <a href="#transfers">International transfers</a>).</li>
           <li><b>Your control.</b> Nothing is sent until you send a message or start a tool. You can turn Auto-fix off in the app's settings, and you choose which files to attach. Please don't put passwords, keys or other people's personal data into requests.</li>
@@ -107,9 +107,9 @@
         <h2 id="use">4. How we use your data</h2>
         <ul>
           <li>to create and secure your account, sign you in, and send codes and security notices;</li>
-          <li>to provide the AI features and apply your daily or monthly allowance, your top-up tokens and fair use;</li>
+          <li>to provide the AI features and apply your daily or monthly allowance, your top-up Coins and fair use;</li>
           <li>to keep the AI service stable at busy times: requests wait in line, are retried automatically, and plans with priority access are served first;</li>
-          <li>to manage subscriptions and token top-ups together with our payment provider, and to credit purchased tokens to your account;</li>
+          <li>to manage subscriptions and Coin top-ups together with our payment provider, and to credit purchased Coins to your account;</li>
           <li>to answer support requests and tell you about important changes to the Service;</li>
           <li>to run The Workshop: show posts and profiles, deliver private messages and notifications, scan every uploaded file for viruses (on our own servers - files aren't sent to an outside scanning service), and moderate content that breaks the rules (including spam protection and rate limits);</li>
           <li>to send product news, only if you leave that option on;</li>
@@ -120,7 +120,7 @@
 
         <h2 id="legal-bases">5. Legal bases (EEA and UK)</h2>
         <ul>
-          <li><b>Contract:</b> running your account, the AI features, your subscription and the token top-ups you buy, including the priority your plan gives you when requests wait in line.</li>
+          <li><b>Contract:</b> running your account, the AI features, your subscription and the Coin top-ups you buy, including the priority your plan gives you when requests wait in line.</li>
           <li><b>Legitimate interests:</b> keeping the Service secure and stable (including managing busy periods), preventing abuse (including ad-unlock fraud), fixing problems, improving the Service, and funding the Free plan with non-personalised ads. We balance these interests against your rights.</li>
           <li><b>Consent:</b> optional cookies, personalised advertising and product news emails. Where the law requires consent for advertising cookies, we ask for it first. You can withdraw consent at any time.</li>
           <li><b>Legal obligation:</b> keeping records required by tax, accounting and other laws.</li>
@@ -130,7 +130,7 @@
         <p>We use a small number of service providers. Each receives only what it needs, and each is bound to protect it:</p>
         <ul>
           <li><b>AI model providers</b>: third-party providers of the language models that generate answers. They receive only the request content needed to produce an answer and a random account identifier (see <a href="#ai">AI processing</a>).</li>
-          <li><b>Dodo Payments</b>: our payment provider and merchant of record for subscriptions and token top-ups. They process checkout, payments, invoices and tax under their own privacy policy. Their secure checkout form is loaded on our website (from Dodo Payments and the jsDelivr content network) only when you choose to pay, and the card and billing details you type into it go directly to Dodo Payments - not to us. To start a checkout we send them your email address and username, and, to credit your purchase to the right account, your account ID, the plan or number of tokens and the price; they send these back to us with the payment confirmation, together with their customer and subscription IDs and the billing dates.</li>
+          <li><b>Dodo Payments</b>: our payment provider and merchant of record for subscriptions and Coin top-ups. They process checkout, payments, invoices and tax under their own privacy policy. Their secure checkout form is loaded on our website (from Dodo Payments and the jsDelivr content network) only when you choose to pay, and the card and billing details you type into it go directly to Dodo Payments - not to us. To start a checkout we send them your email address and username, and, to credit your purchase to the right account, your account ID, the plan or number of Coins and the price; they send these back to us with the payment confirmation, together with their customer and subscription IDs and the billing dates.</li>
           <li><b>Google</b>: if you choose "Continue with Google", to confirm your identity. The website loads fonts from Google Fonts, which shares your IP address with Google. Google AdSense and Google Ad Manager serve the ads on our download and unlock pages (see <a href="#advertising">Advertising</a>).</li>
           <li><b>Hosting and email providers</b>: run our servers, database backups and outgoing email.</li>
           <li><b>GitHub</b>: hosts the website and app downloads. Downloading the app or checking for updates connects to their servers.</li>
@@ -214,8 +214,8 @@
   </main>
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/plans.js"></script>
-  <script src="assets/js/api.js?v=20261118b"></script>
+  <script src="assets/js/plans.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261204"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
 </body>
 </html>
