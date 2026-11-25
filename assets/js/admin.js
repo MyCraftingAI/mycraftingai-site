@@ -159,6 +159,7 @@
     if (view === "activity") loadEvents();
     if (view === "system") loadSystem();
     if (view === "community" && window.MCA.adminCommunity) window.MCA.adminCommunity.load();
+    if (view === "learning" && window.MCA.adminLearning) window.MCA.adminLearning.load();
     window.scrollTo(0, 0);
   }
 
@@ -282,11 +283,55 @@
         '<div class="r"><span>Texture Studio requests</span><b>' + num(d.features.textures) + "</b></div>" +
         '<div class="r"><span>3D Studio requests</span><b>' + num(d.features.models || 0) + "</b></div>" +
         '<div class="r"><span>Version Converter requests</span><b>' + num(d.features.convert || 0) + "</b></div>";
+      renderFeatureCoins(d.featureCoins, d.range);
       $("[data-ins-top]").innerHTML = d.topUsers.length ? d.topUsers.map(function (u) {
         return '<div class="r link" data-open-user="' + esc(u.id) + '">' + userCell(u) + '<span><b>' + fmt(u.tokens) + '</b><br><span class="ad-muted" style="font-size:12px">' + num(u.requests) + " req · " + esc(u.plan) + "</span></span></div>";
       }).join("") : '<div class="ad-empty">No AI use in the last 7 days.</div>';
       renderGithub(d.github);
     }, function (e) { toast(errText(e), true); });
+  }
+
+  var FEATURE_NAMES = { assistant: "Mod Assistant", model: "3D Studio", texture: "Texture Studio",
+                        converter: "Version Converter", background: "Background tasks" };
+  var FEATURE_SHORT = { assistant: "Assistant", model: "3D Studio", texture: "Textures",
+                        converter: "Converter", background: "Background" };
+  /** Insights: Coins, requests and accounts per app feature (``featureCoins`` from the server). */
+  function renderFeatureCoins(rows, days) {
+    var box = $("[data-ins-feature-coins]"), list = $("[data-ins-feature-rows]");
+    if (!box || !list) return;
+    if (!rows) {  // older server: no per-feature ledger yet
+      box.innerHTML = list.innerHTML = '<div class="ad-empty">Needs the latest server update.</div>';
+      return;
+    }
+    var total = rows.reduce(function (s, r) { return s + Number(r.coins || 0); }, 0);
+    $("[data-ins-fc-sub]").textContent = coinText(total) + " Coins charged in the last " + days + " days";
+    var sorted = rows.slice().sort(function (a, b) { return b.coins - a.coins; });
+    box.innerHTML = total ? bars(sorted.map(function (r) {
+      return [FEATURE_SHORT[r.feature] || r.feature, Math.round(Number(r.coins || 0)), "#4f63f5",
+              total ? Math.round(r.coins / total * 100) + "% of all Coins" : ""];
+    }), " Coins") : '<div class="ad-empty">No AI use in this period.</div>';
+    list.innerHTML = sorted.map(function (r) {
+      var avg = r.requests ? coinText(r.coins / r.requests) + " / request" : "-";
+      return '<div class="r"><span>' + esc(FEATURE_NAMES[r.feature] || r.feature) + '<br><span class="ad-muted" style="font-size:12px">' +
+        num(r.users) + (r.users === 1 ? " account" : " accounts") + " · " + avg + '</span></span><b class="ad-mono">' +
+        num(r.requests) + " req</b></div>";
+    }).join("");
+  }
+
+  /** User drawer: the account's Coins per feature (today ... all time). */
+  function featureTable(fu) {
+    if (!fu || !fu.periods) return "";
+    var periods = ["today", "week", "month", "lastMonth", "all"], heads = ["Today", "Week", "Month", "Last month", "All time"];
+    var body = (fu.features || Object.keys(FEATURE_NAMES)).map(function (f) {
+      return "<tr><td>" + esc(FEATURE_NAMES[f] || f) + "</td>" + periods.map(function (p) {
+        var c = (fu.periods[p] || {})[f] || { coins: 0, requests: 0 };
+        return '<td title="' + num(c.requests) + ' requests">' + (c.coins ? coinText(c.coins) : "-") + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+    return '<div class="ad-card"><h3>Coins by feature</h3><p class="ad-sub">UTC days · weeks start on Monday' +
+      (fu.since ? " · tracked since " + esc(fu.since) : "") + "</p>" +
+      '<div style="overflow-x:auto"><table class="ad-table ad-fu"><thead><tr><th>Feature</th>' +
+      heads.map(function (h) { return "<th>" + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div></div>";
   }
 
   function renderGithub(g) {
@@ -345,7 +390,8 @@
     A.revenue().then(function (r) {
       var c = r.counts;
       $("[data-rev-kpis]").innerHTML = [
-        kpi("MRR", money(r.mrr), "monthly recurring revenue · yearly plans count 1/12"),
+        kpi("MRR", money(r.mrr), "what subscribers really pay, before tax · yearly plans count 1/12" +
+            (r.mrrEstimated ? " · " + num(r.mrrEstimated) + " at list price until their next payment" : "")),
         kpi("ARR", money(r.arr, false), "MRR × 12"),
         kpi("Paying subscribers", num(c.active + c.pastDue), num(c.cancelling) + " cancelling at period end"),
         kpi("Avg. per subscriber", money(r.arpu), "per month"),
@@ -362,7 +408,10 @@
       $("[data-rev-subs]").innerHTML = r.subscriptions.length ? r.subscriptions.map(function (s) {
         return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag paid">' + esc(s.planName) + "</span></td>" +
           '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(s.status.replace("_", " ")) + "</span></td>" +
-          "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2) + (s.interval === "year" ? ' <span class="ad-tag info">/ year</span>' : '<span class="ad-muted"> / mo</span>')) + "</td>" +
+          "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2) + (s.interval === "year" ? ' <span class="ad-tag info">/ year</span>' : '<span class="ad-muted"> / mo</span>') +
+            // Paid (or billed) differs from today's list price: an older price or a discount.
+            (s.priceSource !== "list" && s.listPrice != null && Math.abs(s.listPrice - s.price) >= 0.005 ? ' <span class="ad-muted" title="Current list price">(list $' + Number(s.listPrice).toFixed(2) + ")</span>" : "") +
+            (s.priceSource === "list" ? ' <span class="ad-muted" title="Real amount not reported by Dodo yet">(est.)</span>' : "")) + "</td>" +
           "<td>" + (s.status === "cancelled" || s.status === "cancelling" ? "ends " + when(s.endsAt) : when(s.renewsAt)) + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
       }).join("") : '<tr><td colspan="6"><div class="ad-empty">No subscriptions yet. They appear here as soon as Dodo Payments reports a payment.</div></td></tr>';
     }, function (e) { toast(errText(e), true); });
@@ -956,6 +1005,7 @@
       "<div><small>AI requests</small><b>" + num(u.allTime.requests) + "</b></div>" +
       "</div>" +
       '<div class="ad-card" style="margin-top:14px"><h3>Last 30 days</h3><p class="ad-sub">Coins spent per day</p><div class="ad-chart" data-user-chart style="height:120px"></div></div>' +
+      featureTable(u.featureUsage) +
       '<div class="ad-card"><div class="ad-inline" style="justify-content:space-between"><h3>Profile</h3><button class="btn btn-ghost btn-sm" data-edit-profile>Edit</button></div><div class="ad-rows">' +
         '<div class="r"><span>Username</span><b>' + esc(u.username) + "</b></div>" +
         '<div class="r"><span>Email</span><span>' + esc(u.email) + (u.verified ? ' <span class="ad-tag good">verified</span>' : ' <span class="ad-tag warn">unverified</span>') + "</span></div>" +
@@ -1951,11 +2001,37 @@
       "</div>" +
       '<h4 class="ad-pr-h4">What customers see</h4><div class="ad-rows">' + (y.enabled === false ? '<p class="ad-hint">Yearly billing is off - the website shows monthly prices only.</p>' : rows) + "</div></div>";
   }
+  /** Existing subscribers moving to a new price (saved with "Move existing subscribers"). */
+  function prMovesCard() {
+    var rows = PR.data.priceChanges || [];
+    if (!rows.length) return "";
+    var STATE = { notice: ["plan", "Notice period", "Emailed; scheduled in Dodo automatically when this renewal is next"],
+                  scheduled: ["good", "Scheduled in Dodo", "Dodo charges the new price at this renewal"],
+                  failed: ["bad", "Not accepted yet", "Retried automatically every 30 minutes"] };
+    var failed = rows.filter(function (r) { return r.state === "failed"; }).length;
+    function price(cents, cur) { return cents == null ? "-" : (!cur || cur === "USD" ? usd(cents) : (cents / 100).toFixed(2) + " " + esc(cur)); }
+    return '<div class="ad-card ad-pr-moves"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start;gap:12px"><div><h3>Existing subscribers moving to a new price</h3>' +
+      '<p class="ad-sub" style="margin:0">Every subscriber below was emailed their new price and start date. Nothing is charged early: Dodo charges the new price at that renewal. ' +
+      "Someone who cancels before then keeps the old price until their paid period ends. Withdraw a change to keep a subscriber on their current price (they're told by email).</p></div>" +
+      '<button class="btn ' + (failed ? "btn-primary" : "btn-ghost") + ' btn-sm" data-pm-retry>' + (failed ? "Retry " + num(failed) + " now" : "Check now") + "</button></div>" +
+      '<div class="ad-tablewrap" style="margin-top:12px"><table class="ad-table"><thead><tr><th>Subscriber</th><th>Plan</th><th>Price</th><th>From</th><th>Status</th><th></th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var s = STATE[r.state] || ["plan", r.state, ""];
+        if (r.state === "failed" && /price is now/.test(r.note || "")) s = ["warn", "Paused", "The plan's price changed after this subscriber was told - not charged until you announce it or withdraw"];
+        return "<tr><td>" + userCell(r) + '</td><td><span class="ad-tag paid">' + esc(r.planName) + "</span>" + (r.interval === "year" ? ' <span class="ad-tag info">yearly</span>' : "") + "</td>" +
+          "<td>" + price(r.currentCents, r.currency) + " → <b>" + price(r.newCents, "USD") + "</b></td>" +
+          "<td>" + (r.startsAt ? esc(new Date(r.startsAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })) : "-") + "</td>" +
+          '<td><span class="ad-tag ' + s[0] + '" title="' + esc(s[2]) + '">' + esc(s[1]) + "</span>" +
+          (r.cancelling ? ' <span class="ad-tag warn">cancelling</span>' : "") +
+          (r.note ? '<div class="ad-muted" style="font-size:12px;max-width:320px">' + esc(r.note) + "</div>" : "") + "</td>" +
+          '<td><button class="btn btn-ghost btn-sm" data-pm-cancel="' + esc(r.subscriptionId) + '" data-pm-name="' + esc(r.username || r.email) + '">Withdraw</button></td></tr>';
+      }).join("") + "</tbody></table></div></div>";
+  }
   function renderPricing() {
     if (!PR.draft) return;
     var focus = document.activeElement, keep = focus && (focus.dataset.pr || (focus.dataset.prPack ? "pack" + focus.dataset.prPack + focus.dataset.prField : ""));
     var caret = focus && typeof focus.selectionStart === "number" ? focus.selectionStart : null;
-    $("[data-pr]").innerHTML = '<div class="ad-pr-plans">' + PR.data.planIds.map(prPlanCard).join("") + "</div>" +
+    $("[data-pr]").innerHTML = '<div class="ad-pr-plans">' + PR.data.planIds.map(prPlanCard).join("") + "</div>" + prMovesCard() +
       (PR.draft.yearly ? prYearlyCard() : "") + prTopupCard() + (PR.draft.coins ? prCoinsCard() : "");
     var dirty = prDirty();
     $("[data-pr-save]").disabled = !dirty;
@@ -2135,12 +2211,88 @@
         return renderPricing();
       }
       if (t.dataset.prPackRemove != null) { PR.draft.topup.packs.splice(Number(t.dataset.prPackRemove), 1); return renderPricing(); }
-      if (t.matches("[data-pr-save]")) {
-        return ask({ title: "Save plans & pricing?", text: "The website, the server and every open app use the new values within seconds. If you changed a monthly price, also change the product's price in Dodo Payments (yearly products are re-priced automatically).", ok: "Save changes" }).then(function (v) {
+      if (t.matches("[data-pm-retry]")) {
+        return run(t, A.retryPriceChanges(), null, "Checking").then(function (d) {
+          PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; renderPricing();
+          var r = d.result || {};
+          toast(r.failed ? num(r.failed) + " still not accepted by Dodo - see the note in the list" :
+                num(r.scheduled) + " scheduled in Dodo, " + num(r.waiting) + " still in their notice period", !!r.failed);
+        });
+      }
+      if (t.dataset.pmCancel) {
+        var pmId = t.dataset.pmCancel, pmName = t.dataset.pmName;
+        return ask({ title: "Withdraw the new price for " + pmName + "?", ok: "Withdraw",
+                     text: "They keep paying their current price, and get an email saying the announced change was withdrawn. A change already scheduled in Dodo is cancelled there too." }).then(function (v) {
           if (!v) return;
-          run(t, A.savePricing(PR.draft), null, "Saving").then(function (d) {
+          run(t, A.cancelPriceChange(pmId), "Price change withdrawn - " + pmName + " was told by email", "Withdrawing").then(function (d) {
+            PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; renderPricing();
+          });
+        });
+      }
+      if (t.matches("[data-pr-save]")) {
+        // Plans whose monthly price changes and that have subscribers: offer to move them too.
+        var repriced = ["builder", "pro", "studio"].filter(function (id) {
+          var a = PR.data.catalog.plans[id], b = PR.draft.plans[id];
+          return a && b && Number(a.price) !== Number(b.price) && (PR.data.subscribers || {})[id] > 0;
+        });
+        var reach = repriced.reduce(function (n, id) { return n + PR.data.subscribers[id]; }, 0);
+        // Subscribers already told about a different new price for a plan being re-priced again.
+        var announced = (PR.data.priceChanges || []).filter(function (r) {
+          var a = PR.data.catalog.plans[r.plan], b = PR.draft.plans[r.plan];
+          return a && b && Number(a.price) !== Number(b.price);
+        }).length;
+        var moveFields = repriced.length ? [
+          { name: "migrate", type: "checkbox", value: false,
+            label: "Move existing subscribers to the new price (" + num(reach) + " on " + repriced.map(function (id) {
+              return PR.draft.plans[id].name + " " + usd(Math.round(Number(PR.data.catalog.plans[id].price) * 100)) + " → " + usd(Math.round(Number(PR.draft.plans[id].price) * 100));
+            }).join(", ") + ")" },
+          { name: "noticeDays", type: "select", value: "30", label: "Notice before a price increase",
+            options: [["30", "30 days (recommended)"], ["14", "14 days"], ["60", "60 days"], ["7", "7 days"]] }
+        ] : [];
+        return ask({ title: "Save plans & pricing?", ok: "Save changes", fields: moveFields,
+                     text: "The website, the server and every open app use the new values within seconds. A changed monthly price is set on the plan's Dodo Payments product first - if Dodo refuses it, nothing is saved. Yearly products are re-priced automatically." +
+                       (repriced.length ? " Existing subscribers keep the price they signed up at unless you tick the box below. If you do, each one gets an email now; " +
+                        "an increase starts at their first renewal after the notice period (they can cancel before it), a decrease at their next renewal." : "") +
+                       (announced ? " Note: " + num(announced) + " subscriber" + (announced === 1 ? " was" : "s were") + " already told about a different new price for this plan. " +
+                        "Unless you tick the box (which sends them the new figure), their change is paused so nobody is charged a price they weren't told." : "") }).then(function (v) {
+          if (!v) return;
+          if (v.migrate) return ask({ title: "Email " + num(reach) + " subscriber" + (reach === 1 ? "" : "s") + " about their new price?", ok: "Save and notify",
+                                      text: "Each subscriber gets a personal email with their current and new price and the date it starts. This can't be unsent - you can still withdraw a change for anyone in the list on this page, and they'll be told." })
+            .then(function (ok) { return ok ? v : null; });
+          return v;
+        }).then(function (v) {
+          if (!v) return;
+          busy(t, true, "Saving");
+          A.savePricing(PR.draft, { migrate: !!v.migrate, noticeDays: v.noticeDays }).then(function (d) { busy(t, false); return d; }, function (e) {
+            busy(t, false);
+            // A Dodo price that couldn't be set: a dialog that stays until read, not a 4-second toast.
+            if (e && e.code === "price_sync_failed") ask({ title: "Not saved - Dodo Payments price not updated", text: errText(e), ok: "OK" });
+            else toast(errText(e), true);
+            return new Promise(function () {});
+          }).then(function (d) {
             PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
-            toast(d.changed && d.changed.length ? "Saved: " + d.changed.slice(0, 3).join("; ") + (d.changed.length > 3 ? " (+" + (d.changed.length - 3) + " more)" : "") : "Nothing changed");
+            var synced = (d.monthlyProducts || []).filter(function (r) { return r.status === "updated"; });
+            toast(d.changed && d.changed.length ? "Saved: " + d.changed.slice(0, 3).join("; ") + (d.changed.length > 3 ? " (+" + (d.changed.length - 3) + " more)" : "") +
+                  (synced.length ? " - Dodo " + synced[0].mode + " product" + (synced.length > 1 ? "s" : "") + " updated" : "") : "Nothing changed");
+            var unsynced = (d.monthlyProducts || []).filter(function (r) { return r.status === "not_configured"; });
+            var m = d.migration;
+            if (d.pausedMoves) toast(num(d.pausedMoves) + " announced price change" + (d.pausedMoves === 1 ? "" : "s") + " paused - the plan's price no longer matches what they were told (see the list)", true);
+            if (unsynced.length) {
+              ask({ title: "Saved here, not in Dodo Payments", text: "The Dodo API key isn't set on this server, so the monthly price of " +
+                    unsynced.map(function (r) { return r.plan + " (" + usd(r.priceCents) + ")"; }).join(", ") +
+                    " was not changed in Dodo. Change it in the Dodo dashboard, or set DODO_PAYMENTS_API_KEY and save again." +
+                    (m && m.error ? " Existing subscribers were not moved or emailed." : ""), ok: "OK" });
+            } else if (m) {
+              var skipped = Object.keys(m.skipped || {}).map(function (k) { return num(m.skipped[k]) + " " + k; });
+              ask({ title: m.error ? "Prices saved - subscribers not moved" : "Prices saved - " + num(m.notified) + " subscriber" + (m.notified === 1 ? "" : "s") + " notified",
+                    ok: "OK", text: m.error ? m.error : (
+                      (m.notified ? num(m.notified) + " got an email with their new price and start date. " +
+                        num(m.scheduled) + " already scheduled in Dodo, " + num(m.waiting) + " in their notice period (scheduled automatically when their renewal comes up)" +
+                        (m.failed ? ", " + num(m.failed) + " not accepted by Dodo yet - retried automatically, see the list below" : "") + ". "
+                        : "No one needed an email. ") +
+                      (skipped.length ? "Left alone: " + skipped.join(", ") + "." : "") +
+                      (d.priceNotice ? " The optional announcement email below is separate - if you send it, choose an audience that doesn't repeat this notice to subscribers." : "")) });
+            }
             var failed = (d.yearlyProducts || []).filter(function (r) { return r.status !== "ready"; });
             if (failed.length) {
               toast("Yearly price not updated in Dodo for " + failed.map(function (r) { return r.plan + (r.message ? " (" + r.message + ")" : ""); }).join(", ") +
@@ -2157,7 +2309,15 @@
       if (t.matches("[data-pr-reset]")) {
         return ask({ title: "Reset plans & pricing?", text: "Every plan, allowance and top-up price goes back to the built-in values. The website and apps update within seconds.", ok: "Reset everything", danger: true, confirmText: "RESET", fields: [{ name: "confirm", label: "Type RESET to confirm" }] }).then(function (v) {
           if (!v) return;
-          run(t, A.resetPricing(), "Plans & pricing are back to the built-in values", "Resetting").then(function (d) { PR.data = d; PR.draft = prClone(d.catalog); renderPricing(); });
+          busy(t, true, "Resetting");
+          A.resetPricing().then(function (d) {
+            busy(t, false); toast("Plans & pricing are back to the built-in values");
+            PR.data = d; PR.draft = prClone(d.catalog); renderPricing();
+          }, function (e) {
+            busy(t, false);
+            if (e && e.code === "price_sync_failed") ask({ title: "Not reset - Dodo Payments price not updated", text: errText(e), ok: "OK" });
+            else toast(errText(e), true);
+          });
         });
       }
       if (t.dataset.saleRevoke) {
@@ -2177,6 +2337,7 @@
     users: "accounts people search customers", messages: "email broadcast send newsletter mailbox", settings: "live maintenance pause sign-ups theme season promotion discount sale announcement banner terms privacy legal",
     server: "limits rate limit queue priority head start security sessions lockout model routing provider address timeout email",
     pricing: "plans prices price subscription builder pro studio enterprise allowance monthly yearly annual 12 months bonus first month coins tokens features 3d studio version converter sounds recipes loot particles thinking high top-up topup packages discount percent fee dodo payments sales",
+    learning: "repair learning telemetry errors fixes lessons training prompts rules auto-healer download export forge neoforge fabric plugins datapacks",
     activity: "log audit history changes", system: "keys api key provider balance queue health mailboxes plans updates deepseek release notes what's new changelog app version reference library minecraft versions guides loaders"
   };
   function findActions() {
@@ -2358,7 +2519,7 @@
     var h = location.hash.replace(/^#/, "");
     var m = h.match(/^users\/([0-9a-f-]{36})$/i);
     if (m) { if (state.view !== "users") go("users", false); openUser(m[1]); return; }
-    var view = ["dashboard", "insights", "ads", "revenue", "pricing", "gifts", "settings", "server", "users", "messages", "community", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
+    var view = ["dashboard", "insights", "ads", "revenue", "pricing", "gifts", "settings", "server", "users", "messages", "community", "learning", "activity", "system"].indexOf(h) >= 0 ? h : "dashboard";
     if (view !== state.view || !state.booted) go(view, false);
     state.booted = true;
   }
@@ -2743,7 +2904,8 @@
   var LIVE = { dashboard: function () { loadDashboard(); }, insights: function () { loadInsights(); },
     ads: function () { loadAds(); }, revenue: function () { loadRevenue(); },
     users: function () { return loadUsers(); }, activity: function () { loadEvents(); },
-    community: function () { if (window.MCA.adminCommunity) return window.MCA.adminCommunity.load(true); } };
+    community: function () { if (window.MCA.adminCommunity) return window.MCA.adminCommunity.load(true); },
+    learning: function () { if (window.MCA.adminLearning) return window.MCA.adminLearning.load(true); } };
   var lastTouch = 0;
   ["pointerdown", "keydown", "wheel"].forEach(function (t) {
     document.addEventListener(t, function () { lastTouch = Date.now(); }, { passive: true });
@@ -2768,7 +2930,8 @@
   document.addEventListener("visibilitychange", function () { if (!document.hidden) setTimeout(liveTick, 300); });
 
   /* Shared helpers for admin-community.js (The Workshop moderation view). */
-  window.MCA.adminKit = { ask: ask, toast: toast, run: run, since: since, when: when, num: num, openUser: function (id) { openUser(id); } };
+  window.MCA.adminKit = { ask: ask, toast: toast, run: run, since: since, when: when, num: num, openUser: function (id) { openUser(id); },
+    downloadBlob: downloadBlob, quiet: function () { return !!state.quiet; } };
 
   wirePricing();
   start();

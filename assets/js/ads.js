@@ -42,7 +42,7 @@
   }
 
   var HOUSE = [
-    { title: "Builder: every tool, no ads", text: "Texture Studio, unlimited Build & Run and 2,000,000 tokens a month (3,000,000 in your first) for $5.63 a month.", href: "index.html#pricing", cta: "See plans" },
+    { title: "Builder: every tool, no ads", text: "Texture Studio, unlimited Build & Run and 2,000 Coins a month (3,000 in your first) for $5.63 a month.", href: "index.html#pricing", cta: "See plans" },
     { title: "Think deeper with Pro", text: "High thinking mode plans big systems and checks every file before it answers.", href: "index.html#pricing", cta: "Compare plans" },
     { title: "Paint textures with AI", text: "Describe a sword, block or GUI and MyPixelAI draws it pixel by pixel.", href: "index.html#tour", cta: "See how" }
   ];

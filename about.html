@@ -114,7 +114,7 @@
           { "@type": "Question", "name": "Which mod loaders and Minecraft versions does MyCraftingAI support?",
             "acceptedAnswer": { "@type": "Answer", "text": "Forge (1.7.10 to 26.x), NeoForge (1.20.2 to 26.x) and Fabric (1.14.3 to 26.x) projects, plus datapacks. Every Minecraft version the app offers has its own verified, version-exact guides in the app's built-in reference library, so the AI writes code with the right names and APIs for that exact version. The Version Converter reads Forge, NeoForge, Fabric and Quilt mods of any version and converts them to any of those versions." } },
           { "@type": "Question", "name": "What happens when my mod doesn't compile?",
-            "acceptedAnswer": { "@type": "Answer", "text": "MyCraftingAI's Auto-Healer checks the mod's JSON files and mod id before every build, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - and known crashes by itself, without spending Coins. Only what is left goes to the AI, together with the exact error lines and the real class and method names of the project's Minecraft version. A green Auto-Healer card or an indigo AI repair card always shows who is fixing the mod." } },
+            "acceptedAnswer": { "@type": "Answer", "text": "MyCraftingAI's Auto-Healer checks the mod's JSON files and mod id before every build, then fixes common compile errors - missing imports, renamed classes and known API changes between Minecraft versions - and known crashes by itself, without spending Coins. Only what is left goes to the AI, together with the exact error lines and the real class and method names of the project's Minecraft version. A green Auto-Healer card or an amber AI repair card always shows who is fixing the mod." } },
           { "@type": "Question", "name": "Can MyCraftingAI convert a 1.12.2 or 1.16.5 mod to 1.21.1?",
             "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Version Converter detects the mod's loader and version, ports the code and resources (including the 1.13 Flattening and the 1.21 data changes) to each target you choose and saves every version as a ready-to-build ZIP with a report. The Coin estimate is shown before it starts." } },
           { "@type": "Question", "name": "Is MyCraftingAI free?",
@@ -174,55 +174,55 @@
             <div class="ws-top"><h3>Mod Assistant (chat)</h3><span class="tag">All plans</span></div>
             <p>Chat with an AI that reads your project before it writes. Each answer lists the files it created or changed, so you can review, undo or build straight away.</p>
             <ul><li>Items, blocks, ores, tools, armour, mobs, recipes, loot and world generation</li><li>Version-exact: reads verified guides for your loader and Minecraft version, and looks up classes mid-answer</li><li>Attach screenshots or reference images</li></ul>
-            <img src="assets/img/assistant.png?v=20261130" alt="MyCraftingAI Mod Assistant with a finished request, the changed files and Auto-Healer repair cards" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/assistant.png?v=20261207" alt="MyCraftingAI Mod Assistant with a finished request, the changed files and Auto-Healer repair cards" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>3D Studio</h3><span class="tag studio">Studio plan</span></div>
             <p>Describe a mob and how it moves. The AI builds a GeckoLib model with bones, pivots and animations; watch every animation play in the app, then connect it to your code with one click. Weapons, tools, guns and armor sets too.</p>
             <ul><li>GeckoLib release matched to your loader and version automatically</li><li>Walk, idle, attack and fly animations from a sentence - "run, walk and attack" makes three separate ones</li><li>Animation list: play, add, redo or delete each animation, or redo only the ones you tick</li><li>3D weapons and guns placed right in the hand, the inventory and on the ground; 3D armor on a player mannequin</li><li>Glowing eyes, fire, smoke and other effects, previewed live</li></ul>
-            <img src="assets/img/3d-studio.png?v=20261130" alt="MyCraftingAI 3D Studio showing a GeckoLib fire dragon playing its fly animation, with its animation list" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/3d-studio.png?v=20261207" alt="MyCraftingAI 3D Studio showing a GeckoLib fire dragon playing its fly animation, with its animation list" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Texture Studio</h3><span class="tag">Builder and up</span></div>
             <p>Paint item, block and entity textures by hand, or describe them to the pixel-art AI. Turn the result in 3D to check it from every side.</p>
             <ul><li>16x16 to 64x64 pixel art at the size the game expects</li><li>Every asset arrives with an art brief from the Assistant - press Generate, pick Fast, Normal or Max detail</li><li>Show GUI buttons: slots, buttons and bars outlined where your code draws them</li><li>Mobs shown on their real 3D model</li></ul>
-            <img src="assets/img/texture-studio.png?v=20261130" alt="MyCraftingAI Texture Studio with a 16 by 16 ruby gem on the pixel canvas" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/texture-studio.png?v=20261207" alt="MyCraftingAI Texture Studio with a 16 by 16 ruby gem on the pixel canvas" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Version Converter</h3><span class="tag studio">Studio plan</span></div>
             <p>Point it at a mod folder: it detects the loader and Minecraft version, ports the mod to every loader and version you pick, and saves each one as a ready-to-build ZIP with a conversion report.</p>
             <ul><li>From Forge, NeoForge, Fabric and Quilt mods of any version</li><li>To Forge 1.7.10+, NeoForge 1.20.2+ and Fabric 1.14.3+ up to 26.x - every target with verified guides</li><li>Predictable Coin estimate before it starts; compile check with 1 to unlimited repair rounds</li><li>Every version kept as a project: pick it next to Run Mod and test it one by one</li></ul>
-            <img src="assets/img/version-converter.png?v=20261130" alt="MyCraftingAI Version Converter converting a mod to several loaders and Minecraft versions with a Coin estimate" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/version-converter.png?v=20261207" alt="MyCraftingAI Version Converter converting a mod to several loaders and Minecraft versions with a Coin estimate" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Project Manager</h3><span class="tag">All plans</span></div>
             <p>Create a new mod or open an existing one. The start screen downloads the official template for the loader and version you choose and renames it to your mod, then the overview and code editor keep the whole project in view.</p>
             <ul><li>Smart scaffolding: <code>com.my_mod</code>, never <code>com.example</code></li><li>Project overview with loader, version and Java detection</li><li>Files &amp; Code editor with tabs, syntax colours and a project tree</li></ul>
-            <img src="assets/img/files.png?v=20261130" alt="MyCraftingAI Files and Code view with the project tree and Java editor" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/files.png?v=20261207" alt="MyCraftingAI Files and Code view with the project tree and Java editor" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Build &amp; Run</h3><span class="tag">All plans</span></div>
             <p>Compile with Gradle and launch the Minecraft development client in one click. The Auto-Healer fixes common errors first without spending Coins; what's left goes to the assistant, as many rounds as you allow, and a load check confirms the game really starts with your mod.</p>
-            <ul><li>Auto-Healer: JSON files, mod id, imports, version API changes and known crashes repaired before the AI is asked</li><li>Always clear who is fixing: green Auto-Healer (free) or indigo AI repair (costs Coins)</li><li>Right Java (8, 17, 21 or 25) chosen or downloaded automatically</li><li>Setup problems explained instead of sent to the AI</li><li>Test server with its addresses, port, admins and offline players</li><li>Export: the ready-to-play .jar or the project as a ZIP - one version or all</li></ul>
-            <img src="assets/img/build-run.png?v=20261130" alt="MyCraftingAI Build and Run page with the compile pipeline and game log" loading="lazy" width="1920" height="1080">
+            <ul><li>Auto-Healer: JSON files, mod id, imports, version API changes and known crashes repaired before the AI is asked</li><li>Always clear who is fixing: green Auto-Healer (free) or amber AI repair (costs Coins)</li><li>Right Java (8, 17, 21 or 25) chosen or downloaded automatically</li><li>Setup problems explained instead of sent to the AI</li><li>Test server with its addresses, port, admins and offline players</li><li>Export: the ready-to-play .jar or the project as a ZIP - one version or all</li></ul>
+            <img src="assets/img/build-run.png?v=20261207" alt="MyCraftingAI Build and Run page with the compile pipeline and game log" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Sounds</h3><span class="tag">Builder and up</span></div>
             <p>Every sound your mod needs in one list: each mob's ambient, hurt, death and step sounds and every sound event in your code. New mobs arrive with fitting Minecraft sounds, so nothing is silent.</p>
             <ul><li>All 1,968 Minecraft sounds to listen to and pick from</li><li>Import your own .ogg, set volume and pitch</li><li>One click connects the sounds to your code</li></ul>
-            <img src="assets/img/sounds.png?v=20261130" alt="MyCraftingAI Sounds page with a golem's sounds, the sound shape sliders and the Minecraft sound library" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/sounds.png?v=20261207" alt="MyCraftingAI Sounds page with a golem's sounds, the sound shape sliders and the Minecraft sound library" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Recipes &amp; Loot</h3><span class="tag">Builder and up</span></div>
             <p>A visual crafting table and loot-table builder. Pick your mod's items or any Minecraft item, click the slots, save - the files are written in the exact format of your Minecraft version.</p>
             <ul><li>Shaped, shapeless, furnace, blast furnace, smoker, campfire and stonecutter recipes</li><li>Block drops with Silk Touch and Fortune, mob drops with Looting and chances</li><li>No code and no Coins needed</li></ul>
-            <img src="assets/img/recipes.png?v=20261130" alt="MyCraftingAI Recipes and Loot page with a ruby sword crafting recipe" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/recipes.png?v=20261207" alt="MyCraftingAI Recipes and Loot page with a ruby sword crafting recipe" loading="lazy" width="1920" height="1080">
           </article>
           <article class="ws-card">
             <div class="ws-top"><h3>Particles</h3><span class="tag studio">Studio plan</span></div>
             <p>Design particles, sword trails, shockwave rings, spirals, auras and explosions with a live preview, then attach them to an item, a mob or a projectile.</p>
             <ul><li>Shape, sprite, colour and opacity fades, size, lifetime, physics and glow</li><li>Preview in real time without spending Coins</li><li>Connect to code registers the particle and spawns it for every player</li></ul>
-            <img src="assets/img/particles.png?v=20261130" alt="MyCraftingAI Particles page with a glowing sword-swing trail in the live preview" loading="lazy" width="1920" height="1080">
+            <img src="assets/img/particles.png?v=20261207" alt="MyCraftingAI Particles page with a glowing sword-swing trail in the live preview" loading="lazy" width="1920" height="1080">
           </article>
         </div>
       </div>

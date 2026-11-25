@@ -157,6 +157,17 @@
     var email = String(body.email || "").trim().toLowerCase();
 
     switch (method + " " + path) {
+      case "GET /v1/users/usage/features": {
+        if (!session || !users[session.email]) return delay().then(function () { return fail("unauthorized", 401); });
+        var feats = ["assistant", "model", "texture", "converter", "background"], periods = {};
+        ["today", "week", "month", "lastMonth", "all"].forEach(function (p) {
+          periods[p] = {};
+          feats.forEach(function (f) { periods[p][f] = { coins: 0, requests: 0 }; });
+        });
+        var days = [];
+        for (var i = 29; i >= 0; i--) days.push({ day: new Date(Date.now() - i * 86400000).toISOString().slice(0, 10), coins: 0 });
+        return delay({ features: feats, periods: periods, daily: days, since: null, timezone: "UTC", weekStarts: "monday" });
+      }
       case "POST /v1/auth/signup":
         if (users[email]) return delay().then(function () { return fail("email_taken", 409); });
         return sha256(body.password).then(function (hash) {
@@ -335,6 +346,8 @@
     forgot: function (d) { return request("POST", "/v1/auth/forgot", d); },
     reset: function (d) { return request("POST", "/v1/auth/reset", d); },
     me: function () { return request("GET", "/v1/me"); },
+    /** Coins per app feature: today / this week / this month / last month / all time, plus 30 days. */
+    usageByFeature: function () { return request("GET", "/v1/users/usage/features"); },
     desktopCode: function (d) { return request("POST", "/v1/desktop/code", d); },
     /** Website contact forms: topic "sales" goes to contact@, "support" to support@. */
     contact: function (d) { return request("POST", "/v1/contact", d); },
@@ -434,7 +447,14 @@
         setServerSettings: function (changes) { return request("PATCH", "/v1/admin/server-settings", { changes: changes }); },
         resetServerSetting: function (name) { return request("DELETE", "/v1/admin/server-settings/" + encodeURIComponent(name)); },
         pricing: function () { return request("GET", "/v1/admin/pricing"); },
-        savePricing: function (catalog) { return request("PUT", "/v1/admin/pricing", { catalog: catalog }); },
+        /** opts.migrate: also move existing subscribers of re-priced plans (opts.noticeDays before an increase). */
+        savePricing: function (catalog, opts) {
+          opts = opts || {};
+          return request("PUT", "/v1/admin/pricing", { catalog: catalog, migrateSubscribers: !!opts.migrate,
+                                                       noticeDays: opts.noticeDays == null ? 30 : Number(opts.noticeDays) });
+        },
+        retryPriceChanges: function () { return request("POST", "/v1/admin/pricing/price-changes/retry"); },
+        cancelPriceChange: function (subscriptionId) { return request("DELETE", "/v1/admin/pricing/price-changes/" + encodeURIComponent(subscriptionId)); },
         /** Optional customer email about the last price change / the running promotion ("pricing" | "promotion"). */
         notice: function (kind) { return request("GET", "/v1/admin/notices/" + kind); },
         sendNotice: function (kind, d) { return request("POST", "/v1/admin/notices/" + kind, d); },
@@ -503,6 +523,41 @@
           moderate: function (kind, id, d) { return request("POST", "/v1/admin/community/content/" + kind + "/" + encodeURIComponent(id), d); },
           spaces: function () { return request("GET", "/v1/admin/community/spaces"); },
           saveSpace: function (id, d) { return id ? request("PATCH", "/v1/admin/community/spaces/" + encodeURIComponent(id), d) : request("POST", "/v1/admin/community/spaces", d); }
+        },
+        /** Repair learning: anonymised error-and-fix patterns from successful repairs. */
+        learning: {
+          overview: function () { return request("GET", "/v1/admin/repair-learning"); },
+          setEnabled: function (on) { return request("PUT", "/v1/admin/repair-learning/settings", { enabled: !!on }); },
+          lessons: function (q) {
+            q = q || {};
+            return request("GET", "/v1/admin/repair-learning/lessons?type=" + encodeURIComponent(q.type || "") +
+              "&mc_version=" + encodeURIComponent(q.version || "") + "&q=" + encodeURIComponent(q.query || "") +
+              "&sort=" + encodeURIComponent(q.sort || "repeats") + "&page=" + (q.page || 1));
+          },
+          lesson: function (id) { return request("GET", "/v1/admin/repair-learning/lessons/" + encodeURIComponent(id)); },
+          removeLesson: function (id) { return request("DELETE", "/v1/admin/repair-learning/lessons/" + encodeURIComponent(id)); },
+          removeEntry: function (id) { return request("DELETE", "/v1/admin/repair-learning/occurrences/" + encodeURIComponent(id)); },
+          /** Clear a type, a type + version, or everything (confirm = the typed confirmation). */
+          removeBucket: function (type, version, confirm) {
+            return request("POST", "/v1/admin/repair-learning/delete", { type: type || "", mc_version: version || "", confirm: confirm || "" });
+          },
+          /** Download a bundle (JSON for tools, "md" for agents); ids = chosen lessons only. */
+          download: function (q, ids) {
+            if (mode !== "live") return fail("not_live", 503);
+            q = q || {};
+            var fmt = "format=" + (q.format === "md" ? "md" : "json");
+            var url = base + "/v1/admin/repair-learning/export?" + fmt + "&type=" + encodeURIComponent(q.type || "") +
+              "&mc_version=" + encodeURIComponent(q.version || "");
+            var init = { credentials: "include" };
+            if (ids && ids.length) {
+              url = base + "/v1/admin/repair-learning/export?" + fmt;
+              init = { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: ids }) };
+            }
+            return fetch(url, init).then(function (r) {
+              if (!r.ok) throw new ApiError("error", "Download failed (" + r.status + ").", r.status);
+              return r.blob();
+            });
+          }
         },
         /** Daily metrics as CSV, downloaded with the session cookie. */
         exportMetrics: function (days) {

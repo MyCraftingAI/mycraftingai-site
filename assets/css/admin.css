@@ -84,6 +84,11 @@ body[data-page="admin"] { background: var(--ground); }
 .ad-table tbody tr:hover { background: rgba(255,255,255,.025); }
 .ad-table tbody tr.sel { background: rgba(79,99,245,.08); }
 .ad-table .ck { width: 38px; padding-right: 0; }
+/* User drawer: Coins by feature (compact, numbers right-aligned, not clickable). */
+.ad-table.ad-fu { min-width: 0; font-variant-numeric: tabular-nums; }
+.ad-table.ad-fu th, .ad-table.ad-fu td { padding: 9px 10px; text-align: right; white-space: nowrap; }
+.ad-table.ad-fu th:first-child, .ad-table.ad-fu td:first-child { text-align: left; padding-left: 0; }
+.ad-table.ad-fu tbody tr { cursor: default; }
 .ad-table input[type=checkbox], .ad-check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
 .ad-user { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .ad-user .ad-avatar { width: 32px; height: 32px; font-size: 13px; border-radius: 9px; }

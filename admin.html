@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css?v=20261201">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261118b">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261207">
 </head>
 <body data-page="admin">
   <div class="ad-gate" data-gate>
@@ -39,6 +39,7 @@
       <button class="ad-nav" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.4.2 4 1.8 4.6 4.5"/></svg>Users<span class="ad-count" data-count-users>–</span></button>
       <button class="ad-nav" data-nav="messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Messages</button>
       <button class="ad-nav" data-nav="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>Community<span class="ad-count warn" data-cm-badge hidden></span></button>
+      <button class="ad-nav" data-nav="learning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.3-.6-.6-2.3z"/></svg>Repair learning<span class="ad-count warn" data-rl-badge hidden>Paused</span></button>
       <button class="ad-nav" data-nav="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h2"/><path d="M10 12h10"/><circle cx="8" cy="12" r="2"/><path d="M4 18h12"/><path d="M20 18h0"/><circle cx="18" cy="18" r="2"/></svg>Live settings<span class="ad-count warn" data-switch-badge hidden>!</span></button>
       <button class="ad-nav" data-nav="server"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h6M11 16.5h6"/></svg>Server settings<span class="ad-count" data-srv-badge hidden></span></button>
       <button class="ad-nav" data-nav="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Activity log</button>
@@ -138,6 +139,16 @@
             <div class="ad-rows" data-ins-top></div>
           </div>
         </div>
+        <div class="ad-grid ad-two">
+          <div class="ad-card">
+            <h3>Coins by feature</h3><p class="ad-sub" data-ins-fc-sub>Coins charged per app feature in this period</p>
+            <div class="ad-bars" data-ins-feature-coins></div>
+          </div>
+          <div class="ad-card">
+            <h3>Feature reach</h3><p class="ad-sub">Requests, accounts and average cost per request in this period</p>
+            <div class="ad-rows" data-ins-feature-rows></div>
+          </div>
+        </div>
       </section>
 
       <!-- Ads & unlocks -->
@@ -221,6 +232,31 @@
           <button data-cm-tab="reports" class="on">Reports</button><button data-cm-tab="content">Posts &amp; comments</button><button data-cm-tab="members">Members</button><button data-cm-tab="spaces">Spaces</button>
         </div>
         <div data-cm-body><div class="ad-skel"></div></div>
+      </section>
+
+      <!-- Repair learning -->
+      <section class="ad-view" data-view="learning" hidden>
+        <div class="ad-head">
+          <button class="ad-menu" data-menu aria-label="Menu">☰</button>
+          <div><h1>Repair learning</h1><p>Anonymised error-and-fix patterns from repairs that then built or passed their check, grouped by project type and Minecraft version. Download them to improve the system prompts, build rules, templates and the Auto-Healer.</p></div>
+          <div class="ad-grow"></div>
+          <button class="btn btn-ghost btn-sm" data-rl-refresh>Refresh</button>
+        </div>
+        <div class="ad-card" data-rl-switch style="margin-bottom:14px"><div class="ad-skel"></div></div>
+        <div class="ad-grid ad-kpis" data-rl-kpis></div>
+        <div class="ad-rl-layout" style="display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:14px;margin-top:14px">
+          <div class="ad-card" data-rl-tree style="align-self:start"><div class="ad-skel"></div></div>
+          <div>
+            <div class="ad-card" style="margin-bottom:12px">
+              <div class="ad-inline" style="gap:10px;flex-wrap:wrap">
+                <input class="input" type="search" data-rl-query placeholder="Search error titles and causes…" style="flex:1;min-width:200px">
+                <div class="ad-seg" data-rl-sort><button data-sort="repeats" class="on">Most seen</button><button data-sort="recent">Newest</button></div>
+              </div>
+              <div class="ad-inline" style="gap:8px;flex-wrap:wrap;margin-top:12px" data-rl-actions></div>
+            </div>
+            <div data-rl-list><div class="ad-skel"></div></div>
+          </div>
+        </div>
       </section>
 
       <!-- Live settings -->
@@ -527,9 +563,10 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js?v=20261204"></script>
-  <script src="assets/js/api.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261207"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
-  <script src="assets/js/admin.js?v=20261205"></script>
+  <script src="assets/js/admin.js?v=20261207b"></script>
   <script src="assets/js/admin-community.js?v=20261118b"></script>
+  <script src="assets/js/admin-learning.js?v=20261125"></script>
 </body>
 </html>

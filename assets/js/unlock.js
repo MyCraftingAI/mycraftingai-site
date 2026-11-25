@@ -148,7 +148,7 @@
       '<p class="lede">No ad is available for you right now, so here is a quick note from us instead. Your unlock is on its way.</p>' +
       '<div class="unlock-sponsor"><span class="ad-label">From MyCraftingAI</span>' +
       "<b>Builder unlocks every tool, with no ads</b>" +
-      "<p>Texture Studio and Build & Run whenever you need them, Low and Normal thinking, and 2,000,000 tokens a month (3,000,000 in your first) for $5.63 a month.</p>" +
+      "<p>Texture Studio and Build & Run whenever you need them, Low and Normal thinking, and 2,000 Coins a month (3,000 in your first) for $5.63 a month.</p>" +
       '<a class="btn btn-ghost btn-sm" href="index.html#pricing" target="_blank" rel="noopener">See plans</a></div>' +
       '<div class="unlock-progress" data-progress><div class="get-bar"><i></i></div><small></small></div>');
     progress(seconds, "Unlocking soon", claim);

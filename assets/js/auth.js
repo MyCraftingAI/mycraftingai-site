@@ -468,6 +468,7 @@
         notice(root, "warn", "Your last AI request cost " + coinText(c.debt) + " Coins more than you had left. That's paid from your next Coins (a top-up, a gift or your plan's renewal); new requests wait until your balance is above 0.");
       }
       topupCard();
+      coinUsageCard();
       if (/[?&]checkout=applied\b/.test(location.search)) {
         notice(root, "ok", "Payment complete - your purchase is on your account. Your receipt is on its way from billing@mycraftingai.com.");
       } else if (/[?&](topup=thanks|checkout=done|checkout=processing)\b/.test(location.search)) {
@@ -627,7 +628,16 @@
           var yearlySub = sub.interval === "year";
           html += row("Plan", esc(sub.planName || plan.name || "-"));
           html += row("Billing", (yearlySub ? "Yearly" : "Monthly") +
-            (sub.price ? " · $" + Number(sub.price).toFixed(2) + (yearlySub ? " every 12 months" : " a month") : ""));
+            // What this subscription is billed (before tax) - it keeps its price when list prices change.
+            (sub.price ? " · " + (!sub.currency || sub.currency === "USD" ? "$" + Number(sub.price).toFixed(2)
+              : Number(sub.price).toFixed(2) + " " + esc(sub.currency)) + (yearlySub ? " every 12 months" : " a month") : ""));
+          if (sub.nextPrice && sub.nextPrice.from) {
+            // An announced price change (the customer was emailed): shown until it's charged.
+            html += row("New price", "$" + Number(sub.nextPrice.price).toFixed(2) + (yearlySub ? " every 12 months" : " a month") +
+              " from " + esc(new Date(sub.nextPrice.from).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })) +
+              (sub.cancelled || (sub.currency === "USD" && sub.nextPrice.price <= sub.price) ? ""
+                : ' <span class="muted" style="font-size:12px">· don\'t want it? Cancel before that date</span>'));
+          }
           if (sub.periodCoins) {
             html += row(yearlySub ? "Coins per year" : "Coins per month",
               esc(coinText(sub.periodCoins)) + (yearlySub ? " (12 months + yearly bonus)" : ""));
@@ -804,6 +814,56 @@
           '<div class="row"><span>No top-ups yet</span><span>-</span></div>';
       }, function (err) {
         if (err && err.status !== 404) notice(card, "error", err.message);
+      });
+    }
+
+    /** Coin usage card: 30-day bars and Coins per feature for today ... all time (every device). */
+    function coinUsageCard() {
+      var card = $("#coin-usage");
+      if (!card || !api.usageByFeature) return;
+      var esc = window.MCA.escapeHtml;
+      var NAMES = { assistant: "Mod Assistant", model: "3D Studio", texture: "Texture Studio",
+                    converter: "Version Converter", background: "Background tasks" };
+      var PERIODS = ["today", "week", "month", "lastMonth", "all"];
+      function amount(n) {
+        var v = Number(n || 0);
+        if (!v) return "—";
+        if (v < 0.01) return "<0.01";
+        return v.toLocaleString("en-US", { maximumFractionDigits: v >= 100 ? 0 : v >= 10 ? 1 : 2 });
+      }
+      function dayLabel(iso) {
+        return new Date(iso + "T00:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", timeZone: "UTC" });
+      }
+      api.usageByFeature().then(function (data) {
+        var feats = data.features || Object.keys(NAMES), periods = data.periods || {};
+        var totals = PERIODS.map(function () { return { coins: 0, requests: 0 }; });
+        var rows = feats.map(function (f) {
+          var cells = PERIODS.map(function (p, i) {
+            var c = (periods[p] || {})[f] || { coins: 0, requests: 0 };
+            totals[i].coins += Number(c.coins || 0); totals[i].requests += Number(c.requests || 0);
+            var tip = c.requests ? ' title="' + esc(coinText(c.coins) + " Coins · " + c.requests + (c.requests === 1 ? " request" : " requests")) + '"' : "";
+            return "<td" + (c.coins ? "" : ' class="zero"') + tip + ">" + amount(c.coins) + "</td>";
+          });
+          return "<tr><td>" + esc(NAMES[f] || f) + "</td>" + cells.join("") + "</tr>";
+        });
+        rows.push('<tr class="total"><td>Total</td>' + totals.map(function (t) {
+          return "<td" + (t.coins ? "" : ' class="zero"') + ">" + amount(t.coins) + "</td>";
+        }).join("") + "</tr>");
+        $("[data-cu-table] tbody", card).innerHTML = rows.join("");
+
+        var daily = data.daily || [], peak = 0, sum = 0;
+        daily.forEach(function (d) { peak = Math.max(peak, Number(d.coins || 0)); sum += Number(d.coins || 0); });
+        var chart = $("[data-cu-chart]", card);
+        chart.innerHTML = daily.map(function (d) {
+          var v = Number(d.coins || 0), h = peak ? Math.max(v ? 2 : 0, Math.round(v / peak * 100)) : 0;
+          return '<i style="height:' + h + '%" title="' + esc(dayLabel(d.day) + ": " + (v ? coinText(v) + " Coins" : "no Coins spent")) + '"></i>';
+        }).join("") + (peak ? "" : '<div class="cu-empty">No Coins spent in the last 30 days.</div>');
+        if (daily.length) $("[data-cu-first]", card).textContent = dayLabel(daily[0].day);
+        $("[data-cu-total]", card).textContent = sum ? coinText(sum) + " Coins in 30 days" : "";
+        $("[data-cu-since]", card).textContent = data.since ? "Tracked since " + dayLabel(data.since) : "Tracking starts with your next request";
+      }, function (err) {
+        if (err && err.status === 404) { card.hidden = true; return; }  // server without this report yet
+        notice(card, "error", (err && err.message) || "Couldn't load your Coin usage.");
       });
     }
 

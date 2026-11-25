@@ -493,6 +493,24 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
 .usage-split .row { font-size: 14px; padding: 8px 0; }
 @media (max-width: 900px) { .account-grid { grid-template-columns: 1fr; } }
 
+/* Coin usage: 30-day bars + spend per feature and period (account page). */
+.account-grid #coin-usage { grid-column: 1 / -1; }
+.cu-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.cu-chart { display: flex; align-items: flex-end; gap: 3px; height: 120px; margin-top: 22px; padding-bottom: 1px; border-bottom: 1px solid var(--rim); position: relative; }
+.cu-chart i { flex: 1; min-width: 2px; height: 0; background: var(--accent); border-radius: 3px 3px 0 0; opacity: .9; transition: opacity .15s; }
+.cu-chart i:hover { opacity: 1; background: var(--accent-hi); }
+.cu-chart:hover i:not(:hover) { opacity: .45; }
+.cu-chart .cu-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--dim); font-size: 14px; }
+.cu-axis { display: flex; justify-content: space-between; margin-top: 8px; font: 500 12px var(--mono); color: var(--dim); }
+.cu-table-wrap { overflow-x: auto; margin-top: 18px; }
+.cu-table { width: 100%; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+.cu-table th { font: 600 12px var(--mono); letter-spacing: .04em; color: var(--dim); text-align: right; padding: 10px 14px; border-bottom: 1px solid var(--rim); white-space: nowrap; }
+.cu-table th:first-child, .cu-table td:first-child { text-align: left; padding-left: 0; }
+.cu-table td { text-align: right; padding: 11px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.cu-table td:last-child, .cu-table th:last-child { padding-right: 0; }
+.cu-table td.zero { color: var(--dim); }
+.cu-table tr.total td { font-weight: 600; border-bottom: 0; border-top: 1px solid var(--rim); }
+
 /* ----------------------------------------------------------- legal pages */
 .legal { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px; align-items: start; }
 .legal-toc { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; max-height: calc(100vh - 120px); overflow: auto; padding-right: 6px; }

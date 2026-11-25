@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261201">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261207">
 </head>
 <body data-page="account">
   <header data-site-header></header>
@@ -44,6 +44,24 @@
           <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
             <a class="btn" href="forgot.html">Change password</a>
             <button class="btn btn-ghost" type="button" data-signout>Sign out</button>
+          </div>
+        </div>
+        <div class="card" id="coin-usage">
+          <div class="cu-head">
+            <div>
+              <h3>Coin usage</h3>
+              <p class="dim" style="font-size:14px;margin-top:6px">Where your Coins went, on every device you use. Days are UTC; weeks start on Monday.</p>
+            </div>
+            <span class="chip" data-cu-since>-</span>
+          </div>
+          <div class="notice" data-notice role="status" style="margin-top:14px"></div>
+          <div class="cu-chart" data-cu-chart aria-label="Coins spent per day, last 30 days" role="img"></div>
+          <div class="cu-axis"><span data-cu-first>-</span><span data-cu-total></span><span>Today</span></div>
+          <div class="cu-table-wrap">
+            <table class="cu-table" data-cu-table>
+              <thead><tr><th scope="col">Feature</th><th scope="col">Today</th><th scope="col">This week</th><th scope="col">This month</th><th scope="col">Last month</th><th scope="col">All time</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
         <div class="card" id="topups">
@@ -184,8 +202,8 @@
   <footer data-site-footer></footer>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js?v=20261204"></script>
-  <script src="assets/js/api.js?v=20261204"></script>
+  <script src="assets/js/api.js?v=20261207"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
-  <script src="assets/js/auth.js?v=20261204"></script>
+  <script src="assets/js/auth.js?v=20261207"></script>
 </body>
 </html>
