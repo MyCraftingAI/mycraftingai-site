@@ -2230,12 +2230,13 @@
         });
       }
       if (t.matches("[data-pr-save]")) {
-        // Plans whose monthly price changes and that have subscribers: offer to move them too.
+        // Plans whose monthly price changes: offer to move their existing subscribers too (always shown,
+        // with how many it would reach - active subscriptions that aren't cancelling).
         var repriced = ["builder", "pro", "studio"].filter(function (id) {
           var a = PR.data.catalog.plans[id], b = PR.draft.plans[id];
-          return a && b && Number(a.price) !== Number(b.price) && (PR.data.subscribers || {})[id] > 0;
+          return a && b && Number(a.price) !== Number(b.price);
         });
-        var reach = repriced.reduce(function (n, id) { return n + PR.data.subscribers[id]; }, 0);
+        var reach = repriced.reduce(function (n, id) { return n + ((PR.data.subscribers || {})[id] || 0); }, 0);
         // Subscribers already told about a different new price for a plan being re-priced again.
         var announced = (PR.data.priceChanges || []).filter(function (r) {
           var a = PR.data.catalog.plans[r.plan], b = PR.draft.plans[r.plan];
@@ -2243,7 +2244,7 @@
         }).length;
         var moveFields = repriced.length ? [
           { name: "migrate", type: "checkbox", value: false,
-            label: "Move existing subscribers to the new price (" + num(reach) + " on " + repriced.map(function (id) {
+            label: "Move existing subscribers to the new price (" + (reach ? num(reach) + " active subscriber" + (reach === 1 ? "" : "s") : "no active subscribers right now") + " on " + repriced.map(function (id) {
               return PR.draft.plans[id].name + " " + usd(Math.round(Number(PR.data.catalog.plans[id].price) * 100)) + " → " + usd(Math.round(Number(PR.draft.plans[id].price) * 100));
             }).join(", ") + ")" },
           { name: "noticeDays", type: "select", value: "30", label: "Notice before a price increase",
@@ -2256,7 +2257,7 @@
                        (announced ? " Note: " + num(announced) + " subscriber" + (announced === 1 ? " was" : "s were") + " already told about a different new price for this plan. " +
                         "Unless you tick the box (which sends them the new figure), their change is paused so nobody is charged a price they weren't told." : "") }).then(function (v) {
           if (!v) return;
-          if (v.migrate) return ask({ title: "Email " + num(reach) + " subscriber" + (reach === 1 ? "" : "s") + " about their new price?", ok: "Save and notify",
+          if (v.migrate && reach) return ask({ title: "Email " + num(reach) + " subscriber" + (reach === 1 ? "" : "s") + " about their new price?", ok: "Save and notify",
                                       text: "Each subscriber gets a personal email with their current and new price and the date it starts. This can't be unsent - you can still withdraw a change for anyone in the list on this page, and they'll be told." })
             .then(function (ok) { return ok ? v : null; });
           return v;
