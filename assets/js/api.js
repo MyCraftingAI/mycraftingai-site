@@ -453,6 +453,8 @@
           return request("PUT", "/v1/admin/pricing", { catalog: catalog, migrateSubscribers: !!opts.migrate,
                                                        noticeDays: opts.noticeDays == null ? 30 : Number(opts.noticeDays) });
         },
+        /** Move a plan's existing subscribers to its current price (any time after a price change). */
+        moveSubscribers: function (plans, noticeDays) { return request("POST", "/v1/admin/pricing/price-changes", { plans: plans, noticeDays: Number(noticeDays) }); },
         retryPriceChanges: function () { return request("POST", "/v1/admin/pricing/price-changes/retry"); },
         cancelPriceChange: function (subscriptionId) { return request("DELETE", "/v1/admin/pricing/price-changes/" + encodeURIComponent(subscriptionId)); },
         /** Optional customer email about the last price change / the running promotion ("pricing" | "promotion"). */

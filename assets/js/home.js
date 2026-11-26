@@ -869,7 +869,20 @@
         "</b> / month after";
     }
     if (plan.period === "day" && plan.dailyCoins) return "<b>" + coinsFmt(plan.dailyCoins) + "</b> Coins / day";
+    if (plan.starterCoins) {
+      return "<b>" + coinsFmt(plan.starterCoins) + "</b> Coins to start<br><span class=\"bonus\">once, valid for " + validFor(plan) + "</span>";
+    }
+    if (plan.period === "day") return "Coins from top-ups";
     return "Coin allowances set with you";
+  }
+  /** "12 months" / "90 days": how long Free's starter Coins stay usable. */
+  function validFor(plan) {
+    var days = Number(plan.starterDays || 365), months = Math.round(days / 30.4);
+    return days >= 60 ? months + " months" : days + " days";
+  }
+  /** Free's starter Coins (given once) in a compare-table cell. */
+  function starterCell(p, text) {
+    return p.starterCoins ? '<td class="mono">' + coinsFmt(p.starterCoins) + " " + text + "</td>" : NO;
   }
 
   function renderPlans() {
@@ -901,7 +914,10 @@
       return '<article class="plan reveal' + (plan.popular ? " popular" : "") + '" id="plan-' + esc(plan.id) + '">' +
         (plan.popular ? '<span class="tag">MOST PICKED</span>' : "") +
         "<h3>" + esc(plan.name) + '</h3><p class="tagline">' + esc(plan.tagline) + "</p>" +
-        '<div class="price">' + price + "</div>" + billed + '<div class="tokens">' + tokenLine(plan) + "</div>" +
+        '<div class="price">' + price + "</div>" +
+        // Prices are tax-exclusive: VAT / sales tax is added at checkout from the buyer's country.
+        (plan.price ? '<div class="vat">excl. VAT / sales tax</div>' : "") +
+        billed + '<div class="tokens">' + tokenLine(plan) + "</div>" +
         "<ul>" + items + "</ul>" + cta + "</article>";
     }).join("");
     $$(".plan.reveal", host).forEach(function (el, i) { setTimeout(function () { el.classList.add("in"); }, 80 * i); });
@@ -956,7 +972,7 @@
       body += row("Coins for 12 months", plans.map(function (p) {
         var year = yearlyOf(p);
         if (year) return '<td class="mono">' + coinsFmt(year.coins) + "</td>";
-        if (p.period === "day") return '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>";
+        if (p.period === "day") return p.dailyCoins ? '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>" : starterCell(p, "to start");
         return "<td>Custom</td>";
       }), "Ready from day one");
       body += row("Yearly bonus", plans.map(function (p) {
@@ -966,18 +982,19 @@
     } else {
       body += row("Coins in your first month", plans.map(function (p) {
         if (p.period === "month") return '<td class="mono">' + coinsFmt(p.firstMonthCoins) + "</td>";
-        if (p.period === "day") return '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>";
+        if (p.period === "day") return p.dailyCoins ? '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>" : starterCell(p, "to start");
         return "<td>Custom</td>";
       }), "Once per account");
       body += row("Coins every month after", plans.map(function (p) {
         if (p.period === "month") return '<td class="mono">' + coinsFmt(p.monthlyCoins) + "</td>";
-        if (p.period === "day") return '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>";
+        if (p.period === "day") return p.dailyCoins ? '<td class="mono">' + coinsFmt(p.dailyCoins) + " / day</td>" : NO;
         return "<td>Custom</td>";
       }));
     }
     body += row("Allowance renews", plans.map(function (p) {
       var monthly = yearly && yearlyOf(p) ? "Yearly, on your billing date" : "Monthly, on your billing date";
-      return "<td>" + (p.period === "month" ? monthly : p.period === "day" ? "Daily, 00:00 UTC" : "As agreed") + "</td>";
+      var free = p.dailyCoins ? "Daily, 00:00 UTC" : "Doesn't refill" + (p.starterCoins ? " (valid " + validFor(p) + ")" : "");
+      return "<td>" + (p.period === "month" ? monthly : p.period === "day" ? free : "As agreed") + "</td>";
     }));
     body += row("Pay only for what the AI uses", plans.map(function () { return YES; }),
       "Cached project context costs a fraction of new input");

@@ -811,6 +811,7 @@ html[data-theme]:not([data-theme="classic"]) body::before {
 .billing-toggle .save { padding: 2px 8px; border-radius: 999px; background: rgba(61,214,140,.14); color: var(--mint); font: 700 11px var(--mono); letter-spacing: .03em; }
 .billing-toggle button[aria-checked="true"] .save { background: rgba(255,255,255,.2); color: #fff; }
 .plan .billed { margin-top: 2px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.plan .vat { margin-top: 2px; font-size: 12px; color: var(--faint); letter-spacing: .01em; }
 .plan .billed .saving { color: var(--mint); font-weight: 600; }
 .plan .tokens .bonus { color: var(--mint); }
 

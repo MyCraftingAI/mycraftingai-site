@@ -1,10 +1,10 @@
 {
-  "version": "1.1.13",
+  "version": "1.1.14",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 61022902,
-  "sha256": "7b5e18266a149c5ff26154cdcce366999118a3af1fb9ac860d38b50380445520",
-  "published": "2026-11-25T20:20:53Z",
+  "size": 61026717,
+  "sha256": "f020e9fad832d188aa0f884d656241d9362f7d9bb0fc2d2c0e803012ee133bb3",
+  "published": "2026-11-26T09:36:05Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **A cleaner, more focused look**: a denser workspace with a new title bar (project switcher, search and the page's actions in one place), a slim page header, and a status strip along the bottom. Files & Code gets a docked Console, Gradle Build and Agent Activity panel with a prompt bar.\n- **Coin usage**: the new Coin card in the sidebar opens a breakdown of where your Coins went - per feature (Assistant, Texture Studio, 3D Studio, Version Converter and more) and per day. When you're signed in it matches your account page on the website.\n- **Coins everywhere**: the cost of each AI request also appears in the Build & Run log and the activity list.\n- **Plugin builds fix themselves**: a plugin set up with Maven (pom.xml) is converted to a Gradle build automatically, an outdated Shadow plugin (\"Unsupported class file major version\") is updated, and the plugin is compiled for the Java its Minecraft version's server runs - all without AI and without Coins.\n- **Stop from the Assistant**: while the game, a build or a server runs, the Run button on the Assistant page turns into Stop."
+  "notes": "- **New Free plan**: every account gets **100 free Coins** to start, usable for 12 months, instead of 10 Coins a day. The app shows how many are left and until when (status bar, Coin usage window and Settings > Account).\n- **Clearer Coin details**: the Coin usage window and Settings show your free starter Coins separately from top-ups, and no longer say \"refills\" for a plan that doesn't refill.\n- **Payments are live**: Builder, Pro and Studio (monthly or yearly) and Coin top-ups are now open to everyone on mycraftingai.com. Prices are shown without VAT or sales tax; where it applies, it's added at checkout."
 }

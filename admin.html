@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css?v=20261201">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261207">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261126r">
 </head>
 <body data-page="admin">
   <div class="ad-gate" data-gate>
@@ -188,15 +188,20 @@
       <section class="ad-view" data-view="revenue" hidden>
         <div class="ad-head">
           <button class="ad-menu" data-menu aria-label="Menu">☰</button>
-          <div><h1>Revenue</h1><p>Subscriptions from Dodo Payments. Amounts are what each subscriber really pays, before tax (discounts and older prices included); Dodo's fee (4% + $0.40) is included in them. "est." = list price until Dodo reports that subscription's payment.</p></div>
+          <div><h1>Revenue</h1><p>Subscriptions billed through Dodo Payments. All amounts are in US dollars, before tax.</p></div>
         </div>
         <div class="ad-grid ad-kpis" data-rev-kpis></div>
         <div class="ad-grid ad-two">
-          <div class="ad-card"><h3>Monthly revenue by plan</h3><p class="ad-sub">Active and past-due subscriptions</p><div class="ad-bars" data-rev-plans></div></div>
-          <div class="ad-card"><h3>Subscription health</h3><p class="ad-sub">Where every subscription stands</p><div class="ad-rows" data-rev-health></div></div>
+          <div class="ad-card"><h3>Monthly revenue by plan</h3><p class="ad-sub">What running subscriptions pay per month, before Dodo's fees</p><div class="ad-bars" data-rev-plans></div></div>
+          <div class="ad-card"><h3>This month at Dodo</h3><p class="ad-sub" data-rev-received-sub>What Dodo actually received and kept, from its balance ledger</p><div class="ad-rows" data-rev-received></div></div>
         </div>
-        <div class="ad-section-title">Subscriptions</div>
-        <div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Price</th><th>Renews / ends</th><th>Started</th></tr></thead><tbody data-rev-subs></tbody></table></div>
+        <div class="ad-section-title">Current subscriptions</div>
+        <div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Customer</th><th>Plan</th><th>Status</th><th>Pays</th><th>Next payment / ends</th><th>Since</th></tr></thead><tbody data-rev-subs></tbody></table></div>
+        <details class="ad-ended" data-rev-ended-box hidden>
+          <summary class="ad-section-title" data-rev-ended-title>Ended subscriptions</summary>
+          <div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Customer</th><th>Plan</th><th>How it ended</th><th>Last paid</th><th>Ended</th><th>Started</th></tr></thead><tbody data-rev-ended></tbody></table></div>
+        </details>
+        <p class="ad-hint" data-rev-foot></p>
       </section>
 
       <!-- Coin gifts -->
@@ -564,9 +569,9 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/plans.js?v=20261204"></script>
-  <script src="assets/js/api.js?v=20261207"></script>
+  <script src="assets/js/api.js?v=20261126m"></script>
   <script src="assets/js/ui.js?v=20261118b"></script>
-  <script src="assets/js/admin.js?v=20261207b"></script>
+  <script src="assets/js/admin.js?v=20261126r"></script>
   <script src="assets/js/admin-community.js?v=20261118b"></script>
   <script src="assets/js/admin-learning.js?v=20261125"></script>
 </body>

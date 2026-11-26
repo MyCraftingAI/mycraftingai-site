@@ -113,7 +113,7 @@
       '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4F63F5"/><g fill="#fff"><rect x="14" y="6" width="4" height="4"/><rect x="14" y="10" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="10" y="14" width="4" height="4"/><rect x="18" y="14" width="4" height="4"/><rect x="22" y="14" width="4" height="4"/><rect x="14" y="18" width="4" height="4"/><rect x="14" y="22" width="4" height="4"/></g><rect x="14" y="14" width="4" height="4" fill="#fff" opacity=".5"/></svg>' +
       "MyCraftingAI</a>" +
       "<blockquote><p>Your mods live in normal folders on your PC. The account only keeps your plan and your Coin balance.</p>" +
-      '<div class="quote-meta">Free: 10 Coins a day &middot; pay only for what the AI uses &middot; refills 00:00 UTC</div></blockquote>';
+      '<div class="quote-meta">Free: 100 Coins to start, valid 12 months &middot; pay only for what the AI uses</div></blockquote>';
   }
 
   /** On the public site with no server yet: say so and switch the form off. */
@@ -425,7 +425,7 @@
   function accountPage() {
     var root = document.body;
     if (api.mode === "offline") { notice(root, "info", api.messages.not_live); return; }
-    var resetsAt = null, monthly = false;
+    var resetsAt = null, monthly = false, noRefill = false, starterUntil = null;
     api.me().then(function (me) {
       var usage = me.usage || {};
       // Coins (servers from before Coins sent only milli-coin counts: 1,000 = 1 Coin).
@@ -453,16 +453,21 @@
       $("[data-meter]").style.background = share >= 100 ? "var(--ruby)" : (share > 80 ? "var(--amber)" : "var(--accent)");
       $("[data-plan-chip]").textContent = me.plan.name;
       var allowance = c.allowance;
+      // Free: no daily refill - starter Coins given once (valid 12 months), then top-ups or a plan.
+      noRefill = !monthly && allowance != null && !allowance;
+      starterUntil = c.starterExpiresAt ? new Date(c.starterExpiresAt) : null;
+      var day = function (d) { return d.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }); };
       $("[data-plan]").textContent = me.plan.name + (allowance ? " · " + coinText(allowance) + " Coins" +
         (yearly ? " / year (incl. yearly bonus)" : monthly ? " / month" + (usage.firstMonth ? " (first month)" : "") : " / day") : "");
       var split = $("[data-usage-split]");
       if (split && allowance != null) {
-        var parts = [["Plan Coins", coinText(c.allowanceLeft) + " of " + coinText(allowance) + " left"]];
+        var parts = allowance ? [["Plan Coins", coinText(c.allowanceLeft) + " of " + coinText(allowance) + " left"]] : [];
+        if (c.starterLeft) parts.push(["Free starter Coins", coinText(c.starterLeft) + " left" + (starterUntil ? " · valid until " + day(starterUntil) : "")]);
         if (c.topupLeft) parts.push(["Top-up Coins", coinText(c.topupLeft) + " left"]);
         if (c.giftLeft) parts.push(["Gift Coins", coinText(c.giftLeft) + " left"]);
         if (c.debt) parts.push(["Owed after your last request", "-" + coinText(c.debt)]);
         split.innerHTML = parts.map(function (p) { return '<div class="row"><span>' + p[0] + "</span><span>" + p[1] + "</span></div>"; }).join("");
-        split.hidden = false;
+        split.hidden = !parts.length;
       }
       if (c.debt) {
         notice(root, "warn", "Your last AI request cost " + coinText(c.debt) + " Coins more than you had left. That's paid from your next Coins (a top-up, a gift or your plan's renewal); new requests wait until your balance is above 0.");
@@ -778,6 +783,17 @@
     }
 
     function tick() {
+      if (noRefill) {
+        // Free plan: nothing refills - say what the Coins are and how to get more (once is enough).
+        var free = $("[data-reset-line]");
+        if (free && !free.dataset.done) {
+          free.dataset.done = "1";
+          free.innerHTML = (starterUntil ? "Your free starter Coins are valid until <b style=\"color:var(--text)\">" +
+            starterUntil.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) + "</b>. " : "") +
+            "The Free plan doesn't refill: top up or choose a plan for more Coins. Each request costs what the AI really used.";
+        }
+        return;
+      }
       if (!resetsAt) return;
       var ms = Math.max(0, resetsAt - Date.now());
       if (monthly) {

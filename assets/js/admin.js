@@ -176,7 +176,9 @@
       $("[data-kpis]").innerHTML = [
         kpi("Users", num(u.total), num(u.verified) + " verified · " + num(u.activeLast7d) + " active 7d"),
         kpi("New sign-ups", num(u.new7d), num(u.newToday) + " today · last 7 days"),
-        kpi("Paying", num(u.paying), u.total ? Math.round(u.paying / u.total * 100) + "% of all users" : "-"),
+        kpi("On a paid plan", num(u.paying), u.subscribed != null
+          ? num(u.subscribed) + " subscribed · " + num(Math.max(0, u.paying - u.subscribed)) + " given by an admin"
+          : (u.total ? Math.round(u.paying / u.total * 100) + "% of all users" : "-")),
         kpi("Coins spent today", coinText(c.today != null ? c.today : t.today / 1000), num(t.requestsToday) + " requests · " + num(t.aiUsersToday) + " users"),
         kpi("Coins spent 7 days", coinText(c.last7d != null ? c.last7d : t.last7d / 1000), num(t.requests7d) + " requests · " + fmt(t.allTime) + " all-time"),
         kpi("AI keys", num(keys.active || 0) + " active", num(keys.degraded || 0) + " need attention · " + num(keys.disabled || 0) + " off", (keys.degraded || 0) > 0 || !(keys.active > 0))
@@ -218,7 +220,8 @@
         kpi("Downloads 7d", num(ins.downloads.started), num(today.downloads || 0) + " today · " + num(ins.github.total) + " on GitHub"),
         kpi("App users today", num(ins.active.dau), num(ins.active.wau) + " this week · " + num(ins.active.mau) + " this month"),
         kpi("Ad unlocks 7d", num(granted), (rw.completion == null ? "-" : rw.completion + "% completed") + " · " + num(rw.live.textures) + " live now"),
-        kpi("MRR", money(rev.mrr), num(rev.counts.active) + " active · " + num(rev.counts.cancelling) + " cancelling"),
+        kpi("Monthly revenue", money(rev.mrr), (rev.netMrr != null ? money(rev.netMrr) + " after Dodo's fees · " : "") +
+          num(rev.counts.active + rev.counts.pastDue) + " subscriber" + (rev.counts.active + rev.counts.pastDue === 1 ? "" : "s")),
         kpi("AI provider balance", b ? balanceText(b) : "-", b ? (b.low ? "running low - top up soon" : "remaining credit · " + num(ins.days.reduce(function (s, d) { return s + d.aiRequests; }, 0)) + " AI requests 7d") : "couldn't check", !!(b && b.low)),
         kpi("Service", off.length ? "Attention" : "All on", off.length ? off.join(" · ") : "AI, sign-ups and ad unlocks running", !!off.length)
       ].join("");
@@ -386,34 +389,59 @@
   /* -------------------------------------------------------------- revenue */
   var SUB_TAG = { active: "good", pending: "info", past_due: "warn", on_hold: "bad", cancelling: "warn", cancelled: "bad",
                   expired: "bad", paused: "warn", failed: "bad" };
+  /** Plain-language subscription states for the revenue tables. */
+  var SUB_LABEL = { active: "Active", pending: "Starting", past_due: "Payment due", on_hold: "On hold - payment failed",
+                    cancelling: "Cancelling", cancelled: "Cancelled", expired: "Ended", paused: "Paused",
+                    failed: "Payment failed - never started" };
   function loadRevenue() {
     A.revenue().then(function (r) {
-      var c = r.counts;
+      var c = r.counts, running = c.active + c.pastDue, f = r.fees || {}, rec = r.received;
+      var cents = function (v) { return usd(v || 0); };
       $("[data-rev-kpis]").innerHTML = [
-        kpi("MRR", money(r.mrr), "what subscribers really pay, before tax · yearly plans count 1/12" +
-            (r.mrrEstimated ? " · " + num(r.mrrEstimated) + " at list price until their next payment" : "")),
-        kpi("ARR", money(r.arr, false), "MRR × 12"),
-        kpi("Paying subscribers", num(c.active + c.pastDue), num(c.cancelling) + " cancelling at period end"),
-        kpi("Avg. per subscriber", money(r.arpu), "per month"),
-        kpi("This month", "+" + num(r.newThisMonth), num(r.cancelledThisMonth) + " cancelled"),
-        kpi("Needs attention", num(c.pastDue), "payments failing (past due)", c.pastDue > 0)
+        kpi("Monthly revenue", money(r.mrr), num(running) + " running subscription" + (running === 1 ? "" : "s") + " · before Dodo's fees"),
+        kpi("Yours after fees", money(r.netMrr != null ? r.netMrr : r.mrr), "estimate: Dodo keeps about " + (f.estimatePercent || 6) + "% + $0.40 per payment"),
+        kpi("Received this month", rec ? cents(rec.net) : "-", rec ? cents(rec.gross) + " paid · " + cents(rec.fees) + " Dodo fees" + (rec.refunds ? " · " + cents(rec.refunds) + " refunds" : "") : "Dodo's report isn't available right now"),
+        kpi("Subscribers", num(running), (c.cancelling ? num(c.cancelling) + " cancelling · " : "") + (r.arpu ? money(r.arpu) + " average per month" : "no subscribers yet")),
+        kpi("New this month", "+" + num(r.newThisMonth), num(r.cancelledThisMonth) + " cancelled this month"),
+        kpi("Payment problems", num(c.pastDue), c.pastDue ? "renewals Dodo is retrying" : "all renewals paid", c.pastDue > 0)
       ].join("");
-      $("[data-rev-plans]").innerHTML = bars(r.byPlan.map(function (p) { return [p.name + " (" + p.subscribers + ")", Math.round(p.mrr), PLAN_COLOR[p.plan]]; })).replace(/<b>([\d,]+)<\/b>/g, "<b>$$$1</b>");
-      $("[data-rev-health]").innerHTML =
-        '<div class="r"><span>Active</span><b>' + num(c.active) + "</b></div>" +
-        '<div class="r"><span>Past due (renewal retrying)</span><b>' + num(c.pastDue) + "</b></div>" +
-        '<div class="r"><span>Cancelled, running to period end</span><b>' + num(c.cancelling) + "</b></div>" +
-        '<div class="r"><span>Ended</span><b>' + num(c.ended) + "</b></div>" +
-        '<div class="r"><span>Paid plans given by admins (no subscription)</span><b>' + num(r.complimentary) + "</b></div>";
-      $("[data-rev-subs]").innerHTML = r.subscriptions.length ? r.subscriptions.map(function (s) {
-        return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag paid">' + esc(s.planName) + "</span></td>" +
-          '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(s.status.replace("_", " ")) + "</span></td>" +
-          "<td>" + (s.price == null ? "-" : "$" + Number(s.price).toFixed(2) + (s.interval === "year" ? ' <span class="ad-tag info">/ year</span>' : '<span class="ad-muted"> / mo</span>') +
-            // Paid (or billed) differs from today's list price: an older price or a discount.
-            (s.priceSource !== "list" && s.listPrice != null && Math.abs(s.listPrice - s.price) >= 0.005 ? ' <span class="ad-muted" title="Current list price">(list $' + Number(s.listPrice).toFixed(2) + ")</span>" : "") +
-            (s.priceSource === "list" ? ' <span class="ad-muted" title="Real amount not reported by Dodo yet">(est.)</span>' : "")) + "</td>" +
-          "<td>" + (s.status === "cancelled" || s.status === "cancelling" ? "ends " + when(s.endsAt) : when(s.renewsAt)) + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
-      }).join("") : '<tr><td colspan="6"><div class="ad-empty">No subscriptions yet. They appear here as soon as Dodo Payments reports a payment.</div></td></tr>';
+      $("[data-rev-plans]").innerHTML = r.byPlan.length
+        ? bars(r.byPlan.map(function (p) { return [p.name + " (" + p.subscribers + ")", Math.round(p.mrr), PLAN_COLOR[p.plan]]; })).replace(/<b>([\d,]+)<\/b>/g, "<b>$$$1</b>")
+        : '<div class="ad-empty">No running subscriptions yet.</div>';
+      // What Dodo really took in this month: payments, its fees, refunds and what's left.
+      $("[data-rev-received]").innerHTML = rec ?
+        '<div class="r"><span>Customers paid (' + num(rec.payments) + " payment" + (rec.payments === 1 ? "" : "s") + ")</span><b>" + cents(rec.gross) + "</b></div>" +
+        '<div class="r"><span>Dodo fees</span><b>−' + cents(rec.fees) + "</b></div>" +
+        (rec.refunds ? '<div class="r"><span>Refunds and disputes</span><b>−' + cents(rec.refunds) + "</b></div>" : "") +
+        '<div class="r"><span><b>Yours (before payout)</b></span><b>' + cents(rec.net) + "</b></div>" +
+        '<div class="r"><span class="ad-muted">Dodo\'s fee per payment</span><span class="ad-muted">' + (f.basePercent || 4) + "% + $0.40, +" + (f.internationalPercent || 1.5) + "% for non-US cards, +" + (f.subscriptionPercent || 0.5) + "% on subscriptions</span></div>"
+        : '<div class="ad-empty">Dodo\'s balance report couldn\'t be read right now. Try again in a minute.</div>';
+      var current = r.subscriptions.filter(function (s) { return s.phase !== "ended"; });
+      var ended = r.subscriptions.filter(function (s) { return s.phase === "ended"; });
+      var per = function (s) { return s.interval === "year" ? " / year" : " / month"; };
+      $("[data-rev-subs]").innerHTML = current.length ? current.map(function (s) {
+        var price = s.price == null ? "-" : "$" + Number(s.price).toFixed(2) + '<span class="ad-muted">' + per(s) + "</span>";
+        var older = s.priceSource !== "list" && s.listPrice != null && s.price != null && Math.abs(s.listPrice - s.price) >= 0.005;
+        var next = s.status === "cancelling" || s.status === "cancelled" ? "Ends " + when(s.endsAt) : when(s.renewsAt);
+        return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag paid">' + esc(s.planName) + "</span>" + (s.interval === "year" ? ' <span class="ad-tag info">yearly</span>' : "") + "</td>" +
+          '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(SUB_LABEL[s.status] || s.status) + "</span></td>" +
+          "<td>" + price + (older ? '<div class="ad-muted" style="font-size:12px">price today: $' + Number(s.listPrice).toFixed(2) + "</div>" : "") +
+            (s.priceSource === "list" ? '<div class="ad-muted" style="font-size:12px">estimate until Dodo reports a payment</div>' : "") + "</td>" +
+          "<td>" + next + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
+      }).join("") : '<tr><td colspan="6"><div class="ad-empty">No running subscriptions. They appear here as soon as someone subscribes.</div></td></tr>';
+      $("[data-rev-ended-box]").hidden = !ended.length;
+      $("[data-rev-ended-title]").textContent = "Ended subscriptions (" + ended.length + ")";
+      $("[data-rev-ended]").innerHTML = ended.map(function (s) {
+        return '<tr data-open-user="' + esc(s.userId) + '" style="cursor:pointer"><td>' + userCell(s) + '</td><td><span class="ad-tag plan">' + esc(s.planName) + "</span></td>" +
+          '<td><span class="ad-tag ' + (SUB_TAG[s.status] || "plan") + '">' + esc(SUB_LABEL[s.status] || s.status) + "</span></td>" +
+          "<td>" + (s.lastPaid != null ? "$" + Number(s.lastPaid).toFixed(2) : '<span class="ad-muted">-</span>') + "</td>" +
+          "<td>" + (s.endsAt ? when(s.endsAt) : '<span class="ad-muted">-</span>') + '</td><td class="ad-muted">' + since(s.created) + "</td></tr>";
+      }).join("");
+      var foot = [];
+      if (r.complimentary) foot.push(num(r.complimentary) + " account" + (r.complimentary === 1 ? " has" : "s have") + " a paid plan given by an admin (no payments, not counted here).");
+      if (r.testHidden) foot.push(num(r.testHidden) + " subscription" + (r.testHidden === 1 ? "" : "s") + " from Dodo's test mode are kept for the record but left out of every figure.");
+      if (r.mrrEstimated) foot.push(num(r.mrrEstimated) + " subscription" + (r.mrrEstimated === 1 ? " is" : "s are") + " counted at the list price until Dodo reports its payment.");
+      $("[data-rev-foot]").textContent = foot.join(" ");
     }, function (e) { toast(errText(e), true); });
   }
 
@@ -1872,11 +1900,23 @@
     var exact = (cents + Math.round(Number(t.feeFixed) * 100)) / (1 - Number(t.feePercent) / 100);
     return Math.floor(Math.round(exact * 100) / 100 + 0.5);
   }
-  /** What a plan price leaves after Dodo's fee (the same percent + fixed fee as top-ups). */
-  function prNet(price, t) {
+  /** Dodo's published fees (same as the server's plans.DODO_FEE): 4% + $0.40, +1.5% for cards
+   *  outside the US, +0.5% on subscriptions; rounded up to the cent. */
+  var DODO_FEE = { base: 4.0, intl: 1.5, sub: 0.5, fixed: 40 };
+  function dodoFee(cents, intl, sub) {
+    var pct = DODO_FEE.base + (intl ? DODO_FEE.intl : 0) + (sub ? DODO_FEE.sub : 0);
+    return Math.ceil(cents * pct / 100 + DODO_FEE.fixed - 1e-9);
+  }
+  /** What one subscription payment leaves after Dodo's fee: non-US card (most customers) by default. */
+  function prNet(price, t, us) {
     if (!price) return 0;
     var cents = Math.round(price * 100);
-    return Math.round(cents - cents * Number(t.feePercent) / 100 - Number(t.feeFixed) * 100);
+    return Math.max(0, cents - dodoFee(cents, !us, true));
+  }
+  /** "$0.72 (non-US card) - $0.75 (US card)": the range a subscription payment leaves. */
+  function prKeep(price) {
+    var low = prNet(price, null, false), high = prNet(price, null, true);
+    return low === high ? usd(low) : usd(low) + "–" + usd(high);
   }
   function prNum(path, label, opts) {
     opts = opts || {};
@@ -1889,7 +1929,12 @@
   function prPlanCard(id) {
     var p = PR.draft.plans[id], base = "plans." + id, features = PR.data.features;
     var allowance;
-    if (p.period === "day") allowance = prNum(base + ".dailyCoins", "Coins per day", { unit: "Coins", step: 1, hint: "Refills at 00:00 UTC" });
+    if (p.period === "day") {
+      allowance = (id === "free" ? '<div class="ad-pr-two">' +
+        prNum(base + ".starterCoins", "Starter Coins (once)", { unit: "Coins", step: 10, hint: "Given once per account, AI only - never usable in a marketplace" }) +
+        prNum(base + ".starterDays", "Valid for", { unit: "days", step: 1, hint: "365 = 12 months" }) + "</div>" : "") +
+        prNum(base + ".dailyCoins", "Coins per day", { unit: "Coins", step: 1, hint: Number(p.dailyCoins) ? "Refills at 00:00 UTC" : "0 = no daily refill" });
+    }
     else if (p.period === "month") allowance = '<div class="ad-pr-two">' + prNum(base + ".firstMonthCoins", "First month", { unit: "Coins", step: 100, hint: "Once per account" }) +
       prNum(base + ".monthlyCoins", "Every month after", { unit: "Coins", step: 100,
         hint: p.monthlyCoins ? "≈ " + usd(Math.round(p.monthlyCoins * PR.coinValue() * 100)) + " of AI cost" : "" }) + "</div>";
@@ -1898,7 +1943,7 @@
       '<span class="ad-tag plan">' + esc(id) + "</span>" + (p.period === "month" ? '<span class="ad-tag info">monthly</span>' : p.period === "day" ? '<span class="ad-tag plan">daily</span>' : "") + "</div>" +
       '<div class="ad-form">' +
       (id === "free" ? "" : prNum(base + ".price", id === "enterprise" ? "Price (blank = Custom)" : "Price per month", { money: true, unit: "USD", placeholder: id === "enterprise" ? "Custom" : "",
-        hint: id !== "enterprise" && p.price ? "Charged by Dodo Payments - you keep about " + usd(prNet(p.price, PR.draft.topup)) + " after its " + PR.draft.topup.feePercent + "% + " + usd(Math.round(PR.draft.topup.feeFixed * 100)) + " fee" : "" })) +
+        hint: id !== "enterprise" && p.price ? "Before tax. You keep " + prKeep(p.price) + " per payment after Dodo's fee (6% + $0.40 for non-US cards, 4.5% + $0.40 for US cards)" : "" })) +
       allowance +
       '<label>Thinking modes<select data-pr="' + base + '.maxThinking" data-pr-type="text">' + PR.data.thinking.map(function (l) {
         return '<option value="' + l + '"' + (p.maxThinking === l ? " selected" : "") + ">" + esc(THINK_LABEL[l] || l) + "</option>";
@@ -1933,7 +1978,7 @@
       '<div class="ad-form ad-pr-grid">' +
       prNum("topup.pricePer1000Coins", "Price per 1,000 Coins", { money: true, unit: "USD",
         hint: "What you keep after Dodo's fee - " + (Math.round(margin * 10) / 10) + "× the AI cost of those Coins" }) +
-      prNum("topup.feePercent", "Dodo Payments fee", { money: true, unit: "%", hint: "Percent of the total - added on top: total = (price + fixed) / (1 − %)" }) +
+      prNum("topup.feePercent", "Dodo Payments fee", { money: true, unit: "%", hint: "Added on top of the price. Dodo takes 4% for US cards and 5.5% for cards from other countries - 5.5 covers everyone" }) +
       prNum("topup.feeFixed", "Fixed fee per payment", { money: true, unit: "USD", hint: "Dodo's fixed part ($0.40)" }) +
       prNum("topup.validityDays", "Valid for", { unit: "days" }) +
       prNum("topup.minCoins", "Smallest custom top-up", { unit: "Coins", step: 100 }) +
@@ -1989,7 +2034,7 @@
       return '<div class="r"><span>' + esc(p.name) + ' <span class="ad-muted" style="font-size:12px">' +
         (products[id] ? '<span class="ad-tag good" title="' + esc(products[id]) + '">Dodo product ready</span>' : '<span class="ad-tag plan">created on first checkout</span>') + "</span></span>" +
         "<span><s class=\"ad-muted\">" + usd(t.full) + "</s> <b>" + usd(t.price) + "</b> / year · " + usd(t.perMonth) + "/mo · save " + usd(t.full - t.price) +
-        " · <b>" + coinText(t.coins) + "</b> Coins (+" + coinText(t.bonus) + " bonus) · you keep ~" + usd(prNet(t.price / 100, PR.draft.topup)) + "</span></div>";
+        " · <b>" + coinText(t.coins) + "</b> Coins (+" + coinText(t.bonus) + " bonus) · you keep " + prKeep(t.price / 100) + "</span></div>";
     }).join("");
     return '<div class="ad-card ad-pr-yearly"><div class="ad-inline" style="justify-content:space-between"><div><h3>Yearly billing</h3>' +
       '<p class="ad-sub" style="margin:0">A 12-month option next to every monthly plan: price = monthly × 12 − the discount; Coins = monthly × 12 + the bonus, all available from day one. ' +
@@ -2003,14 +2048,31 @@
   }
   /** Existing subscribers moving to a new price (saved with "Move existing subscribers"). */
   function prMovesCard() {
-    var rows = PR.data.priceChanges || [];
-    if (!rows.length) return "";
+    var rows = PR.data.priceChanges || [], ov = PR.data.subscriberOverview || {};
+    // Per paid plan: who pays what, and a button to move them to the plan's current (saved) price.
+    var plans = ["builder", "pro", "studio"].filter(function (id) { return PR.data.catalog.plans[id]; }).map(function (id) {
+      var o = ov[id] || { active: 0, other: 0, cancelling: 0, pastDue: 0 }, p = PR.data.catalog.plans[id];
+      var price = usd(Math.round(Number(p.price) * 100));
+      var who = num(o.active) + " active subscriber" + (o.active === 1 ? "" : "s") +
+        (o.cancelling ? " · " + num(o.cancelling) + " cancelling" : "") + (o.pastDue ? " · " + num(o.pastDue) + " past due" : "");
+      var state = !o.active ? '<span class="ad-muted">No active subscribers to move</span>'
+        : !o.other ? '<span class="ad-tag good">All on ' + price + " or moving to it</span>"
+        : '<span class="ad-tag warn">' + num(o.other) + " not on " + price + " yet</span>";
+      return '<div class="r" style="align-items:center;gap:10px"><span><b>' + esc(p.name) + "</b> · " + price + ' / month now<br><span class="ad-muted" style="font-size:12px">' + who + "</span></span>" +
+        '<span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">' + state +
+        '<button class="btn btn-sm ' + (o.other ? "btn-primary" : "btn-ghost") + '" data-pm-move="' + id + '"' + (o.other ? "" : " disabled") + ">Move to " + price + "…</button></span></div>";
+    }).join("");
+    var head = '<div class="ad-card ad-pr-moves"><h3>Existing subscribers</h3>' +
+      '<p class="ad-sub">A new price applies to new subscriptions. Subscribers who signed up earlier keep their price until you move them: each gets a personal email with the date it starts ' +
+      "(an increase after a notice period, at a renewal - they can cancel before it; a decrease at their next renewal). Subscribers who are cancelling or behind on payment are left alone.</p>" +
+      '<div class="ad-rows">' + plans + "</div>";
+    if (!rows.length) return head + "</div>";
     var STATE = { notice: ["plan", "Notice period", "Emailed; scheduled in Dodo automatically when this renewal is next"],
                   scheduled: ["good", "Scheduled in Dodo", "Dodo charges the new price at this renewal"],
                   failed: ["bad", "Not accepted yet", "Retried automatically every 30 minutes"] };
     var failed = rows.filter(function (r) { return r.state === "failed"; }).length;
     function price(cents, cur) { return cents == null ? "-" : (!cur || cur === "USD" ? usd(cents) : (cents / 100).toFixed(2) + " " + esc(cur)); }
-    return '<div class="ad-card ad-pr-moves"><div class="ad-inline" style="justify-content:space-between;align-items:flex-start;gap:12px"><div><h3>Existing subscribers moving to a new price</h3>' +
+    return head + '<div class="ad-inline" style="justify-content:space-between;align-items:flex-start;gap:12px;margin-top:18px"><div><h4 class="ad-pr-h4" style="margin-top:0">Moving to a new price</h4>' +
       '<p class="ad-sub" style="margin:0">Every subscriber below was emailed their new price and start date. Nothing is charged early: Dodo charges the new price at that renewal. ' +
       "Someone who cancels before then keeps the old price until their paid period ends. Withdraw a change to keep a subscriber on their current price (they're told by email).</p></div>" +
       '<button class="btn ' + (failed ? "btn-primary" : "btn-ghost") + ' btn-sm" data-pm-retry>' + (failed ? "Retry " + num(failed) + " now" : "Check now") + "</button></div>" +
@@ -2211,9 +2273,30 @@
         return renderPricing();
       }
       if (t.dataset.prPackRemove != null) { PR.draft.topup.packs.splice(Number(t.dataset.prPackRemove), 1); return renderPricing(); }
+      if (t.dataset.pmMove) {
+        var mvId = t.dataset.pmMove, mvPlan = PR.data.catalog.plans[mvId], mvOv = (PR.data.subscriberOverview || {})[mvId] || {};
+        var mvPrice = usd(Math.round(Number(mvPlan.price) * 100));
+        if (prDirty()) return toast("Save or discard your unsaved price edits first - subscribers are moved to the saved price.", true);
+        return ask({ title: "Move " + num(mvOv.other) + " " + mvPlan.name + " subscriber" + (mvOv.other === 1 ? "" : "s") + " to " + mvPrice + " / month?", ok: "Email them and move",
+                     text: "Each gets a personal email now with their current price, the new price and the date it starts. An increase starts at their first renewal after the notice period " +
+                       "(they can cancel before it, and keep the plan until their paid period ends); a decrease at their next renewal. Yearly subscribers move to the matching yearly price. " +
+                       "Nothing is charged early. You can withdraw the change for anyone afterwards (they're told).",
+                     fields: [{ name: "noticeDays", type: "select", value: "30", label: "Notice before a price increase",
+                                options: [["30", "30 days (recommended)"], ["14", "14 days"], ["60", "60 days"], ["7", "7 days"]] }] }).then(function (v) {
+          if (!v) return;
+          run(t, A.moveSubscribers([mvId], v.noticeDays), null, "Moving").then(function (d) {
+            PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; PR.data.subscriberOverview = d.subscriberOverview; renderPricing();
+            var m = d.migration || {}, skipped = Object.keys(m.skipped || {}).map(function (k) { return num(m.skipped[k]) + " " + k; });
+            ask({ title: m.error ? "Subscribers not moved" : num(m.notified) + " subscriber" + (m.notified === 1 ? "" : "s") + " notified", ok: "OK",
+                  text: m.error || ((m.notified ? num(m.scheduled) + " already scheduled in Dodo, " + num(m.waiting) + " in their notice period (scheduled automatically when their renewal comes up)" +
+                    (m.failed ? ", " + num(m.failed) + " not accepted by Dodo yet - retried automatically" : "") + ". " : "No one needed an email. ") +
+                    (skipped.length ? "Left alone: " + skipped.join(", ") + "." : "")) });
+          });
+        });
+      }
       if (t.matches("[data-pm-retry]")) {
         return run(t, A.retryPriceChanges(), null, "Checking").then(function (d) {
-          PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; renderPricing();
+          PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; PR.data.subscriberOverview = d.subscriberOverview; renderPricing();
           var r = d.result || {};
           toast(r.failed ? num(r.failed) + " still not accepted by Dodo - see the note in the list" :
                 num(r.scheduled) + " scheduled in Dodo, " + num(r.waiting) + " still in their notice period", !!r.failed);
@@ -2225,7 +2308,7 @@
                      text: "They keep paying their current price, and get an email saying the announced change was withdrawn. A change already scheduled in Dodo is cancelled there too." }).then(function (v) {
           if (!v) return;
           run(t, A.cancelPriceChange(pmId), "Price change withdrawn - " + pmName + " was told by email", "Withdrawing").then(function (d) {
-            PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; renderPricing();
+            PR.data.priceChanges = d.priceChanges; PR.data.subscribers = d.subscribers; PR.data.subscriberOverview = d.subscriberOverview; renderPricing();
           });
         });
       }
@@ -2502,7 +2585,7 @@
           '<span data-mb="' + esc(m.address) + '">' + (m.ready ? '<span class="ad-tag good">configured</span>' : '<span class="ad-tag bad">no password</span>') + "</span></div>";
       }).join("");
       $("[data-plans-table]").innerHTML = s.plans.map(function (p) {
-        var allowance = p.period === "month" ? coinText(p.firstMonthCoins) + " Coins first month · " + coinText(p.monthlyCoins) + " / month" : p.period === "day" ? coinText(p.dailyCoins) + " Coins / day" : "Custom";
+        var allowance = p.period === "month" ? coinText(p.firstMonthCoins) + " Coins first month · " + coinText(p.monthlyCoins) + " / month" : p.period === "day" ? (Number(p.dailyCoins) ? coinText(p.dailyCoins) + " Coins / day" : coinText(p.starterCoins || 0) + " Coins once (no refill)") : "Custom";
         return '<div class="r"><span><span class="ad-dot" style="display:inline-block;margin-right:8px;background:' + (PLAN_COLOR[p.id] || "#888") + '"></span>' + esc(p.name) + "</span><span class=\"ad-mono\">" + allowance + "</span></div>";
       }).join("");
     }, function (e) { toast(errText(e), true); });
