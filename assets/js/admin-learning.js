@@ -126,6 +126,25 @@
     return '<ul style="margin:6px 0 0 18px;padding:0">' + (items || []).map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>";
   }
 
+  var RETRY = {
+    error_reported: "an error remained",
+    still_failing: "the change didn't work",
+    not_what_asked: "it didn't match the request",
+    same_request: "the request was repeated"
+  };
+
+  function retryTag(x) {
+    var n = Number(x.retry_count || 0);
+    if (!n) return "";
+    return ' <span class="ad-tag warn" title="The user had to follow up before this was fixed">Needed a follow-up' +
+      (n > 1 ? " " + kit().num(n) + "x" : "") + "</span>";
+  }
+
+  function attemptsText(n) {
+    n = Number(n || 1);
+    return n > 1 ? " &middot; up to <b>" + kit().num(n) + "</b> attempts" : "";
+  }
+
   function card(x) {
     var checked = st.selected[x.id] ? " checked" : "";
     return '<div class="ad-card" style="margin-bottom:10px" data-rl-card="' + esc(x.id) + '">' +
@@ -135,8 +154,9 @@
       '<div style="min-width:0"><b style="word-break:break-word">' + esc(x.error_title) + "</b><div class=\"ad-muted\" style=\"font-size:12px;margin-top:3px\">" +
       '<span class="ad-tag info">' + esc(label(x.type)) + "</span> " +
       '<span class="ad-tag plan">MC ' + esc(x.mc_version) + "</span> " +
-      '<span class="ad-tag ' + (x.source === "healer" ? "good" : "info") + '">' + (x.source === "healer" ? "Auto-Healer" : "AI") + "</span> " +
-      " &middot; seen <b>" + kit().num(x.repeat_count) + "x</b> &middot; last " + esc(kit().since(x.updated_at)) + "</div></div></label>" +
+      '<span class="ad-tag ' + (x.source === "healer" ? "good" : "info") + '">' + (x.source === "healer" ? "Auto-Healer" : "AI") + "</span>" +
+      retryTag(x) + " &middot; seen <b>" + kit().num(x.repeat_count) + "x</b>" + attemptsText(x.max_attempts) +
+      " &middot; last " + esc(kit().since(x.updated_at)) + "</div></div></label>" +
       '<div class="ad-row-actions" style="flex-shrink:0">' +
       '<button class="btn btn-sm btn-ghost" data-rl-open="' + esc(x.id) + '">Reports</button>' +
       '<button class="btn btn-sm btn-ghost" data-rl-one="' + esc(x.id) + '">Download</button>' +
@@ -160,7 +180,9 @@
           return '<div style="padding:10px 0;border-bottom:1px solid var(--line)">' +
             '<div class="ad-inline" style="justify-content:space-between;gap:10px"><span class="ad-muted" style="font-size:12px">' +
             esc(kit().when(o.created_at)) + (o.app_version ? " &middot; app " + esc(o.app_version) : "") + " &middot; " +
-            (o.source === "healer" ? "Auto-Healer" : "AI") + "</span>" +
+            (o.source === "healer" ? "Auto-Healer" : "AI") +
+            (Number(o.attempts || 1) > 1 ? " &middot; " + kit().num(o.attempts) + " attempts" : "") +
+            (o.retry_reason ? " &middot; follow-up: " + esc(RETRY[o.retry_reason] || o.retry_reason) : "") + "</span>" +
             '<button class="btn btn-sm btn-ghost" data-rl-del-entry="' + esc(o.id) + '" data-rl-lesson="' + esc(id) + '">Delete report</button></div>' +
             "<div style=\"margin-top:4px\"><b>" + esc(o.error_title) + "</b></div><div>" + esc(o.what_was_wrong) + "</div>" +
             changesList(o.what_changed) + diffBlock(o.code_diff_snippet) + "</div>";

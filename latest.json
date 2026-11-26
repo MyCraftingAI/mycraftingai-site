@@ -1,10 +1,10 @@
 {
-  "version": "1.1.14",
+  "version": "1.1.15",
   "url": "https://github.com/MyCraftingAI/mycraftingai-site/releases/latest/download/MyCraftingAI-Setup.exe",
-  "size": 61026717,
-  "sha256": "f020e9fad832d188aa0f884d656241d9362f7d9bb0fc2d2c0e803012ee133bb3",
-  "published": "2026-11-26T09:36:05Z",
+  "size": 61339986,
+  "sha256": "b3c437c59d58478d352e599c53bc3037ab22de7fb3342af796d903a1346a5288",
+  "published": "2026-11-26T16:57:27Z",
   "minOS": "Windows 10 (64-bit)",
   "available": true,
-  "notes": "- **New Free plan**: every account gets **100 free Coins** to start, usable for 12 months, instead of 10 Coins a day. The app shows how many are left and until when (status bar, Coin usage window and Settings > Account).\n- **Clearer Coin details**: the Coin usage window and Settings show your free starter Coins separately from top-ups, and no longer say \"refills\" for a plan that doesn't refill.\n- **Payments are live**: Builder, Pro and Studio (monthly or yearly) and Coin top-ups are now open to everyone on mycraftingai.com. Prices are shown without VAT or sales tax; where it applies, it's added at checkout."
+  "notes": "- **Chests and other blocks in the 3D Studio**: a new Block tab lists your mod's blocks. \"Make chest model & opening animation\" builds a chest with a hinged lid and open/close animations, and \"Connect to the code\" asks the Assistant to wire up the block entity, renderer and registrations. Mobs and their block entities are no longer mixed up.\n- **A clear next step after the Assistant**: when it adds a chest or another animated block, a card offers \"Open 3D Studio\" for that block, and then \"Connect\" once the model is ready.\n- **Cleaner textures from reference pictures**: the Detail level now fits the texture size (16\u00d716 tops out at Normal), and reference pictures guide only colours and layout, so results keep the vanilla look instead of turning noisy.\n- **Problems panel**: each new build replaces the list, a successful build clears it, and you can dismiss problems one by one or with \"Clear all\". Gradle's background notices no longer show up as problems.\n- **Better automatic repairs over time**: successful repairs (including fixes that only add imports) and requests that needed a follow-up are now summarised more reliably for the anonymised repair diagnostics described in the Privacy Policy, section 2.2."
 }

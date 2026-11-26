@@ -39,7 +39,7 @@
       <article class="prose">
         <span class="eyebrow">Legal</span>
         <h1>Privacy Policy</h1>
-        <p class="updated">Effective 25 November 2026</p>
+        <p class="updated">Effective 26 November 2026</p>
 
         <div class="legal-summary">
           <b>The short version</b>
@@ -48,7 +48,7 @@
             <li>The desktop app has no ads or ad trackers. Google shows ads only on our download and unlock pages, personalised only if you allow it.</li>
             <li>Your projects stay on your computer. The app sends only the files a request needs.</li>
             <li>We don't keep the text of your AI requests or the answers after they're delivered, and we never use them to train AI models. We keep only usage figures (Coins spent, the number of tokens processed and requests), per day and per billing period. AI providers get a random identifier, never your name or email address.</li>
-            <li>When an automatic repair fixes a build error and the next build passes, the app may send us an anonymised fix pattern - the kind of error, its cause, what changed and a few lines of code with paths and names removed - to improve the app's automatic fixes. It isn't linked to your account and never includes your chats, prompts, projects or personal details.</li>
+            <li>When an automatic repair fixes a build error, or a request that needed a follow-up is finally solved, and the next build passes, the app may send us an anonymised fix pattern - the kind of error, its cause, what changed, how many attempts it took and a few lines of code with paths and names removed - to improve the app's automatic fixes. It isn't linked to your account and never includes your chats, prompts, projects or personal details.</li>
             <li>Payments go through Dodo Payments, our merchant of record. Your card details go straight to them, never to us.</li>
             <li>When the AI is busy, your request may wait in a short line. Its place in line is kept for a few minutes at most.</li>
             <li>What you post in The Workshop, our community, is public, and every uploaded file is virus-scanned on our own servers. Private messages are seen only by the people in the conversation, and by moderators only if someone reports a message.</li>
@@ -74,7 +74,7 @@
           <li><b>The Workshop (community):</b> if you take part, we store what you publish - posts, comments, votes, saved and followed posts, the images and files you upload (with their file name, size and a SHA-256 fingerprint), your profile picture and bio - plus the reports you send, blocks you set, your notifications, and moderation records about your account (for example a mute and its reason). Posts, comments, files, your username, profile picture, bio, plan badge and karma are <b>public</b>. Your email address is never shown to other members.</li>
           <li><b>Private messages:</b> messages and attachments you send to another member are stored so both of you can read them, with the time they were sent and read. They're only visible to the two people in the conversation. Our team looks at a message only when a member reports it, when needed to investigate abuse or security issues, or when the law requires it. We don't use messages for advertising.</li>
           <li><b>Technical data:</b> when your browser or the app connects to us, our servers briefly log standard request data (IP address, time, requested address, response code) for security and troubleshooting.</li>
-          <li><b>Repair diagnostics:</b> anonymised technical records of successful automatic repairs (see <a href="#repair-diagnostics">2.2</a>). They contain no personal data and aren't linked to your account.</li>
+          <li><b>Repair diagnostics:</b> anonymised technical records of successful automatic repairs and of requests solved after a follow-up (see <a href="#repair-diagnostics">2.2</a>). They contain no personal data and aren't linked to your account.</li>
         </ul>
 
         <h3 id="ai">2.1 How AI processing works</h3>
@@ -97,14 +97,14 @@
         </ul>
 
         <h3 id="repair-diagnostics">2.2 Repair diagnostics</h3>
-        <p>The app repairs many build problems by itself: the Auto-Healer fixes known errors without AI, and Auto-fix asks the AI to correct the code. To make these fixes better for everyone, the app may send us a short, anonymised record after a repair - but only when the next build, check or test-server run succeeds.</p>
+        <p>The app repairs many build problems by itself: the Auto-Healer fixes known errors without AI, and Auto-fix asks the AI to correct the code. To make these fixes better for everyone, the app may send us a short, anonymised record after a repair - but only when the next build, check or test-server run succeeds. The same applies when a request wasn't solved on the first try (for example you report that the change still doesn't work, paste the error, or ask again) and a later attempt builds and passes: the record then describes what the first attempt missed and what finally fixed it. Confirmations such as "check again" or "thanks" don't count as a follow-up.</p>
         <ul>
-          <li><b>What a record contains.</b> The project type (for example Forge, NeoForge, Fabric, plugin or datapack) and Minecraft version; a short title of the error; what was wrong; the list of changes made; a code excerpt of at most 15 changed lines; and the app version.</li>
+          <li><b>What a record contains.</b> The project type (for example Forge, NeoForge, Fabric, plugin or datapack) and Minecraft version; a short title of the error; what was wrong; the list of changes made; a code excerpt of at most 15 changed lines; how many attempts it took and, for a request that needed a follow-up, the kind of follow-up (an error remained, the change didn't work, it didn't match the request, or the request was repeated); and the app version.</li>
           <li><b>What it never contains.</b> Your chat messages, prompts, whole files, project folder, account details, name, email address or username, your computer's user name, file paths, IP address, or the names of your project, mod, plugin or Java packages. The app replaces names and paths with neutral placeholders before anything leaves your computer, and our server removes anything that still looks personal (such as email addresses, paths, IP addresses and keys) before storing it.</li>
-          <li><b>How the summary is written.</b> For an AI repair, a very short summary of the error and the fix is written by the AI service you use, with a small request that costs a fraction of a Coin, like any request. Auto-Healer repairs are described without AI. If you have no Coins left, collection is paused, or anything goes wrong, nothing is sent and your work isn't affected.</li>
+          <li><b>How the summary is written.</b> A very short summary of the error and the fix is written by the AI service you use, with a small request that costs a fraction of a Coin, like any request. For a request that needed a follow-up, that summary request includes a shortened copy of your request and follow-up messages, with names and paths removed, so the AI can describe what was missing; your words are not put into the record. Auto-Healer repairs are described without AI. If you have no Coins left or the AI service can't be used, the app writes a plain summary itself from the error and the changed lines, without AI and without using Coins. If collection is paused or anything else goes wrong, nothing is sent and your work isn't affected.</li>
           <li><b>Not linked to you.</b> Records are stored without your account ID, device or IP address. To prevent abuse, the server counts how many records an account sends per hour under a one-way key that is deleted after an hour.</li>
           <li><b>How we use them.</b> Our team groups the records by project type and Minecraft version and uses them to improve the app's automatic fixes, build and check rules, code templates and the instructions the app gives the AI. They aren't used to train AI models, for advertising, or sold.</li>
-          <li><b>Your choice.</b> Records come only from automatic repairs. If you turn off "Auto-fix build errors" and "Repair without AI first" in Build &amp; Run's Run settings, none are sent. Because records aren't linked to any account, we can't find or delete a single person's records on request.</li>
+          <li><b>Your choice.</b> Records come only from automatic repairs and from requests the Assistant solved after a follow-up. If you turn off "Auto-fix build errors" and "Repair without AI first" in Build &amp; Run's Run settings, none are sent. Because records aren't linked to any account, we can't find or delete a single person's records on request.</li>
         </ul>
 
         <h2 id="not-collect">3. What we don't collect</h2>
