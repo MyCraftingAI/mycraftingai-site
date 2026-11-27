@@ -18,7 +18,10 @@
   function kit() { return MCA.adminKit; }
 
   var TYPE_LABEL = { forge: "Forge", neoforge: "NeoForge", fabric: "Fabric", quilt: "Quilt", plugins: "Plugins", datapacks: "Datapacks" };
-  var st = { type: "", version: "", query: "", sort: "repeats", page: 1, open: {}, selected: {}, tree: null };
+  var st = { type: "", version: "", query: "", sort: "repeats", page: 1, open: {}, selected: {}, tree: null,
+             filters: { status: "", stage: "", layer: "", category: "", minRepeat: 0 } };
+  var STATUS_TAG = { VERIFIED_FIXED: ["good", "Verified fixed"], UNRESOLVED: ["warn", "Unresolved"], REGRESSED: ["danger", "Regressed"] };
+  var STAGE_LABEL = { static: "Static check", build: "Build", smoke: "Start-up", functional: "Functional test", vision: "Vision" };
 
   function label(type) { return TYPE_LABEL[type] || type; }
   function kpi(k, v, s, warn) {
@@ -100,7 +103,9 @@
   /* --------------------------------------------------------------- list */
   function list() {
     var host = $("[data-rl-list]");
-    return L.lessons({ type: st.type, version: st.version, query: st.query, sort: st.sort, page: st.page }).then(function (d) {
+    var q = { type: st.type, version: st.version, query: st.query, sort: st.sort, page: st.page };
+    Object.keys(st.filters).forEach(function (k) { q[k] = st.filters[k]; });
+    return L.lessons(q).then(function (d) {
       if (!d.lessons.length) {
         host.innerHTML = '<div class="ad-card ad-empty">' + (st.query ? "No lesson matches that search." : "No lessons here yet.") + "</div>";
         return;
@@ -145,6 +150,59 @@
     return n > 1 ? " &middot; up to <b>" + kit().num(n) + "</b> attempts" : "";
   }
 
+  /** Full build verification: outcome, stage, test id, layer and how often it ended fixed. */
+  function outcomeTags(x) {
+    var tag = STATUS_TAG[x.status] || STATUS_TAG.VERIFIED_FIXED;
+    var total = Number(x.fixed_count || 0) + Number(x.unresolved_count || 0) + Number(x.regressed_count || 0);
+    return ' <span class="ad-tag ' + tag[0] + '">' + tag[1] + "</span>" +
+      (x.stage && x.stage !== "build" ? ' <span class="ad-tag plan">' + esc(STAGE_LABEL[x.stage] || x.stage) + "</span>" : "") +
+      (x.check_id ? ' <span class="ad-tag info" style="font-family:var(--mono)">' + esc(x.check_id) + "</span>" : "") +
+      (x.layer ? ' <span class="ad-tag">' + esc(x.layer.replace("_", " ")) + "</span>" : "") +
+      (total ? " &middot; fixed <b>" + Math.round(100 * Number(x.success_rate || 0)) + "%</b> of " + kit().num(total) : "");
+  }
+
+  function patternsBlock(lessonId, patterns) {
+    if (!patterns || !patterns.length) return "";
+    return '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">' +
+      '<div class="ad-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">' +
+      "Fixes that worked &middot; promoted rules go into the app's prompts</div>" +
+      patterns.map(function (p) {
+        return '<div class="ad-inline" style="justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">' +
+          '<div style="min-width:0"><div>' + (p.rule_text ? esc(p.rule_text) : '<span class="ad-muted">No rule written yet</span>') + "</div>" +
+          '<div class="ad-muted" style="font-size:12px;margin-top:3px">applied ' + kit().num(p.applied) + "x &middot; verified " +
+          kit().num(p.verified) + "x &middot; " + Math.round(100 * Number(p.success_rate || 0)) + "% success" +
+          (p.regressed ? " &middot; <b>regressed " + kit().num(p.regressed) + "x</b>" : "") +
+          (p.eligible && !p.promoted ? ' &middot; <span class="ad-tag good">ready to promote</span>' : "") +
+          (p.promoted ? ' &middot; <span class="ad-tag info">in the prompts</span>' : "") + "</div></div>" +
+          '<div class="ad-row-actions" style="flex-shrink:0">' +
+          '<button class="btn btn-sm btn-ghost" data-rl-rule="' + esc(p.id) + '" data-rl-rule-text="' + esc(p.rule_text || "") + '">Edit rule</button>' +
+          '<button class="btn btn-sm ' + (p.promoted ? "btn-danger" : "btn-primary") + '" data-rl-promote="' + esc(p.id) + '" data-rl-on="' +
+          (p.promoted ? "0" : "1") + '" data-rl-lesson="' + esc(lessonId) + '">' + (p.promoted ? "Remove from prompts" : "Promote") + "</button></div></div>";
+      }).join("") + "</div>";
+  }
+
+  function editRule(btn) {
+    kit().ask({
+      title: "Rule for the app's prompts",
+      text: "One clear instruction the AI follows for this type and Minecraft version, e.g. \"Chests have 27 slots; a double chest has 54.\"",
+      fields: [{ name: "rule", label: "Rule", value: btn.dataset.rlRuleText || "", placeholder: "Use … instead of …" }],
+      ok: "Save"
+    }).then(function (v) {
+      if (!v) return;
+      kit().run(btn, L.pattern(btn.dataset.rlRule, { rule_text: v.rule || "" }), "Rule saved.").then(function () { load(); });
+    });
+  }
+
+  function promote(btn) {
+    var on = btn.dataset.rlOn === "1";
+    kit().run(btn, L.pattern(btn.dataset.rlPromote, { promoted: on }), on ? "Promoted - the app uses it from now on." : "Removed from the prompts.")
+      .then(function () {
+        var host = $('[data-rl-reports="' + btn.dataset.rlLesson + '"]');
+        if (host) host.innerHTML = "";
+        load();
+      });
+  }
+
   function card(x) {
     var checked = st.selected[x.id] ? " checked" : "";
     return '<div class="ad-card" style="margin-bottom:10px" data-rl-card="' + esc(x.id) + '">' +
@@ -155,7 +213,7 @@
       '<span class="ad-tag info">' + esc(label(x.type)) + "</span> " +
       '<span class="ad-tag plan">MC ' + esc(x.mc_version) + "</span> " +
       '<span class="ad-tag ' + (x.source === "healer" ? "good" : "info") + '">' + (x.source === "healer" ? "Auto-Healer" : "AI") + "</span>" +
-      retryTag(x) + " &middot; seen <b>" + kit().num(x.repeat_count) + "x</b>" + attemptsText(x.max_attempts) +
+      retryTag(x) + outcomeTags(x) + " &middot; seen <b>" + kit().num(x.repeat_count) + "x</b>" + attemptsText(x.max_attempts) +
       " &middot; last " + esc(kit().since(x.updated_at)) + "</div></div></label>" +
       '<div class="ad-row-actions" style="flex-shrink:0">' +
       '<button class="btn btn-sm btn-ghost" data-rl-open="' + esc(x.id) + '">Reports</button>' +
@@ -182,11 +240,14 @@
             esc(kit().when(o.created_at)) + (o.app_version ? " &middot; app " + esc(o.app_version) : "") + " &middot; " +
             (o.source === "healer" ? "Auto-Healer" : "AI") +
             (Number(o.attempts || 1) > 1 ? " &middot; " + kit().num(o.attempts) + " attempts" : "") +
-            (o.retry_reason ? " &middot; follow-up: " + esc(RETRY[o.retry_reason] || o.retry_reason) : "") + "</span>" +
+            (o.retry_reason ? " &middot; follow-up: " + esc(RETRY[o.retry_reason] || o.retry_reason) : "") +
+            (o.status && o.status !== "VERIFIED_FIXED" ? " &middot; <b>" + esc((STATUS_TAG[o.status] || [0, o.status])[1]) + "</b>" : "") +
+            (o.verify_mode ? " &middot; Full build " + esc(o.verify_mode.replace("_", " ")) + (o.round ? ", round " + kit().num(o.round) : "") : "") +
+            "</span>" +
             '<button class="btn btn-sm btn-ghost" data-rl-del-entry="' + esc(o.id) + '" data-rl-lesson="' + esc(id) + '">Delete report</button></div>' +
             "<div style=\"margin-top:4px\"><b>" + esc(o.error_title) + "</b></div><div>" + esc(o.what_was_wrong) + "</div>" +
             changesList(o.what_changed) + diffBlock(o.code_diff_snippet) + "</div>";
-        }).join("") + "</div>";
+        }).join("") + "</div>" + patternsBlock(id, d.fix_patterns);
     });
   }
 
@@ -266,6 +327,12 @@
     searchTimer = setTimeout(function () { st.query = e.target.value.trim(); st.page = 1; list().catch(fail); }, 300);
   });
   document.addEventListener("change", function (e) {
+    var filter = e.target.closest && e.target.closest("[data-rl-filter]");
+    if (filter) {
+      st.filters[filter.dataset.rlFilter] = filter.value;
+      st.page = 1;
+      return list().catch(fail);
+    }
     var sel = e.target.closest("[data-rl-select]");
     if (!sel) return;
     if (sel.checked) st.selected[sel.dataset.rlSelect] = true; else delete st.selected[sel.dataset.rlSelect];
@@ -297,6 +364,8 @@
     var op = t.closest("[data-rl-open]"); if (op) return openReports(op.dataset.rlOpen, op);
     var del = t.closest("[data-rl-del]"); if (del) return removeLesson(del, del.dataset.rlDel);
     var de = t.closest("[data-rl-del-entry]"); if (de) return removeEntry(de, de.dataset.rlDelEntry, de.dataset.rlLesson);
+    var rule = t.closest("[data-rl-rule]"); if (rule) return editRule(rule);
+    var pr = t.closest("[data-rl-promote]"); if (pr) return promote(pr);
     if (t.closest("[data-rl-clear]")) return clearScope(t.closest("[data-rl-clear]"));
   });
 

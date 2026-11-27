@@ -534,9 +534,16 @@
             q = q || {};
             return request("GET", "/v1/admin/repair-learning/lessons?type=" + encodeURIComponent(q.type || "") +
               "&mc_version=" + encodeURIComponent(q.version || "") + "&q=" + encodeURIComponent(q.query || "") +
-              "&sort=" + encodeURIComponent(q.sort || "repeats") + "&page=" + (q.page || 1));
+              "&sort=" + encodeURIComponent(q.sort || "repeats") + "&page=" + (q.page || 1) +
+              "&stage=" + encodeURIComponent(q.stage || "") + "&status=" + encodeURIComponent(q.status || "") +
+              "&layer=" + encodeURIComponent(q.layer || "") + "&category=" + encodeURIComponent(q.category || "") +
+              "&min_repeat=" + (q.minRepeat || 0));
           },
           lesson: function (id) { return request("GET", "/v1/admin/repair-learning/lessons/" + encodeURIComponent(id)); },
+          /** Edit a fix pattern's rule and promote it into the app's prompts (or take it out). */
+          pattern: function (id, body) {
+            return request("PATCH", "/v1/admin/repair-learning/fix-patterns/" + encodeURIComponent(id), body || {});
+          },
           removeLesson: function (id) { return request("DELETE", "/v1/admin/repair-learning/lessons/" + encodeURIComponent(id)); },
           removeEntry: function (id) { return request("DELETE", "/v1/admin/repair-learning/occurrences/" + encodeURIComponent(id)); },
           /** Clear a type, a type + version, or everything (confirm = the typed confirmation). */

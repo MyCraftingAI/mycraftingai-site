@@ -255,7 +255,25 @@
             <div class="ad-card" style="margin-bottom:12px">
               <div class="ad-inline" style="gap:10px;flex-wrap:wrap">
                 <input class="input" type="search" data-rl-query placeholder="Search error titles and causes…" style="flex:1;min-width:200px">
-                <div class="ad-seg" data-rl-sort><button data-sort="repeats" class="on">Most seen</button><button data-sort="recent">Newest</button></div>
+                <div class="ad-seg" data-rl-sort><button data-sort="repeats" class="on">Most seen</button><button data-sort="recent">Newest</button><button data-sort="success_rate">Least fixed</button></div>
+              </div>
+              <div class="ad-inline" style="gap:8px;flex-wrap:wrap;margin-top:10px" data-rl-filters>
+                <select class="input" data-rl-filter="status" style="width:auto">
+                  <option value="">Any outcome</option><option value="VERIFIED_FIXED">Verified fixed</option>
+                  <option value="UNRESOLVED">Unresolved</option><option value="REGRESSED">Regressed</option></select>
+                <select class="input" data-rl-filter="stage" style="width:auto">
+                  <option value="">Any stage</option><option value="static">Static check</option><option value="build">Build</option>
+                  <option value="smoke">Start-up</option><option value="functional">Functional test</option><option value="vision">Vision</option></select>
+                <select class="input" data-rl-filter="layer" style="width:auto">
+                  <option value="">Any layer</option><option value="mod_code">Mod code</option><option value="plugin_code">Plugin code</option>
+                  <option value="datapack">Datapack</option><option value="config">Config</option><option value="texture">Texture</option>
+                  <option value="3d_model">3D model</option><option value="animation">Animation</option><option value="build">Build</option></select>
+                <select class="input" data-rl-filter="category" style="width:auto">
+                  <option value="">Any category</option><option value="block">Block</option><option value="block_model">Block model</option>
+                  <option value="item">Item</option><option value="mob">Mob</option><option value="gui">GUI</option><option value="command">Command</option>
+                  <option value="event">Event</option><option value="function">Function</option><option value="recipe">Recipe</option><option value="worldgen">Worldgen</option></select>
+                <select class="input" data-rl-filter="minRepeat" style="width:auto">
+                  <option value="0">Any count</option><option value="2">Seen 2x+</option><option value="5">Seen 5x+</option><option value="20">Seen 20x+</option></select>
               </div>
               <div class="ad-inline" style="gap:8px;flex-wrap:wrap;margin-top:12px" data-rl-actions></div>
             </div>
